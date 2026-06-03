@@ -14,6 +14,9 @@ export default {
     inboxId: {
       type: Number,
       default: undefined,
+      contactName: {
+    type: String,
+    default: '',
     },
   },
   emits: ['onSend', 'cancel', 'update:show'],
@@ -71,6 +74,7 @@ export default {
       <WhatsAppTemplateReply
         v-else
         :template="selectedWaTemplate"
+        :contact-name="contactName"
         @reset-template="onResetTemplate"
         @send-message="onSendMessage"
       />

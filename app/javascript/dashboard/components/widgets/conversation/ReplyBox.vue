@@ -1435,6 +1435,7 @@ export default {
 
     <WhatsappTemplates
       :inbox-id="inbox.id"
+      :contact-name="currentContact.name"
       :show="showWhatsAppTemplatesModal"
       @close="hideWhatsappTemplatesModal"
       @on-send="onSendWhatsAppReply"

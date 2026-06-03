@@ -35,6 +35,10 @@ const props = defineProps({
       return true;
     },
   },
+  contactName: {
+    type: String,
+    default: '',
+  },
 });
 
 const emit = defineEmits(['sendMessage', 'resetTemplate', 'back']);
@@ -123,6 +127,14 @@ const initializeTemplateParameters = () => {
     props.template,
     hasMediaHeader.value
   );
+  // Preenche automaticamente a primeira variável do corpo
+  if (
+    props.contactName &&
+    processedParams.value?.body &&
+    processedParams.value.body['1'] !== undefined
+  ) {
+    processedParams.value.body['1'] = props.contactName;
+  }
 };
 
 const updateMediaUrl = value => {
