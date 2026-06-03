@@ -6,19 +6,20 @@ export default {
     TemplatesPicker,
     WhatsAppTemplateReply,
   },
-  props: {
-    show: {
-      type: Boolean,
-      default: false,
-    },
-    inboxId: {
-      type: Number,
-      default: undefined,
-      contactName: {
+ props: {
+  show: {
+    type: Boolean,
+    default: false,
+  },
+  inboxId: {
+    type: Number,
+    default: undefined,
+  },
+  contactName: {
     type: String,
     default: '',
-    },
   },
+},
   emits: ['onSend', 'cancel', 'update:show'],
   data() {
     return {
