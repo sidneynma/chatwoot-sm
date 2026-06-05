@@ -157,22 +157,36 @@ class SearchService
     accessable_inbox_ids.sort == current_account.inboxes.pluck(:id).sort
   end
 
-  def use_gin_search
-    current_account.feature_enabled?('search_with_gin')
-  end
+ def filter_contacts
+  contacts_query = current_account.contacts.where(
+    "name ILIKE :search OR email ILIKE :search OR phone_number
+    ILIKE :search OR identifier ILIKE :search",
+    search: "%#{search_query}%"
+  )
 
-  def filter_contacts
-    contacts_query = current_account.contacts.where(
-      "name ILIKE :search OR email ILIKE :search OR phone_number
-      ILIKE :search OR identifier ILIKE :search", search: "%#{search_query}%"
+  account_user = current_user.account_users.find_by(
+    account_id: current_account.id
+  )
+
+  permissions = account_user&.custom_role&.permissions || []
+
+  if permissions.include?('contact_assigned_only')
+    contacts_query = contacts_query.where(
+      id: current_account.conversations
+                         .where(assignee_id: current_user.id)
+                         .select(:contact_id)
     )
-
-    contacts_query = apply_time_filter(contacts_query, 'last_activity_at') if current_account.feature_enabled?('advanced_search')
-
-    @contacts = contacts_query.resolved_contacts(
-      use_crm_v2: current_account.feature_enabled?('crm_v2')
-    ).order_on_last_activity_at('desc').page(params[:page]).per(15)
   end
+
+  contacts_query = apply_time_filter(
+    contacts_query,
+    'last_activity_at'
+  ) if current_account.feature_enabled?('advanced_search')
+
+  @contacts = contacts_query.resolved_contacts(
+    use_crm_v2: current_account.feature_enabled?('crm_v2')
+  ).order_on_last_activity_at('desc').page(params[:page]).per(15)
+end
 
   def filter_articles
     articles_query = current_account.articles.text_search(search_query)
