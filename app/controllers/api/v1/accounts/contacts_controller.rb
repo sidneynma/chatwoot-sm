@@ -21,15 +21,18 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
     @contacts_count = @contacts.total_count
   end
 
-  def search
-    render json: { error: 'Specify search string with parameter q' }, status: :unprocessable_entity if params[:q].blank? && return
+ def search
+  render json: { error: 'Specify search string with parameter q' }, status: :unprocessable_entity if params[:q].blank? && return
 
-    contacts = Current.account.contacts.where(
-      'name ILIKE :search OR email ILIKE :search OR phone_number ILIKE :search OR contacts.identifier LIKE :search',
-      search: "%#{params[:q].strip}%"
-    )
-    @contacts = fetch_contacts_with_has_more(contacts)
-  end
+  contacts = Current.account.contacts.where(
+    'name ILIKE :search OR email ILIKE :search OR phone_number ILIKE :search OR contacts.identifier LIKE :search',
+    search: "%#{params[:q].strip}%"
+  )
+
+  contacts = apply_contact_permission_scope(contacts)
+
+  @contacts = fetch_contacts_with_has_more(contacts)
+end
 
   def import
     render json: { error: I18n.t('errors.contacts.import.failed') }, status: :unprocessable_entity and return if params[:import_file].blank?
@@ -51,10 +54,14 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
 
   # returns online contacts
   def active
-    contacts = Current.account.contacts.where(id: ::OnlineStatusTracker
-                  .get_available_contact_ids(Current.account.id))
-    @contacts = fetch_contacts(contacts)
-    @contacts_count = @contacts.total_count
+  contacts = Current.account.contacts.where(
+    id: ::OnlineStatusTracker.get_available_contact_ids(Current.account.id)
+  )
+
+  contacts = apply_contact_permission_scope(contacts)
+
+  @contacts = fetch_contacts(contacts)
+  @contacts_count = @contacts.total_count
   end
 
   def show; end
@@ -116,15 +123,39 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
 
   private
 
-  # TODO: Move this to a finder class
-  def resolved_contacts
-    return @resolved_contacts if @resolved_contacts
+def contact_assigned_only?
+  permissions = Current.user.account_user&.custom_role&.permissions || []
 
-    @resolved_contacts = Current.account.contacts.resolved_contacts(use_crm_v2: Current.account.feature_enabled?('crm_v2'))
+  permissions.include?('contact_assigned_only')
+end
 
-    @resolved_contacts = @resolved_contacts.tagged_with(params[:labels], any: true) if params[:labels].present?
-    @resolved_contacts
-  end
+def apply_contact_permission_scope(scope)
+  return scope unless contact_assigned_only?
+
+  scope.where(
+    id: Current.account.conversations
+              .where(assignee_id: Current.user.id)
+              .select(:contact_id)
+  )
+end
+
+# TODO: Move this to a finder class
+def resolved_contacts
+  return @resolved_contacts if @resolved_contacts
+
+  @resolved_contacts = Current.account.contacts.resolved_contacts(
+    use_crm_v2: Current.account.feature_enabled?('crm_v2')
+  )
+
+  @resolved_contacts = apply_contact_permission_scope(@resolved_contacts)
+
+  @resolved_contacts = @resolved_contacts.tagged_with(
+    params[:labels],
+    any: true
+  ) if params[:labels].present?
+
+  @resolved_contacts
+end
 
   def set_current_page
     @current_page = params[:page] || 1
@@ -201,9 +232,15 @@ class Api::V1::Accounts::ContactsController < Api::V1::Accounts::BaseController
   end
 
   def fetch_contact
-    contact_scope = Current.account.contacts
-    contact_scope = contact_scope.includes(contact_inboxes: [:inbox]) if @include_contact_inboxes
-    @contact = contact_scope.find(params[:id])
+  contact_scope = apply_contact_permission_scope(
+    Current.account.contacts
+  )
+
+  contact_scope = contact_scope.includes(
+    contact_inboxes: [:inbox]
+  ) if @include_contact_inboxes
+
+  @contact = contact_scope.find(params[:id])
   end
 
   def process_avatar_from_url
