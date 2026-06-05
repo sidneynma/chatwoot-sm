@@ -124,7 +124,11 @@ end
   private
 
 def contact_assigned_only?
-  permissions = Current.user.account_user&.custom_role&.permissions || []
+  account_user = Current.user.account_users.find_by(
+    account_id: Current.account.id
+  )
+
+  permissions = account_user&.custom_role&.permissions || []
 
   permissions.include?('contact_assigned_only')
 end
