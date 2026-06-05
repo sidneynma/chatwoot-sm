@@ -3,6 +3,7 @@ export const AVAILABLE_CUSTOM_ROLE_PERMISSIONS = [
   'conversation_unassigned_manage',
   'conversation_participating_manage',
   'contact_manage',
+  'contact_assigned_only',
   'report_manage',
   'knowledge_base_manage',
 ];
