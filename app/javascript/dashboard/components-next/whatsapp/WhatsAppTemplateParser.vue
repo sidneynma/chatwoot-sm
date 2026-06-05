@@ -141,7 +141,7 @@ const initializeTemplateParameters = () => {
     }
   });
 }
-
+};
 const updateMediaUrl = value => {
   processedParams.value.header ??= {};
   processedParams.value.header.media_url = value;
