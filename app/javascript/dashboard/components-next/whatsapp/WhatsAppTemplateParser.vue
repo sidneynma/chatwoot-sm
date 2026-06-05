@@ -128,14 +128,19 @@ const initializeTemplateParameters = () => {
     hasMediaHeader.value
   );
   // Preenche automaticamente a primeira variável do corpo
-  if (
-    props.contactName &&
-    processedParams.value?.body &&
-    processedParams.value.body['1'] !== undefined
-  ) {
-    processedParams.value.body['1'] = props.contactName;
-  }
-};
+  if (processedParams.value?.body) {
+  Object.keys(processedParams.value.body).forEach(key => {
+    switch (key.toLowerCase()) {
+      case 'nome':
+        processedParams.value.body[key] = props.contactName || '';
+        break;
+
+      case 'agent':
+        processedParams.value.body[key] = props.agentName || '';
+        break;
+    }
+  });
+}
 
 const updateMediaUrl = value => {
   processedParams.value.header ??= {};

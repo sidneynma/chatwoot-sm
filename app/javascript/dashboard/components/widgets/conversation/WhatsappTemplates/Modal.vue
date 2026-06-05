@@ -17,6 +17,10 @@ export default {
   },
   contactName: {
     type: String,
+    default: '',    
+  },
+  agentName: {
+    type: String,
     default: '',
   },
 },
@@ -76,6 +80,7 @@ export default {
         v-else
         :template="selectedWaTemplate"
         :contact-name="contactName"
+        :agent-name="agentName"
         @reset-template="onResetTemplate"
         @send-message="onSendMessage"
       />

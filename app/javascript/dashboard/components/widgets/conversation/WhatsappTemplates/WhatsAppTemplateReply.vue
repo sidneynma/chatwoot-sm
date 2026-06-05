@@ -11,6 +11,10 @@ defineProps({
     type: String,
     default: '',
   },
+  agentName: {
+    type: String,
+    default: '',
+  },
 });
 
 const emit = defineEmits(['sendMessage', 'resetTemplate']);
@@ -29,6 +33,7 @@ const handleResetTemplate = () => {
     <WhatsAppTemplateParser
       :template="template"
       :contact-name="contactName"
+      :agent-name="agentName"
       @send-message="handleSendMessage"
       @reset-template="handleResetTemplate"
     >
