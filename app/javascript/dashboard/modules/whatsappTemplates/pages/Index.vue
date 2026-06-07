@@ -112,36 +112,15 @@ const fetchTemplates = async () => {
   }
 };
 
-const pollForUpdatedTemplates = previousLastUpdated => {
-  let attempts = 0;
-
-  const poll = async () => {
-    await fetchTemplates();
-    attempts += 1;
-
-    if (
-      messageTemplatesLastUpdated.value !== previousLastUpdated ||
-      attempts >= 10
-    ) {
-      return;
-    }
-
-    setTimeout(poll, 3000);
-  };
-
-  setTimeout(poll, 3000);
-};
-
 const syncTemplates = async () => {
-  if (!selectedInboxId.value) return;
+  if (!selectedInboxId.value || isSyncing.value) return;
 
   isSyncing.value = true;
-  const previousLastUpdated = messageTemplatesLastUpdated.value;
 
   try {
     await InboxesAPI.syncTemplates(selectedInboxId.value);
+    await fetchTemplates();
     useAlert(t('WHATSAPP_TEMPLATES.ADMIN.SYNC_SUCCESS'));
-    pollForUpdatedTemplates(previousLastUpdated);
   } catch {
     useAlert(t('WHATSAPP_TEMPLATES.ADMIN.SYNC_ERROR'));
   } finally {
@@ -149,10 +128,17 @@ const syncTemplates = async () => {
   }
 };
 
+const noDataMessage = computed(() => {
+  if (messageTemplatesLastUpdated.value === null) {
+    return t('WHATSAPP_TEMPLATES.ADMIN.SYNC_TO_LOAD');
+  }
+
+  return t('WHATSAPP_TEMPLATES.ADMIN.NO_TEMPLATES');
+});
+
 watch(selectedInboxId, () => {
   messageTemplates.value = [];
   messageTemplatesLastUpdated.value = null;
-  fetchTemplates();
 });
 
 onMounted(async () => {
@@ -252,7 +238,7 @@ onMounted(async () => {
             />
           </div>
 
-          <div v-if="isFetching" class="flex justify-center py-10">
+          <div v-if="isFetching || isSyncing" class="flex justify-center py-10">
             <Spinner />
           </div>
 
@@ -260,7 +246,7 @@ onMounted(async () => {
             <BaseTable
               :headers="tableHeaders"
               :items="filteredTemplates"
-              :no-data-message="t('WHATSAPP_TEMPLATES.ADMIN.NO_TEMPLATES')"
+              :no-data-message="noDataMessage"
             >
               <template #row="{ items }">
                 <BaseTableRow

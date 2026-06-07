@@ -50,9 +50,10 @@
       "LAST_SYNC": "Last sync",
       "LAST_SYNC_NEVER": "Never",
       "SYNC_BUTTON": "Sync Templates",
-      "SYNC_SUCCESS": "Template sync initiated successfully. It may take a couple of minutes to update.",
+      "SYNC_SUCCESS": "Templates synced and list updated successfully.",
       "SYNC_ERROR": "Failed to sync templates. Please try again.",
       "FETCH_ERROR": "Failed to load templates. Please try again.",
+      "SYNC_TO_LOAD": "Select an inbox and click Sync Templates to load templates.",
       "NO_INBOXES": "No WhatsApp inboxes found. Create a WhatsApp inbox to manage templates.",
       "NO_TEMPLATES": "No templates found.",
       "FILTERS": {
