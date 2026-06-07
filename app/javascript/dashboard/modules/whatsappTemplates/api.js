@@ -9,6 +9,16 @@ class WhatsappTemplatesAPI extends ApiClient {
   get(inboxId) {
     return axios.get(this.url, { params: { inbox_id: inboxId } });
   }
+
+  create(inboxId, template) {
+    return axios.post(this.url, { inbox_id: inboxId, template });
+  }
+
+  delete(inboxId, name) {
+    return axios.delete(`${this.url}/${name}`, {
+      params: { inbox_id: inboxId },
+    });
+  }
 }
 
 export default new WhatsappTemplatesAPI();

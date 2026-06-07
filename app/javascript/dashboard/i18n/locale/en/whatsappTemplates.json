@@ -44,38 +44,92 @@
       "BUTTON_PARAMETER": "Enter button parameter"
     },
     "ADMIN": {
-      "TITLE": "WhatsApp Templates",
+      "TITLE": "Official WhatsApp Templates",
+      "SUBTITLE": "Manage the message templates approved by Meta for this inbox.",
       "INBOX_LABEL": "Inbox",
       "INBOX_PLACEHOLDER": "Select a WhatsApp inbox",
       "LAST_SYNC": "Last sync",
       "LAST_SYNC_NEVER": "Never",
-      "SYNC_BUTTON": "Sync Templates",
+      "SYNC_BUTTON": "Sync",
       "SYNC_SUCCESS": "Templates synced and list updated successfully.",
       "SYNC_ERROR": "Failed to sync templates. Please try again.",
       "FETCH_ERROR": "Failed to load templates. Please try again.",
-      "SYNC_TO_LOAD": "Select an inbox and click Sync Templates to load templates.",
+      "SYNC_TO_LOAD": "Select an inbox and click Sync to load templates.",
       "NO_INBOXES": "No WhatsApp inboxes found. Create a WhatsApp inbox to manage templates.",
       "NO_TEMPLATES": "No templates found.",
-      "FILTERS": {
-        "NAME": "Name",
-        "NAME_PLACEHOLDER": "Filter by name",
-        "STATUS": "Status",
-        "STATUS_PLACEHOLDER": "Filter by status",
-        "CATEGORY": "Category",
-        "CATEGORY_PLACEHOLDER": "Filter by category",
-        "LANGUAGE": "Language",
-        "LANGUAGE_PLACEHOLDER": "Filter by language"
+      "SEARCH_PLACEHOLDER": "Search by name...",
+      "NEW_TEMPLATE": "New Template",
+      "STATS": {
+        "TOTAL": "Total",
+        "APPROVED": "Approved",
+        "PENDING": "Pending",
+        "REJECTED": "Rejected"
       },
-      "TABLE": {
-        "NAME": "Name",
-        "STATUS": "Status",
-        "CATEGORY": "Category",
-        "LANGUAGE": "Language",
-        "COMPONENTS": "Components",
+      "STATUS_FILTER": {
+        "ALL": "All statuses",
+        "APPROVED": "Approved",
+        "PENDING": "Pending",
+        "REJECTED": "Rejected"
+      },
+      "STATUS": {
+        "APPROVED": "Approved",
+        "PENDING": "Pending",
+        "REJECTED": "Rejected",
+        "PAUSED": "Paused",
+        "DISABLED": "Disabled",
+        "IN_APPEAL": "In appeal",
+        "PENDING_DELETION": "Pending deletion"
+      },
+      "CATEGORY": {
+        "MARKETING": "Marketing",
+        "UTILITY": "Utility",
+        "AUTHENTICATION": "Authentication"
+      },
+      "CARD": {
+        "REASON": "Reason",
         "HEADER": "Header",
         "BODY": "Body",
         "FOOTER": "Footer",
-        "BUTTONS": "Buttons"
+        "BUTTONS": "Buttons",
+        "PREVIEW": "Preview",
+        "COMPONENTS": "Components",
+        "DELETE": "Delete template"
+      },
+      "DELETE": {
+        "TITLE": "Delete template",
+        "MESSAGE": "Are you sure you want to delete the template \"{name}\"? This action cannot be undone and removes it from Meta.",
+        "CONFIRM": "Delete",
+        "CANCEL": "Cancel",
+        "SUCCESS": "Template deleted successfully.",
+        "ERROR": "Failed to delete template. Please try again."
+      },
+      "CREATE": {
+        "TITLE": "New Template",
+        "DESCRIPTION": "Create a template to be submitted to Meta for approval.",
+        "NAME_LABEL": "Name",
+        "NAME_PLACEHOLDER": "e.g. order_confirmation",
+        "NAME_HINT": "Only lowercase letters, numbers and underscore.",
+        "CATEGORY_LABEL": "Category",
+        "LANGUAGE_LABEL": "Language",
+        "HEADER_LABEL": "Header (optional)",
+        "HEADER_PLACEHOLDER": "Header text",
+        "BODY_LABEL": "Body",
+        "BODY_PLACEHOLDER": "Hello {{1}}, your order {{2}} has been confirmed.",
+        "BODY_HINT": "Use {{1}}, {{2}}... for variables.",
+        "FOOTER_LABEL": "Footer (optional)",
+        "FOOTER_PLACEHOLDER": "Footer text",
+        "EXAMPLES_TITLE": "Variable examples",
+        "EXAMPLE_PLACEHOLDER": "Example for {variable}",
+        "SUBMIT": "Create template",
+        "CANCEL": "Cancel",
+        "SUCCESS": "Template created and sent for approval.",
+        "ERROR": "Failed to create template. Please try again.",
+        "VALIDATION": {
+          "NAME_REQUIRED": "Name is required.",
+          "NAME_FORMAT": "Use only lowercase letters, numbers and underscore.",
+          "BODY_REQUIRED": "Body is required.",
+          "EXAMPLES_REQUIRED": "Provide an example value for each variable."
+        }
       }
     }
   }

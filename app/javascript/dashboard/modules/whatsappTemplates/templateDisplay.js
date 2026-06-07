@@ -33,6 +33,3 @@ export const getTemplateButtons = template => {
 
   return buttonsComponent.buttons.map(button => button.text).join(', ');
 };
-
-export const getTemplateComponents = template =>
-  template.components?.map(component => component.type).join(', ') || '';

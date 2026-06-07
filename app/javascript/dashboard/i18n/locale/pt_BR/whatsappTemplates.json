@@ -42,6 +42,95 @@
       "MEDIA_URL_LABEL": "Digite a URL {type}",
       "DOCUMENT_NAME_PLACEHOLDER": "Informe o nome do arquivo do documento (ex.: Comprovante_2025.pdf)",
       "BUTTON_PARAMETER": "Insira o parâmetro do botão"
+    },
+    "ADMIN": {
+      "TITLE": "Templates WhatsApp Oficial",
+      "SUBTITLE": "Gerencie os modelos de mensagem aprovados pela Meta para esta caixa de entrada.",
+      "INBOX_LABEL": "Caixa de entrada",
+      "INBOX_PLACEHOLDER": "Selecione uma caixa de entrada do WhatsApp",
+      "LAST_SYNC": "Última sincronização",
+      "LAST_SYNC_NEVER": "Nunca",
+      "SYNC_BUTTON": "Sincronizar",
+      "SYNC_SUCCESS": "Templates sincronizados e lista atualizada com sucesso.",
+      "SYNC_ERROR": "Falha ao sincronizar os templates. Por favor, tente novamente.",
+      "FETCH_ERROR": "Falha ao carregar os templates. Por favor, tente novamente.",
+      "SYNC_TO_LOAD": "Selecione uma caixa de entrada e clique em Sincronizar para carregar os templates.",
+      "NO_INBOXES": "Nenhuma caixa de entrada do WhatsApp encontrada. Crie uma caixa do WhatsApp para gerenciar os templates.",
+      "NO_TEMPLATES": "Nenhum template encontrado.",
+      "SEARCH_PLACEHOLDER": "Buscar por nome...",
+      "NEW_TEMPLATE": "Novo Template",
+      "STATS": {
+        "TOTAL": "Total",
+        "APPROVED": "Aprovados",
+        "PENDING": "Pendentes",
+        "REJECTED": "Rejeitados"
+      },
+      "STATUS_FILTER": {
+        "ALL": "Todos os status",
+        "APPROVED": "Aprovado",
+        "PENDING": "Pendente",
+        "REJECTED": "Rejeitado"
+      },
+      "STATUS": {
+        "APPROVED": "Aprovado",
+        "PENDING": "Pendente",
+        "REJECTED": "Rejeitado",
+        "PAUSED": "Pausado",
+        "DISABLED": "Desativado",
+        "IN_APPEAL": "Em recurso",
+        "PENDING_DELETION": "Exclusão pendente"
+      },
+      "CATEGORY": {
+        "MARKETING": "Marketing",
+        "UTILITY": "Utilidade",
+        "AUTHENTICATION": "Autenticação"
+      },
+      "CARD": {
+        "REASON": "Motivo",
+        "HEADER": "Cabeçalho",
+        "BODY": "Corpo",
+        "FOOTER": "Rodapé",
+        "BUTTONS": "Botões",
+        "PREVIEW": "Pré-visualização",
+        "COMPONENTS": "Componentes",
+        "DELETE": "Excluir template"
+      },
+      "DELETE": {
+        "TITLE": "Excluir template",
+        "MESSAGE": "Tem certeza de que deseja excluir o template \"{name}\"? Esta ação não pode ser desfeita e o remove da Meta.",
+        "CONFIRM": "Excluir",
+        "CANCEL": "Cancelar",
+        "SUCCESS": "Template excluído com sucesso.",
+        "ERROR": "Falha ao excluir o template. Por favor, tente novamente."
+      },
+      "CREATE": {
+        "TITLE": "Novo Template",
+        "DESCRIPTION": "Crie um template para ser enviado à Meta para aprovação.",
+        "NAME_LABEL": "Nome",
+        "NAME_PLACEHOLDER": "ex.: confirmacao_pedido",
+        "NAME_HINT": "Apenas letras minúsculas, números e sublinhado.",
+        "CATEGORY_LABEL": "Categoria",
+        "LANGUAGE_LABEL": "Idioma",
+        "HEADER_LABEL": "Cabeçalho (opcional)",
+        "HEADER_PLACEHOLDER": "Texto do cabeçalho",
+        "BODY_LABEL": "Corpo",
+        "BODY_PLACEHOLDER": "Olá {{1}}, seu pedido {{2}} foi confirmado.",
+        "BODY_HINT": "Use {{1}}, {{2}}... para variáveis.",
+        "FOOTER_LABEL": "Rodapé (opcional)",
+        "FOOTER_PLACEHOLDER": "Texto do rodapé",
+        "EXAMPLES_TITLE": "Exemplos das variáveis",
+        "EXAMPLE_PLACEHOLDER": "Exemplo para {variable}",
+        "SUBMIT": "Criar template",
+        "CANCEL": "Cancelar",
+        "SUCCESS": "Template criado e enviado para aprovação.",
+        "ERROR": "Falha ao criar o template. Por favor, tente novamente.",
+        "VALIDATION": {
+          "NAME_REQUIRED": "O nome é obrigatório.",
+          "NAME_FORMAT": "Use apenas letras minúsculas, números e sublinhado.",
+          "BODY_REQUIRED": "O corpo é obrigatório.",
+          "EXAMPLES_REQUIRED": "Informe um valor de exemplo para cada variável."
+        }
+      }
     }
   }
 }
