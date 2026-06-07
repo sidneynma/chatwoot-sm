@@ -42,6 +42,40 @@
       "MEDIA_URL_LABEL": "Enter {type} URL",
       "DOCUMENT_NAME_PLACEHOLDER": "Enter document filename (e.g., Invoice_2025.pdf)",
       "BUTTON_PARAMETER": "Enter button parameter"
+    },
+    "ADMIN": {
+      "TITLE": "WhatsApp Templates",
+      "INBOX_LABEL": "Inbox",
+      "INBOX_PLACEHOLDER": "Select a WhatsApp inbox",
+      "LAST_SYNC": "Last sync",
+      "LAST_SYNC_NEVER": "Never",
+      "SYNC_BUTTON": "Sync Templates",
+      "SYNC_SUCCESS": "Template sync initiated successfully. It may take a couple of minutes to update.",
+      "SYNC_ERROR": "Failed to sync templates. Please try again.",
+      "FETCH_ERROR": "Failed to load templates. Please try again.",
+      "NO_INBOXES": "No WhatsApp inboxes found. Create a WhatsApp inbox to manage templates.",
+      "NO_TEMPLATES": "No templates found.",
+      "FILTERS": {
+        "NAME": "Name",
+        "NAME_PLACEHOLDER": "Filter by name",
+        "STATUS": "Status",
+        "STATUS_PLACEHOLDER": "Filter by status",
+        "CATEGORY": "Category",
+        "CATEGORY_PLACEHOLDER": "Filter by category",
+        "LANGUAGE": "Language",
+        "LANGUAGE_PLACEHOLDER": "Filter by language"
+      },
+      "TABLE": {
+        "NAME": "Name",
+        "STATUS": "Status",
+        "CATEGORY": "Category",
+        "LANGUAGE": "Language",
+        "COMPONENTS": "Components",
+        "HEADER": "Header",
+        "BODY": "Body",
+        "FOOTER": "Footer",
+        "BUTTONS": "Buttons"
+      }
     }
   }
 }

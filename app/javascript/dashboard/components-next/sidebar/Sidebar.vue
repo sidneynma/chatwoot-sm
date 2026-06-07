@@ -21,6 +21,7 @@ import ChannelIcon from 'next/icon/ChannelIcon.vue';
 import SidebarAccountSwitcher from './SidebarAccountSwitcher.vue';
 import Logo from 'next/icon/Logo.vue';
 import ComposeConversation from 'dashboard/components-next/NewConversation/ComposeConversation.vue';
+import { getCustomSidebarItems } from 'dashboard/modules';
 
 const props = defineProps({
   isMobileSidebarOpen: {
@@ -587,6 +588,7 @@ const menuItems = computed(() => {
         },
       ],
     },
+    ...getCustomSidebarItems({ t, accountScopedRoute }),
     {
       name: 'Portals',
       label: t('SIDEBAR.HELP_CENTER.TITLE'),
