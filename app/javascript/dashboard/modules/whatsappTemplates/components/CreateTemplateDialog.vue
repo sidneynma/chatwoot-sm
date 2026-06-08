@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
@@ -7,7 +7,7 @@ import Input from 'dashboard/components-next/input/Input.vue';
 import Select from 'dashboard/components-next/select/Select.vue';
 import TextArea from 'dashboard/components-next/textarea/TextArea.vue';
 
-const props = defineProps({
+defineProps({
   isCreating: {
     type: Boolean,
     default: false,
@@ -126,14 +126,14 @@ const handleSubmit = () => {
 
 const open = () => {
   resetForm();
-  dialogRef.value?.open();
+  nextTick(() => dialogRef.value?.open());
 };
 
 const close = () => {
   dialogRef.value?.close();
 };
 
-defineExpose({ open, close });
+defineExpose({ dialogRef, open, close });
 </script>
 
 <template>
@@ -149,6 +149,7 @@ defineExpose({ open, close });
     :is-loading="isCreating"
     :disable-confirm-button="isCreating"
     @confirm="handleSubmit"
+    @close="resetForm"
   >
     <div class="flex flex-col gap-4">
       <Input

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { useMapGetter, useStore } from 'dashboard/composables/store';
@@ -129,7 +129,9 @@ const syncTemplates = async () => {
   }
 };
 
-const openCreateDialog = () => createDialogRef.value?.open();
+const openCreateDialog = () => {
+  nextTick(() => createDialogRef.value?.open());
+};
 
 const handleCreate = async payload => {
   if (!selectedInboxId.value) return;
@@ -146,8 +148,7 @@ const handleCreate = async payload => {
     createDialogRef.value?.close();
   } catch (error) {
     useAlert(
-      error?.response?.data?.error ||
-        t('WHATSAPP_TEMPLATES.ADMIN.CREATE.ERROR')
+      error?.response?.data?.error || t('WHATSAPP_TEMPLATES.ADMIN.CREATE.ERROR')
     );
   } finally {
     isCreating.value = false;
@@ -156,7 +157,7 @@ const handleCreate = async payload => {
 
 const requestDelete = template => {
   templateToDelete.value = template;
-  deleteDialogRef.value?.open();
+  nextTick(() => deleteDialogRef.value?.open());
 };
 
 const confirmDelete = async () => {
@@ -174,8 +175,7 @@ const confirmDelete = async () => {
     templateToDelete.value = null;
   } catch (error) {
     useAlert(
-      error?.response?.data?.error ||
-        t('WHATSAPP_TEMPLATES.ADMIN.DELETE.ERROR')
+      error?.response?.data?.error || t('WHATSAPP_TEMPLATES.ADMIN.DELETE.ERROR')
     );
   } finally {
     isDeleting.value = false;
@@ -215,7 +215,9 @@ onMounted(async () => {
         </div>
 
         <template v-else>
-          <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <header
+            class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+          >
             <div class="flex flex-col gap-1">
               <h1 class="text-xl font-semibold text-n-slate-12">
                 {{ t('WHATSAPP_TEMPLATES.ADMIN.TITLE') }}
@@ -329,7 +331,7 @@ onMounted(async () => {
               v-for="template in filteredTemplates"
               :key="`${template.name}-${template.language}`"
               :template="template"
-              :can-manage="true"
+              can-manage
               @delete="requestDelete"
             />
           </div>
