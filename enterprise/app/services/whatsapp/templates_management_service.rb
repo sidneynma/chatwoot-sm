@@ -14,6 +14,7 @@ class Whatsapp::TemplatesManagementService
       language: params[:language].presence || DEFAULT_LANGUAGE,
       components: build_components(params)
     }
+    request_body[:parameter_format] = params[:parameter_format] if params[:parameter_format].present?
 
     response = HTTParty.post(
       "#{business_account_path}/message_templates",
@@ -35,17 +36,55 @@ class Whatsapp::TemplatesManagementService
 
   def build_components(params)
     components = []
-    components << { type: 'HEADER', format: 'TEXT', text: params[:header_text] } if params[:header_text].present?
+    components << build_header_component(params) if params[:header_text].present?
     components << build_body_component(params)
     components << { type: 'FOOTER', text: params[:footer_text] } if params[:footer_text].present?
     components
   end
 
+  def build_header_component(params)
+    header = { type: 'HEADER', format: 'TEXT', text: params[:header_text] }
+    attach_component_examples(header, params[:header_text], params, :header)
+    header
+  end
+
   def build_body_component(params)
     body = { type: 'BODY', text: params[:body_text] }
-    examples = Array(params[:body_examples]).map(&:to_s).reject(&:blank?)
-    body[:example] = { body_text: [examples] } if examples.present?
+    attach_component_examples(body, params[:body_text], params, :body)
     body
+  end
+
+  def attach_component_examples(component, text, params, component_type)
+    variables = extract_variables(text)
+    return if variables.blank?
+
+    examples = variable_examples_map(params)
+    return if examples.blank?
+
+    if params[:parameter_format] == 'NAMED'
+      named_params = variables.map do |variable|
+        { param_name: variable, example: examples[variable] }
+      end
+      example_key = component_type == :header ? :header_text_named_params : :body_text_named_params
+      component[:example] = { example_key => named_params }
+    else
+      positional_examples = variables.map { |variable| examples[variable] }
+      example_key = component_type == :header ? :header_text : :body_text
+      value = component_type == :body ? [positional_examples] : positional_examples
+      component[:example] = { example_key => value }
+    end
+  end
+
+  def extract_variables(text)
+    text.to_s.scan(/\{\{([^}]+)\}\}/).flatten.map(&:strip).uniq
+  end
+
+  def variable_examples_map(params)
+    examples = (params[:variable_examples] || {}).to_h.transform_keys(&:to_s)
+    return examples.reject { |_, value| value.blank? } if examples.present?
+
+    Array(params[:body_examples]).each_with_index.to_h { |example, index| [(index + 1).to_s, example.to_s] }
+      .reject { |_, value| value.blank? }
   end
 
   def build_result(response)

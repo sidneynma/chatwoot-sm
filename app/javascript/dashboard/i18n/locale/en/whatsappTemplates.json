@@ -114,8 +114,8 @@
         "HEADER_LABEL": "Header (optional)",
         "HEADER_PLACEHOLDER": "Header text",
         "BODY_LABEL": "Body",
-        "BODY_PLACEHOLDER": "Hello {{1}}, your order {{2}} has been confirmed.",
-        "BODY_HINT": "Use {{1}}, {{2}}... for variables.",
+        "BODY_PLACEHOLDER": "Hello {'{{'}nome{'}}'}, your order {'{{'}numero_pedido{'}}'} has been confirmed.",
+        "BODY_HINT": "Use positional {'{{'}1{'}}'}, {'{{'}2{'}}'} or named {'{{'}nome{'}}'}, {'{{'}numero_pedido{'}}'} variables.",
         "FOOTER_LABEL": "Footer (optional)",
         "FOOTER_PLACEHOLDER": "Footer text",
         "EXAMPLES_TITLE": "Variable examples",
@@ -128,7 +128,9 @@
           "NAME_REQUIRED": "Name is required.",
           "NAME_FORMAT": "Use only lowercase letters, numbers and underscore.",
           "BODY_REQUIRED": "Body is required.",
-          "EXAMPLES_REQUIRED": "Provide an example value for each variable."
+          "EXAMPLES_REQUIRED": "Provide an example value for each variable.",
+          "MIXED_VARIABLES": "Do not mix positional ({'{{'}1{'}}'}) and named ({'{{'}nome{'}}'}) variables in the same template.",
+          "NAMED_FORMAT": "Named variable {variable} must use lowercase letters, numbers and underscore, starting with a letter."
         }
       }
     }

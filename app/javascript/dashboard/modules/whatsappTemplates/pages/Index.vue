@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { useMapGetter, useStore } from 'dashboard/composables/store';
@@ -11,7 +11,7 @@ import Button from 'dashboard/components-next/button/Button.vue';
 import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
 import Select from 'dashboard/components-next/select/Select.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
-import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
+import TeleportWithDirection from 'dashboard/components-next/TeleportWithDirection.vue';
 import TemplateCard from '../components/TemplateCard.vue';
 import CreateTemplateDialog from '../components/CreateTemplateDialog.vue';
 
@@ -30,8 +30,8 @@ const searchQuery = ref('');
 const statusFilter = ref('ALL');
 const templateToDelete = ref(null);
 
-const createDialogRef = ref(null);
-const deleteDialogRef = ref(null);
+const showCreateDialog = ref(false);
+const showDeleteConfirm = ref(false);
 
 const whatsAppInboxes = useMapGetter('inboxes/getWhatsAppInboxes');
 const inboxesUiFlags = useMapGetter('inboxes/getUIFlags');
@@ -130,7 +130,7 @@ const syncTemplates = async () => {
 };
 
 const openCreateDialog = () => {
-  nextTick(() => createDialogRef.value?.open());
+  showCreateDialog.value = true;
 };
 
 const handleCreate = async payload => {
@@ -145,7 +145,7 @@ const handleCreate = async payload => {
     messageTemplates.value = data.message_templates || messageTemplates.value;
     messageTemplatesLastUpdated.value = new Date().toISOString();
     useAlert(t('WHATSAPP_TEMPLATES.ADMIN.CREATE.SUCCESS'));
-    createDialogRef.value?.close();
+    showCreateDialog.value = false;
   } catch (error) {
     useAlert(
       error?.response?.data?.error || t('WHATSAPP_TEMPLATES.ADMIN.CREATE.ERROR')
@@ -157,7 +157,12 @@ const handleCreate = async payload => {
 
 const requestDelete = template => {
   templateToDelete.value = template;
-  nextTick(() => deleteDialogRef.value?.open());
+  showDeleteConfirm.value = true;
+};
+
+const closeDeleteConfirm = () => {
+  showDeleteConfirm.value = false;
+  templateToDelete.value = null;
 };
 
 const confirmDelete = async () => {
@@ -171,8 +176,7 @@ const confirmDelete = async () => {
     );
     messageTemplates.value = data.message_templates || messageTemplates.value;
     useAlert(t('WHATSAPP_TEMPLATES.ADMIN.DELETE.SUCCESS'));
-    deleteDialogRef.value?.close();
-    templateToDelete.value = null;
+    closeDeleteConfirm();
   } catch (error) {
     useAlert(
       error?.response?.data?.error || t('WHATSAPP_TEMPLATES.ADMIN.DELETE.ERROR')
@@ -340,25 +344,52 @@ onMounted(async () => {
     </main>
 
     <CreateTemplateDialog
-      ref="createDialogRef"
+      v-model:open="showCreateDialog"
       :is-creating="isCreating"
       @submit="handleCreate"
     />
 
-    <Dialog
-      ref="deleteDialogRef"
-      type="alert"
-      :title="t('WHATSAPP_TEMPLATES.ADMIN.DELETE.TITLE')"
-      :description="
-        t('WHATSAPP_TEMPLATES.ADMIN.DELETE.MESSAGE', {
-          name: templateToDelete?.name,
-        })
-      "
-      :confirm-button-label="t('WHATSAPP_TEMPLATES.ADMIN.DELETE.CONFIRM')"
-      :cancel-button-label="t('WHATSAPP_TEMPLATES.ADMIN.DELETE.CANCEL')"
-      :is-loading="isDeleting"
-      :disable-confirm-button="isDeleting"
-      @confirm="confirmDelete"
-    />
+    <TeleportWithDirection to="body">
+      <div
+        v-if="showDeleteConfirm"
+        class="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-n-alpha-black1 backdrop-blur-sm"
+        @click.self="closeDeleteConfirm"
+      >
+        <div
+          class="flex flex-col w-full max-w-md gap-4 p-6 rounded-xl border shadow-xl border-n-weak bg-n-alpha-3 backdrop-blur-[100px]"
+          role="alertdialog"
+          aria-modal="true"
+          @click.stop
+        >
+          <div class="flex flex-col gap-2">
+            <h3 class="text-base font-medium text-n-slate-12">
+              {{ t('WHATSAPP_TEMPLATES.ADMIN.DELETE.TITLE') }}
+            </h3>
+            <p class="text-sm text-n-slate-11">
+              {{
+                t('WHATSAPP_TEMPLATES.ADMIN.DELETE.MESSAGE', {
+                  name: templateToDelete?.name,
+                })
+              }}
+            </p>
+          </div>
+          <div class="flex items-center justify-end gap-3">
+            <Button
+              variant="faded"
+              color="slate"
+              :label="t('WHATSAPP_TEMPLATES.ADMIN.DELETE.CANCEL')"
+              @click="closeDeleteConfirm"
+            />
+            <Button
+              color="ruby"
+              :label="t('WHATSAPP_TEMPLATES.ADMIN.DELETE.CONFIRM')"
+              :is-loading="isDeleting"
+              :disabled="isDeleting"
+              @click="confirmDelete"
+            />
+          </div>
+        </div>
+      </div>
+    </TeleportWithDirection>
   </section>
 </template>

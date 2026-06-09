@@ -114,8 +114,8 @@
         "HEADER_LABEL": "Cabeçalho (opcional)",
         "HEADER_PLACEHOLDER": "Texto do cabeçalho",
         "BODY_LABEL": "Corpo",
-        "BODY_PLACEHOLDER": "Olá {{1}}, seu pedido {{2}} foi confirmado.",
-        "BODY_HINT": "Use {{1}}, {{2}}... para variáveis.",
+        "BODY_PLACEHOLDER": "Olá {'{{'}nome{'}}'}, seu pedido {'{{'}numero_pedido{'}}'} foi confirmado.",
+        "BODY_HINT": "Use variáveis posicionais {'{{'}1{'}}'}, {'{{'}2{'}}'} ou nomeadas {'{{'}nome{'}}'}, {'{{'}numero_pedido{'}}'}.",
         "FOOTER_LABEL": "Rodapé (opcional)",
         "FOOTER_PLACEHOLDER": "Texto do rodapé",
         "EXAMPLES_TITLE": "Exemplos das variáveis",
@@ -128,7 +128,9 @@
           "NAME_REQUIRED": "O nome é obrigatório.",
           "NAME_FORMAT": "Use apenas letras minúsculas, números e sublinhado.",
           "BODY_REQUIRED": "O corpo é obrigatório.",
-          "EXAMPLES_REQUIRED": "Informe um valor de exemplo para cada variável."
+          "EXAMPLES_REQUIRED": "Informe um valor de exemplo para cada variável.",
+          "MIXED_VARIABLES": "Não misture variáveis posicionais ({'{{'}1{'}}'}) e nomeadas ({'{{'}nome{'}}'}) no mesmo template.",
+          "NAMED_FORMAT": "A variável nomeada {variable} deve usar letras minúsculas, números e sublinhado, começando com letra."
         }
       }
     }
