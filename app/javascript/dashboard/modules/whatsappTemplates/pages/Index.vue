@@ -345,6 +345,7 @@ onMounted(async () => {
 
     <CreateTemplateDialog
       v-model:open="showCreateDialog"
+      :inbox-id="selectedInboxId"
       :is-creating="isCreating"
       @submit="handleCreate"
     />

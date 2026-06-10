@@ -1,12 +1,15 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useAlert } from 'dashboard/composables';
 
 import Button from 'dashboard/components-next/button/Button.vue';
 import TeleportWithDirection from 'dashboard/components-next/TeleportWithDirection.vue';
+import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import Select from 'dashboard/components-next/select/Select.vue';
 import TextArea from 'dashboard/components-next/textarea/TextArea.vue';
+import WhatsappTemplatesAPI from '../api';
 import {
   detectParameterFormat,
   extractVariablesInOrder,
@@ -17,6 +20,10 @@ const props = defineProps({
   open: {
     type: Boolean,
     default: false,
+  },
+  inboxId: {
+    type: [Number, String],
+    default: null,
   },
   isCreating: {
     type: Boolean,
@@ -29,16 +36,21 @@ const emit = defineEmits(['update:open', 'submit']);
 const { t } = useI18n();
 
 const NAME_REGEX = /^[a-z0-9_]+$/;
+const MEDIA_HEADER_TYPES = ['IMAGE', 'VIDEO', 'DOCUMENT'];
 
 const form = ref({
   name: '',
   category: 'UTILITY',
   language: 'pt_BR',
+  header_type: 'NONE',
   header_text: '',
   body_text: '',
   footer_text: '',
 });
 
+const headerMediaFile = ref(null);
+const mediaInputRef = ref(null);
+const isUploadingMedia = ref(false);
 const exampleValues = ref({});
 const errors = ref({});
 
@@ -63,8 +75,55 @@ const languageOptions = [
   { value: 'es_MX', label: 'Español (MX)' },
 ];
 
+const headerTypeOptions = computed(() => [
+  {
+    value: 'NONE',
+    label: t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_TYPE_NONE'),
+  },
+  {
+    value: 'TEXT',
+    label: t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_TYPE_TEXT'),
+  },
+  {
+    value: 'IMAGE',
+    label: t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_TYPE_IMAGE'),
+  },
+  {
+    value: 'VIDEO',
+    label: t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_TYPE_VIDEO'),
+  },
+  {
+    value: 'DOCUMENT',
+    label: t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_TYPE_DOCUMENT'),
+  },
+]);
+
+const isMediaHeader = computed(() =>
+  MEDIA_HEADER_TYPES.includes(form.value.header_type)
+);
+
+const showTextHeader = computed(() => form.value.header_type === 'TEXT');
+
+const mediaAccept = computed(() => {
+  const acceptMap = {
+    IMAGE: 'image/jpeg,image/png',
+    VIDEO: 'video/mp4',
+    DOCUMENT: 'application/pdf,.pdf',
+  };
+  return acceptMap[form.value.header_type] || '';
+});
+
+const mediaHint = computed(() => {
+  const hintMap = {
+    IMAGE: t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_MEDIA_HINT_IMAGE'),
+    VIDEO: t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_MEDIA_HINT_VIDEO'),
+    DOCUMENT: t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_MEDIA_HINT_DOCUMENT'),
+  };
+  return hintMap[form.value.header_type] || '';
+});
+
 const headerVariables = computed(() =>
-  extractVariablesInOrder(form.value.header_text)
+  showTextHeader.value ? extractVariablesInOrder(form.value.header_text) : []
 );
 
 const bodyVariables = computed(() =>
@@ -82,17 +141,26 @@ const parameterFormat = computed(() =>
   detectParameterFormat(templateVariables.value)
 );
 
+const isSubmitting = computed(() => props.isCreating || isUploadingMedia.value);
+
 const resetForm = () => {
   form.value = {
     name: '',
     category: 'UTILITY',
     language: 'pt_BR',
+    header_type: 'NONE',
     header_text: '',
     body_text: '',
     footer_text: '',
   };
+  headerMediaFile.value = null;
+  if (mediaInputRef.value) mediaInputRef.value.value = '';
   exampleValues.value = {};
   errors.value = {};
+};
+
+const onMediaFileChange = event => {
+  headerMediaFile.value = event.target.files?.[0] || null;
 };
 
 const validate = () => {
@@ -111,6 +179,12 @@ const validate = () => {
   if (!form.value.body_text.trim()) {
     errors.value.body = t(
       'WHATSAPP_TEMPLATES.ADMIN.CREATE.VALIDATION.BODY_REQUIRED'
+    );
+  }
+
+  if (isMediaHeader.value && !headerMediaFile.value) {
+    errors.value.header_media = t(
+      'WHATSAPP_TEMPLATES.ADMIN.CREATE.VALIDATION.MEDIA_REQUIRED'
     );
   }
 
@@ -142,8 +216,32 @@ const validate = () => {
   return Object.keys(errors.value).length === 0;
 };
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (!validate()) return;
+
+  let headerHandle;
+
+  if (isMediaHeader.value) {
+    if (!props.inboxId) return;
+
+    isUploadingMedia.value = true;
+    try {
+      const { data } = await WhatsappTemplatesAPI.uploadMedia(
+        props.inboxId,
+        headerMediaFile.value,
+        form.value.header_type
+      );
+      headerHandle = data.header_handle;
+    } catch (error) {
+      useAlert(
+        error?.response?.data?.error ||
+          t('WHATSAPP_TEMPLATES.ADMIN.CREATE.VALIDATION.MEDIA_UPLOAD_FAILED')
+      );
+      return;
+    } finally {
+      isUploadingMedia.value = false;
+    }
+  }
 
   const variableExamples = Object.fromEntries(
     templateVariables.value.map(variable => [
@@ -156,7 +254,6 @@ const handleSubmit = () => {
     name: form.value.name.trim(),
     category: form.value.category,
     language: form.value.language,
-    header_text: form.value.header_text.trim(),
     body_text: form.value.body_text.trim(),
     footer_text: form.value.footer_text.trim(),
     variable_examples: variableExamples,
@@ -164,6 +261,13 @@ const handleSubmit = () => {
 
   if (parameterFormat.value) {
     payload.parameter_format = parameterFormat.value;
+  }
+
+  if (isMediaHeader.value) {
+    payload.header_format = form.value.header_type;
+    payload.header_handle = headerHandle;
+  } else if (showTextHeader.value && form.value.header_text.trim()) {
+    payload.header_text = form.value.header_text.trim();
   }
 
   emit('submit', payload);
@@ -177,6 +281,16 @@ watch(
   () => props.open,
   isOpen => {
     if (isOpen) resetForm();
+  }
+);
+
+watch(
+  () => form.value.header_type,
+  () => {
+    form.value.header_text = '';
+    headerMediaFile.value = null;
+    if (mediaInputRef.value) mediaInputRef.value.value = '';
+    delete errors.value.header_media;
   }
 );
 </script>
@@ -238,13 +352,73 @@ watch(
             </div>
           </div>
 
-          <Input
-            v-model="form.header_text"
-            :label="t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_LABEL')"
-            :placeholder="
-              t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_PLACEHOLDER')
-            "
-          />
+          <div
+            class="flex flex-col gap-4 p-4 rounded-xl border border-n-weak bg-n-surface-1"
+          >
+            <p class="text-sm font-medium text-n-slate-12">
+              {{ t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_SECTION_TITLE') }}
+            </p>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-sm font-medium text-n-slate-12">
+                {{ t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_TYPE_LABEL') }}
+              </label>
+              <ComboBox
+                v-model="form.header_type"
+                :options="headerTypeOptions"
+                class="w-full"
+              />
+            </div>
+
+            <Input
+              v-if="showTextHeader"
+              v-model="form.header_text"
+              :label="t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_LABEL')"
+              :placeholder="
+                t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_PLACEHOLDER')
+              "
+            />
+
+            <div v-if="isMediaHeader" class="flex flex-col gap-2">
+              <label class="text-sm font-medium text-n-slate-12">
+                {{ t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_MEDIA_LABEL') }}
+              </label>
+              <p class="text-sm text-n-slate-11">
+                {{ mediaHint }}
+              </p>
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <input
+                  ref="mediaInputRef"
+                  type="file"
+                  :accept="mediaAccept"
+                  class="hidden"
+                  @change="onMediaFileChange"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  color="slate"
+                  :label="
+                    t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_MEDIA_CHOOSE')
+                  "
+                  @click="mediaInputRef?.click()"
+                />
+                <span
+                  v-if="headerMediaFile"
+                  class="text-sm truncate text-n-slate-12"
+                >
+                  {{
+                    t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_MEDIA_SELECTED', {
+                      fileName: headerMediaFile.name,
+                    })
+                  }}
+                </span>
+              </div>
+              <span v-if="errors.header_media" class="text-sm text-n-ruby-9">
+                {{ errors.header_media }}
+              </span>
+            </div>
+          </div>
 
           <TextArea
             v-model="form.body_text"
@@ -300,8 +474,8 @@ watch(
               color="blue"
               class="w-full"
               :label="t('WHATSAPP_TEMPLATES.ADMIN.CREATE.SUBMIT')"
-              :is-loading="isCreating"
-              :disabled="isCreating"
+              :is-loading="isSubmitting"
+              :disabled="isSubmitting"
             />
           </div>
         </form>

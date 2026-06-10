@@ -111,8 +111,21 @@
         "NAME_HINT": "Apenas letras minúsculas, números e sublinhado.",
         "CATEGORY_LABEL": "Categoria",
         "LANGUAGE_LABEL": "Idioma",
-        "HEADER_LABEL": "Cabeçalho (opcional)",
+        "HEADER_SECTION_TITLE": "Cabeçalho",
+        "HEADER_TYPE_LABEL": "Tipo de cabeçalho",
+        "HEADER_TYPE_NONE": "Nenhum",
+        "HEADER_TYPE_TEXT": "Texto",
+        "HEADER_TYPE_IMAGE": "Imagem",
+        "HEADER_TYPE_VIDEO": "Vídeo",
+        "HEADER_TYPE_DOCUMENT": "Documento",
+        "HEADER_LABEL": "Texto do cabeçalho (opcional)",
         "HEADER_PLACEHOLDER": "Texto do cabeçalho",
+        "HEADER_MEDIA_LABEL": "Mídia de exemplo",
+        "HEADER_MEDIA_HINT_IMAGE": "JPEG ou PNG, até 5 MB.",
+        "HEADER_MEDIA_HINT_VIDEO": "MP4, até 16 MB.",
+        "HEADER_MEDIA_HINT_DOCUMENT": "PDF, até 100 MB.",
+        "HEADER_MEDIA_SELECTED": "Arquivo selecionado: {fileName}",
+        "HEADER_MEDIA_CHOOSE": "Escolher arquivo",
         "BODY_LABEL": "Corpo",
         "BODY_PLACEHOLDER": "Olá {'{{'}nome{'}}'}, seu pedido {'{{'}numero_pedido{'}}'} foi confirmado.",
         "BODY_HINT": "Use variáveis posicionais {'{{'}1{'}}'}, {'{{'}2{'}}'} ou nomeadas {'{{'}nome{'}}'}, {'{{'}numero_pedido{'}}'}.",
@@ -130,7 +143,9 @@
           "BODY_REQUIRED": "O corpo é obrigatório.",
           "EXAMPLES_REQUIRED": "Informe um valor de exemplo para cada variável.",
           "MIXED_VARIABLES": "Não misture variáveis posicionais ({'{{'}1{'}}'}) e nomeadas ({'{{'}nome{'}}'}) no mesmo template.",
-          "NAMED_FORMAT": "A variável nomeada {variable} deve usar letras minúsculas, números e sublinhado, começando com letra."
+          "NAMED_FORMAT": "A variável nomeada {variable} deve usar letras minúsculas, números e sublinhado, começando com letra.",
+          "MEDIA_REQUIRED": "Selecione um arquivo de exemplo para o cabeçalho de mídia.",
+          "MEDIA_UPLOAD_FAILED": "Falha ao enviar a mídia de exemplo. Por favor, tente novamente."
         }
       }
     }

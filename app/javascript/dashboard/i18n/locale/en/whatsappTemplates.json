@@ -111,8 +111,21 @@
         "NAME_HINT": "Only lowercase letters, numbers and underscore.",
         "CATEGORY_LABEL": "Category",
         "LANGUAGE_LABEL": "Language",
-        "HEADER_LABEL": "Header (optional)",
+        "HEADER_SECTION_TITLE": "Header",
+        "HEADER_TYPE_LABEL": "Header type",
+        "HEADER_TYPE_NONE": "None",
+        "HEADER_TYPE_TEXT": "Text",
+        "HEADER_TYPE_IMAGE": "Image",
+        "HEADER_TYPE_VIDEO": "Video",
+        "HEADER_TYPE_DOCUMENT": "Document",
+        "HEADER_LABEL": "Header text (optional)",
         "HEADER_PLACEHOLDER": "Header text",
+        "HEADER_MEDIA_LABEL": "Sample media",
+        "HEADER_MEDIA_HINT_IMAGE": "JPEG or PNG, up to 5 MB.",
+        "HEADER_MEDIA_HINT_VIDEO": "MP4, up to 16 MB.",
+        "HEADER_MEDIA_HINT_DOCUMENT": "PDF, up to 100 MB.",
+        "HEADER_MEDIA_SELECTED": "Selected file: {fileName}",
+        "HEADER_MEDIA_CHOOSE": "Choose file",
         "BODY_LABEL": "Body",
         "BODY_PLACEHOLDER": "Hello {'{{'}nome{'}}'}, your order {'{{'}numero_pedido{'}}'} has been confirmed.",
         "BODY_HINT": "Use positional {'{{'}1{'}}'}, {'{{'}2{'}}'} or named {'{{'}nome{'}}'}, {'{{'}numero_pedido{'}}'} variables.",
@@ -130,7 +143,9 @@
           "BODY_REQUIRED": "Body is required.",
           "EXAMPLES_REQUIRED": "Provide an example value for each variable.",
           "MIXED_VARIABLES": "Do not mix positional ({'{{'}1{'}}'}) and named ({'{{'}nome{'}}'}) variables in the same template.",
-          "NAMED_FORMAT": "Named variable {variable} must use lowercase letters, numbers and underscore, starting with a letter."
+          "NAMED_FORMAT": "Named variable {variable} must use lowercase letters, numbers and underscore, starting with a letter.",
+          "MEDIA_REQUIRED": "Select a sample file for the media header.",
+          "MEDIA_UPLOAD_FAILED": "Failed to upload sample media. Please try again."
         }
       }
     }

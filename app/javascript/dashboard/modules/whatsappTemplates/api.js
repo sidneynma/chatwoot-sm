@@ -19,6 +19,17 @@ class WhatsappTemplatesAPI extends ApiClient {
       params: { inbox_id: inboxId },
     });
   }
+
+  uploadMedia(inboxId, file, headerFormat) {
+    const formData = new FormData();
+    formData.append('inbox_id', inboxId);
+    formData.append('header_format', headerFormat);
+    formData.append('file', file);
+
+    return axios.post(`${this.url}/upload_media`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  }
 }
 
 export default new WhatsappTemplatesAPI();

@@ -337,7 +337,11 @@ Rails.application.routes.draw do
 
           namespace :whatsapp do
             resource :authorization, only: [:create]
-            resources :templates, only: [:index, :create, :destroy] if ChatwootApp.enterprise?
+            resources :templates, only: [:index, :create, :destroy] do
+              collection do
+                post :upload_media if ChatwootApp.enterprise?
+              end
+            end if ChatwootApp.enterprise?
           end
 
           resources :webhooks, only: [:index, :create, :update, :destroy]

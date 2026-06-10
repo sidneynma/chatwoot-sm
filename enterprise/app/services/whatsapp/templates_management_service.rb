@@ -36,16 +36,34 @@ class Whatsapp::TemplatesManagementService
 
   def build_components(params)
     components = []
-    components << build_header_component(params) if params[:header_text].present?
+    components << build_header_component(params) if header_component?(params)
     components << build_body_component(params)
     components << { type: 'FOOTER', text: params[:footer_text] } if params[:footer_text].present?
     components
   end
 
+  def header_component?(params)
+    media_header_format?(params) || params[:header_text].present?
+  end
+
+  def media_header_format?(params)
+    %w[IMAGE VIDEO DOCUMENT].include?(params[:header_format].to_s)
+  end
+
   def build_header_component(params)
+    return build_media_header_component(params) if media_header_format?(params)
+
     header = { type: 'HEADER', format: 'TEXT', text: params[:header_text] }
     attach_component_examples(header, params[:header_text], params, :header)
     header
+  end
+
+  def build_media_header_component(params)
+    {
+      type: 'HEADER',
+      format: params[:header_format],
+      example: { header_handle: [params[:header_handle]] }
+    }
   end
 
   def build_body_component(params)

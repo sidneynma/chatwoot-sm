@@ -34,6 +34,17 @@ class Api::V1::Accounts::Whatsapp::TemplatesController < Api::V1::Accounts::Base
     render json: { message: 'Template deleted successfully', message_templates: normalize_templates(@inbox.channel.reload.message_templates) }
   end
 
+  def upload_media
+    return render_provider_not_supported unless cloud_provider?
+    return render json: { error: 'file is required' }, status: :bad_request if params[:file].blank?
+    return render json: { error: 'header_format is required' }, status: :bad_request if params[:header_format].blank?
+
+    result = media_upload_service.upload(params[:file], params[:header_format])
+    return render json: { error: result[:error] }, status: :unprocessable_entity unless result[:success]
+
+    render json: { header_handle: result[:handle] }
+  end
+
   private
 
   def fetch_whatsapp_inbox
@@ -52,6 +63,10 @@ class Api::V1::Accounts::Whatsapp::TemplatesController < Api::V1::Accounts::Base
     @templates_service ||= Whatsapp::TemplatesManagementService.new(@inbox.channel)
   end
 
+  def media_upload_service
+    @media_upload_service ||= Whatsapp::TemplateMediaUploadService.new(@inbox.channel)
+  end
+
   def cloud_provider?
     @inbox.channel.provider == 'whatsapp_cloud'
   end
@@ -59,7 +74,7 @@ class Api::V1::Accounts::Whatsapp::TemplatesController < Api::V1::Accounts::Base
   def template_params
     params.require(:template).permit(
       :name, :category, :language, :parameter_format,
-      :header_text, :body_text, :footer_text,
+      :header_format, :header_handle, :header_text, :body_text, :footer_text,
       body_examples: [],
       variable_examples: {}
     )
