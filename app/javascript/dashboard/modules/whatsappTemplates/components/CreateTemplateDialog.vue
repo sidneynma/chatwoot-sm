@@ -14,6 +14,7 @@ import {
   detectParameterFormat,
   extractVariablesInOrder,
   NAMED_VARIABLE_REGEX,
+  nextPositionalVariable,
 } from '../templateVariables';
 
 const props = defineProps({
@@ -53,6 +54,8 @@ const mediaInputRef = ref(null);
 const isUploadingMedia = ref(false);
 const exampleValues = ref({});
 const errors = ref({});
+const variableMode = ref('POSITIONAL');
+const namedVariableInput = ref('');
 
 const categoryOptions = computed(() => [
   { value: 'UTILITY', label: t('WHATSAPP_TEMPLATES.ADMIN.CATEGORY.UTILITY') },
@@ -143,6 +146,83 @@ const parameterFormat = computed(() =>
 
 const isSubmitting = computed(() => props.isCreating || isUploadingMedia.value);
 
+const variableTypeOptions = computed(() => [
+  {
+    value: 'POSITIONAL',
+    label: t('WHATSAPP_TEMPLATES.ADMIN.CREATE.VARIABLE_TYPE_POSITIONAL'),
+  },
+  {
+    value: 'NAMED',
+    label: t('WHATSAPP_TEMPLATES.ADMIN.CREATE.VARIABLE_TYPE_NAMED'),
+  },
+]);
+
+const canUseVariableMode = mode => {
+  if (!bodyVariables.value.length) return true;
+
+  const format = detectParameterFormat(bodyVariables.value);
+  if (!format || format === 'MIXED') return false;
+
+  return format === mode;
+};
+
+const insertBodyVariable = token => {
+  const current = form.value.body_text;
+  const separator =
+    current.length && !current.endsWith(' ') && !current.endsWith('\n')
+      ? ' '
+      : '';
+  form.value.body_text = `${current}${separator}{{${token}}}`;
+};
+
+const addPositionalVariable = () => {
+  delete errors.value.namedVariable;
+  delete errors.value.variableMode;
+
+  if (!canUseVariableMode('POSITIONAL')) {
+    errors.value.variableMode = t(
+      'WHATSAPP_TEMPLATES.ADMIN.CREATE.VARIABLE_MIXED_BLOCKED'
+    );
+    return;
+  }
+
+  const token = nextPositionalVariable(bodyVariables.value);
+  insertBodyVariable(token);
+};
+
+const addNamedVariable = () => {
+  delete errors.value.namedVariable;
+  delete errors.value.variableMode;
+
+  const name = namedVariableInput.value.trim();
+  if (!name) return;
+
+  if (!NAMED_VARIABLE_REGEX.test(name)) {
+    errors.value.namedVariable = t(
+      'WHATSAPP_TEMPLATES.ADMIN.CREATE.NAMED_VARIABLE_INVALID'
+    );
+    return;
+  }
+
+  if (!canUseVariableMode('NAMED')) {
+    errors.value.variableMode = t(
+      'WHATSAPP_TEMPLATES.ADMIN.CREATE.VARIABLE_MIXED_BLOCKED'
+    );
+    return;
+  }
+
+  if (bodyVariables.value.includes(name)) {
+    errors.value.namedVariable = t(
+      'WHATSAPP_TEMPLATES.ADMIN.CREATE.NAMED_VARIABLE_EXISTS',
+      { name }
+    );
+    return;
+  }
+
+  insertBodyVariable(name);
+  namedVariableInput.value = '';
+};
+
 const resetForm = () => {
   form.value = {
     name: '',
@@ -157,6 +237,8 @@ const resetForm = () => {
   if (mediaInputRef.value) mediaInputRef.value.value = '';
   exampleValues.value = {};
   errors.value = {};
+  variableMode.value = 'POSITIONAL';
+  namedVariableInput.value = '';
 };
 
 const onMediaFileChange = event => {
@@ -299,26 +381,26 @@ watch(
   <TeleportWithDirection to="body">
     <div
       v-if="open"
-      class="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-n-alpha-black1 backdrop-blur-sm"
+      class="fixed inset-0 z-[100000] flex items-center justify-center p-3 bg-n-alpha-black1 backdrop-blur-sm"
       @click.self="close"
     >
       <div
-        class="flex flex-col w-full max-w-2xl max-h-[90vh] gap-6 p-6 overflow-y-auto rounded-xl border shadow-xl border-n-weak bg-n-alpha-3 backdrop-blur-[100px]"
+        class="flex flex-col w-full max-w-xl max-h-[calc(100vh-1.5rem)] gap-3 p-4 overflow-y-auto rounded-xl border shadow-xl border-n-weak bg-n-alpha-3 backdrop-blur-[100px]"
         role="dialog"
         aria-modal="true"
         :aria-label="t('WHATSAPP_TEMPLATES.ADMIN.CREATE.TITLE')"
         @click.stop
       >
-        <div class="flex flex-col gap-2">
-          <h3 class="text-base font-medium leading-6 text-n-slate-12">
+        <div class="flex flex-col gap-1">
+          <h3 class="text-sm font-medium leading-5 text-n-slate-12">
             {{ t('WHATSAPP_TEMPLATES.ADMIN.CREATE.TITLE') }}
           </h3>
-          <p class="mb-0 text-sm text-n-slate-11">
+          <p class="mb-0 text-xs text-n-slate-11">
             {{ t('WHATSAPP_TEMPLATES.ADMIN.CREATE.DESCRIPTION') }}
           </p>
         </div>
 
-        <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
+        <form class="flex flex-col gap-3" @submit.prevent="handleSubmit">
           <Input
             v-model="form.name"
             :label="t('WHATSAPP_TEMPLATES.ADMIN.CREATE.NAME_LABEL')"
@@ -329,7 +411,7 @@ watch(
             :message-type="errors.name ? 'error' : 'info'"
           />
 
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div class="flex flex-col gap-1">
               <label class="text-sm font-medium text-n-slate-12">
                 {{ t('WHATSAPP_TEMPLATES.ADMIN.CREATE.CATEGORY_LABEL') }}
@@ -353,9 +435,9 @@ watch(
           </div>
 
           <div
-            class="flex flex-col gap-4 p-4 rounded-xl border border-n-weak bg-n-surface-1"
+            class="flex flex-col gap-2 p-3 rounded-xl border border-n-weak bg-n-surface-1"
           >
-            <p class="text-sm font-medium text-n-slate-12">
+            <p class="text-xs font-medium text-n-slate-12">
               {{ t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_SECTION_TITLE') }}
             </p>
 
@@ -420,17 +502,79 @@ watch(
             </div>
           </div>
 
-          <TextArea
-            v-model="form.body_text"
-            :label="t('WHATSAPP_TEMPLATES.ADMIN.CREATE.BODY_LABEL')"
-            :placeholder="t('WHATSAPP_TEMPLATES.ADMIN.CREATE.BODY_PLACEHOLDER')"
-            :max-length="1024"
-            :message="
-              errors.body || t('WHATSAPP_TEMPLATES.ADMIN.CREATE.BODY_HINT')
-            "
-            :message-type="errors.body ? 'error' : 'info'"
-            auto-height
-          />
+          <div class="flex flex-col gap-2">
+            <TextArea
+              v-model="form.body_text"
+              :label="t('WHATSAPP_TEMPLATES.ADMIN.CREATE.BODY_LABEL')"
+              :placeholder="
+                t('WHATSAPP_TEMPLATES.ADMIN.CREATE.BODY_PLACEHOLDER')
+              "
+              :max-length="1024"
+              :message="
+                errors.body ||
+                errors.variableMode ||
+                t('WHATSAPP_TEMPLATES.ADMIN.CREATE.BODY_HINT')
+              "
+              :message-type="
+                errors.body || errors.variableMode ? 'error' : 'info'
+              "
+              auto-height
+            />
+
+            <div
+              class="flex flex-col gap-2 p-3 rounded-lg border border-n-weak bg-n-surface-1"
+            >
+              <div class="flex flex-col gap-1">
+                <label class="text-xs font-medium text-n-slate-12">
+                  {{ t('WHATSAPP_TEMPLATES.ADMIN.CREATE.VARIABLE_TYPE_LABEL') }}
+                </label>
+                <Select
+                  v-model="variableMode"
+                  :options="variableTypeOptions"
+                  class="!w-full"
+                />
+              </div>
+
+              <div
+                v-if="variableMode === 'POSITIONAL'"
+                class="flex items-center"
+              >
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  color="slate"
+                  icon="i-lucide-plus"
+                  :label="t('WHATSAPP_TEMPLATES.ADMIN.CREATE.ADD_VARIABLE')"
+                  @click="addPositionalVariable"
+                />
+              </div>
+
+              <div v-else class="flex flex-col gap-2 sm:flex-row sm:items-end">
+                <Input
+                  v-model="namedVariableInput"
+                  class="flex-1"
+                  :placeholder="
+                    t(
+                      'WHATSAPP_TEMPLATES.ADMIN.CREATE.NAMED_VARIABLE_PLACEHOLDER'
+                    )
+                  "
+                  :message="errors.namedVariable"
+                  :message-type="errors.namedVariable ? 'error' : 'info'"
+                  @keyup.enter.prevent="addNamedVariable"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  color="slate"
+                  icon="i-lucide-plus"
+                  :label="t('WHATSAPP_TEMPLATES.ADMIN.CREATE.ADD_VARIABLE')"
+                  @click="addNamedVariable"
+                />
+              </div>
+            </div>
+          </div>
 
           <Input
             v-model="form.footer_text"
@@ -460,9 +604,10 @@ watch(
             </span>
           </div>
 
-          <div class="flex items-center justify-between w-full gap-3 pt-2">
+          <div class="flex items-center justify-between w-full gap-2 pt-1">
             <Button
               type="button"
+              size="sm"
               variant="faded"
               color="slate"
               class="w-full"
@@ -471,6 +616,7 @@ watch(
             />
             <Button
               type="submit"
+              size="sm"
               color="blue"
               class="w-full"
               :label="t('WHATSAPP_TEMPLATES.ADMIN.CREATE.SUBMIT')"

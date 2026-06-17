@@ -19,6 +19,14 @@ export const extractVariablesInOrder = text => {
   return variables;
 };
 
+export const nextPositionalVariable = variables => {
+  const numbers = variables
+    .filter(variable => /^\d+$/.test(variable))
+    .map(variable => Number(variable));
+
+  return String(numbers.length ? Math.max(...numbers) + 1 : 1);
+};
+
 export const detectParameterFormat = variables => {
   if (!variables.length) return null;
 
