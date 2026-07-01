@@ -62,8 +62,14 @@ Imagem: `sidneynma/chatwoot-sm:v4.14.1-e`
 
 ```bash
 chmod +x scripts/release.sh   # primeira vez
-./scripts/release.sh v4.14.2.a           # build local + tag git
-./scripts/release.sh v4.14.2.a --push  # publica no Docker Hub e envia a tag
+./scripts/release.sh v4.14.2.a              # build local + tag git
+./scripts/release.sh v4.14.2.a --push     # publica imagem versionada + tag git
+```
+
+Após validar em produção, promova `:latest` (opcional):
+
+```bash
+./scripts/release.sh v4.14.2.a --promote-latest --push
 ```
 
 Opções úteis:
@@ -71,10 +77,14 @@ Opções úteis:
 | Flag | Efeito |
 |------|--------|
 | `--push` | Envia imagem Docker e tag Git para o remoto |
+| `--promote-latest` | Aponta `:latest` para a versão informada (sem rebuild) |
 | `--skip-docker` | Cria apenas a tag Git |
 | `--skip-tag` | Apenas build/push da imagem |
 | `--allow-dirty` | Permite working tree suja (não recomendado) |
 | `-m "mensagem"` | Mensagem da tag anotada |
+
+> O release padrão **não** publica `:latest`. Use sempre a tag de versão no deploy
+> (`sidneynma/chatwoot-sm:v4.14.2.a`) e promova `latest` só depois dos testes.
 
 Variáveis de ambiente:
 

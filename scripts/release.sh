@@ -7,6 +7,7 @@
 # Usage:
 #   ./scripts/release.sh v4.14.2.a
 #   ./scripts/release.sh v4.14.2.a --push
+#   ./scripts/release.sh v4.14.2.a --promote-latest --push   # após testes em produção
 #   ./scripts/release.sh v4.14.2.a --skip-docker
 #   ./scripts/release.sh v4.14.2.a --skip-tag
 #
@@ -15,6 +16,8 @@
 #   DOCKER_PLATFORM=linux/amd64
 #   RELEASE_EDITION=ee
 #
+# A tag :latest NÃO é criada no release padrão. Promova manualmente após validar
+# em produção com --promote-latest.
 set -euo pipefail
 
 DOCKER_IMAGE="${DOCKER_IMAGE:-sidneynma/chatwoot-sm}"
@@ -24,6 +27,7 @@ VERSION=""
 PUSH=false
 SKIP_DOCKER=false
 SKIP_TAG=false
+PROMOTE_LATEST=false
 ALLOW_DIRTY=false
 TAG_MESSAGE=""
 
@@ -31,8 +35,9 @@ usage() {
   sed -n '3,14p' "$0" | sed 's/^# \{0,1\}//'
   echo
   echo "Options:"
-  echo "  --push         Push Docker image and git tag to remote"
-  echo "  --skip-docker  Only create the git tag"
+  echo "  --push            Push Docker image and git tag to remote"
+  echo "  --promote-latest  Tag :latest from an existing version image (after prod tests)"
+  echo "  --skip-docker     Only create the git tag"
   echo "  --skip-tag     Only build/push the Docker image"
   echo "  --allow-dirty  Allow uncommitted changes"
   echo "  -m, --message  Annotated tag message (default: release \$VERSION)"
@@ -60,6 +65,7 @@ parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --push) PUSH=true ;;
+      --promote-latest) PROMOTE_LATEST=true ;;
       --skip-docker) SKIP_DOCKER=true ;;
       --skip-tag) SKIP_TAG=true ;;
       --allow-dirty) ALLOW_DIRTY=true ;;
@@ -135,7 +141,6 @@ build_docker_image() {
   printf '\nENV CW_EDITION="%s"\n' "$RELEASE_EDITION" >> "$dockerfile"
 
   local image_tag="${DOCKER_IMAGE}:${VERSION}"
-  local latest_tag="${DOCKER_IMAGE}:latest"
 
   log "Building Docker image ${image_tag} (${DOCKER_PLATFORM}, edition=${RELEASE_EDITION})"
   docker build \
@@ -144,16 +149,33 @@ build_docker_image() {
     -t "$image_tag" \
     .
 
-  docker tag "$image_tag" "$latest_tag"
-  log "Tagged ${latest_tag}"
-
   if [[ "$PUSH" == true ]]; then
     log "Pushing ${image_tag}"
     docker push "$image_tag"
+  else
+    log "Skipping docker push (pass --push to publish)"
+  fi
+}
+
+promote_latest_tag() {
+  ensure_docker
+
+  local image_tag="${DOCKER_IMAGE}:${VERSION}"
+  local latest_tag="${DOCKER_IMAGE}:latest"
+
+  if ! docker image inspect "$image_tag" >/dev/null 2>&1; then
+    log "Local image not found, pulling ${image_tag}"
+    docker pull "$image_tag"
+  fi
+
+  docker tag "$image_tag" "$latest_tag"
+  log "Tagged ${latest_tag} from ${image_tag}"
+
+  if [[ "$PUSH" == true ]]; then
     log "Pushing ${latest_tag}"
     docker push "$latest_tag"
   else
-    log "Skipping docker push (pass --push to publish)"
+    log "Skipping docker push (pass --push to publish :latest)"
   fi
 }
 
@@ -164,7 +186,6 @@ Release steps completed for ${VERSION}
 
 Docker image:
   ${DOCKER_IMAGE}:${VERSION}
-  ${DOCKER_IMAGE}:latest
 
 Git tag:
   ${VERSION}
@@ -174,6 +195,8 @@ Next steps:
   2. Re-run with --push to publish image/tag when ready
   3. Deploy using:
      image: ${DOCKER_IMAGE}:${VERSION}
+  4. After production validation, promote :latest:
+     ./scripts/release.sh ${VERSION} --promote-latest --push
 
 EOF
 }
@@ -182,6 +205,13 @@ main() {
   parse_args "$@"
   ensure_repo_root
   validate_version
+
+  if [[ "$PROMOTE_LATEST" == true ]]; then
+    promote_latest_tag
+    print_summary
+    return
+  fi
+
   ensure_clean_tree
 
   if [[ "$SKIP_TAG" == false ]]; then
