@@ -39,6 +39,7 @@ class Whatsapp::TemplatesManagementService
     components << build_header_component(params) if header_component?(params)
     components << build_body_component(params)
     components << { type: 'FOOTER', text: params[:footer_text] } if params[:footer_text].present?
+    components << build_buttons_component(params) if buttons_component?(params)
     components
   end
 
@@ -70,6 +71,42 @@ class Whatsapp::TemplatesManagementService
     body = { type: 'BODY', text: params[:body_text] }
     attach_component_examples(body, params[:body_text], params, :body)
     body
+  end
+
+  def buttons_component?(params)
+    Array(params[:buttons]).any?
+  end
+
+  def build_buttons_component(params)
+    buttons = Array(params[:buttons]).filter_map { |button| build_button(button) }
+    return if buttons.blank?
+
+    { type: 'BUTTONS', buttons: buttons }
+  end
+
+  def build_button(button)
+    button = button.to_h.with_indifferent_access
+    case button[:type].to_s
+    when 'QUICK_REPLY'
+      { type: 'QUICK_REPLY', text: button[:text] }
+    when 'URL'
+      build_url_button(button)
+    when 'PHONE_NUMBER'
+      { type: 'PHONE_NUMBER', text: button[:text], phone_number: button[:phone_number] }
+    end
+  end
+
+  def build_url_button(button)
+    url_button = {
+      type: 'URL',
+      text: button[:text],
+      url: button[:url]
+    }
+    return url_button unless button[:url].to_s.match?(/\{\{[^}]+\}\}/)
+
+    examples = Array(button[:example]).presence || Array(button[:url_example]).presence
+    url_button[:example] = examples.map(&:to_s) if examples.present?
+    url_button
   end
 
   def attach_component_examples(component, text, params, component_type)

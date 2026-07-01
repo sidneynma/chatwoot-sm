@@ -154,6 +154,38 @@
           "NAMED_FORMAT": "A variável nomeada {variable} deve usar letras minúsculas, números e sublinhado, começando com letra.",
           "MEDIA_REQUIRED": "Selecione um arquivo de exemplo para o cabeçalho de mídia.",
           "MEDIA_UPLOAD_FAILED": "Falha ao enviar a mídia de exemplo. Por favor, tente novamente."
+        },
+        "BUTTONS": {
+          "SECTION_TITLE": "Botões",
+          "SECTION_HINT": "A Meta permite botões de resposta rápida (até 3) ou botões de ação (até 2 URL/telefone). Não podem ser misturados.",
+          "GROUP_LABEL": "Tipo de botão",
+          "GROUP_NONE": "Nenhum",
+          "GROUP_QUICK_REPLY": "Resposta rápida",
+          "GROUP_CALL_TO_ACTION": "Chamada para ação",
+          "ITEM_LABEL": "Botão {index}",
+          "ADD": "Adicionar botão",
+          "REMOVE": "Remover",
+          "TEXT_LABEL": "Texto do botão",
+          "TEXT_PLACEHOLDER": "ex.: Confirmar",
+          "TYPE_LABEL": "Ação do botão",
+          "TYPE_URL": "Visitar site",
+          "TYPE_PHONE": "Ligar",
+          "URL_LABEL": "URL",
+          "URL_PLACEHOLDER": "https://exemplo.com ou https://exemplo.com/{{1}}",
+          "URL_EXAMPLE_LABEL": "Exemplo da variável da URL",
+          "URL_EXAMPLE_PLACEHOLDER": "Valor de exemplo para a variável da URL",
+          "PHONE_LABEL": "Telefone",
+          "PHONE_PLACEHOLDER": "+5511999999999",
+          "VALIDATION": {
+            "REQUIRED": "Adicione pelo menos um botão.",
+            "TEXT_REQUIRED": "O texto do botão é obrigatório.",
+            "TEXT_LENGTH": "O texto do botão deve ter no máximo 25 caracteres.",
+            "URL_REQUIRED": "A URL é obrigatória.",
+            "URL_EXAMPLE_REQUIRED": "Informe um exemplo para a variável da URL.",
+            "PHONE_REQUIRED": "O telefone é obrigatório.",
+            "PHONE_FORMAT": "Use formato internacional, ex.: +5511999999999.",
+            "PHONE_LIMIT": "É permitido apenas um botão de telefone."
+          }
         }
       }
     }

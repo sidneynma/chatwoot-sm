@@ -775,6 +775,13 @@ const menuItems = computed(() => {
           to: accountScopedRoute('conversation_workflow_index'),
         },
         {
+          name: 'Conversation Redistribution',
+          label: t('SIDEBAR.CONVERSATION_REDISTRIBUTION'),
+          icon: 'i-lucide-shuffle',
+          to: accountScopedRoute('conversation_redistribution_index'),
+          activeOn: ['conversation_redistribution_index'],
+        },
+        {
           name: 'Settings Security',
           label: t('SIDEBAR.SECURITY'),
           icon: 'i-lucide-shield',

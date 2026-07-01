@@ -1,0 +1,76 @@
+{
+  "CONVERSATION_REDISTRIBUTION": {
+    "HEADER": {
+      "TITLE": "Conversation redistribution",
+      "DESCRIPTION": "Redistribute conversations in bulk between inbox agents with simulation before applying changes."
+    },
+    "UNASSIGNED": "Unassigned",
+    "FORM": {
+      "INBOX": "Inbox",
+      "INBOX_PLACEHOLDER": "Select an inbox",
+      "TYPE": "Redistribution type",
+      "SOURCE_AGENT": "Source agent",
+      "SOURCE_AGENT_PLACEHOLDER": "Select the source agent",
+      "STATUSES": "Conversation statuses",
+      "AGENTS": "Participating agents",
+      "AGENTS_HINT": "Select at least two inbox agents.",
+      "NO_AGENTS": "No agents found for this inbox.",
+      "STRATEGY": "Distribution strategy"
+    },
+    "TYPE": {
+      "UNASSIGNED": "Unassigned conversations",
+      "FROM_AGENT": "Conversations from a specific agent",
+      "ALL_OPEN": "All matching conversations"
+    },
+    "STATUS": {
+      "OPEN": "Open",
+      "PENDING": "Pending",
+      "SNOOZED": "Snoozed",
+      "RESOLVED": "Resolved"
+    },
+    "STRATEGY": {
+      "ROUND_ROBIN": "Round robin",
+      "LOAD_BALANCE": "Load balancing"
+    },
+    "ACTIONS": {
+      "SIMULATE": "Simulate",
+      "REDISTRIBUTE": "Redistribute",
+      "CANCEL": "Cancel",
+      "BACK": "Back",
+      "NEW": "New redistribution"
+    },
+    "SIMULATION": {
+      "TITLE": "Simulation preview",
+      "CONVERSATIONS": "Conversations found",
+      "AGENTS": "Agents",
+      "SUMMARY_LINE": "{name}: {count}",
+      "TABLE": {
+        "CONVERSATION": "Conversation",
+        "DISPLAY_ID": "#{displayId}",
+        "CURRENT_AGENT": "Current agent",
+        "NEW_AGENT": "New agent",
+        "TRUNCATED": "Showing {shown} of {total} conversations."
+      }
+    },
+    "CONFIRM": {
+      "TITLE": "Confirm redistribution",
+      "DESCRIPTION": "{count} conversations will be redistributed. Do you want to continue?"
+    },
+    "PROGRESS": {
+      "READING": "Reading conversations...",
+      "CALCULATING": "Calculating distribution...",
+      "UPDATING": "Updating..."
+    },
+    "SUCCESS": {
+      "TITLE": "Redistribution completed",
+      "DESCRIPTION": "{count} conversations redistributed.",
+      "SUMMARY_LINE": "{name} → {count}",
+      "TOAST": "Redistribution completed successfully."
+    },
+    "ERRORS": {
+      "FETCH_AGENTS": "Could not load inbox agents.",
+      "SIMULATE": "Could not simulate redistribution.",
+      "EXECUTE": "Could not execute redistribution."
+    }
+  }
+}

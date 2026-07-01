@@ -76,7 +76,8 @@ class Api::V1::Accounts::Whatsapp::TemplatesController < Api::V1::Accounts::Base
       :name, :category, :language, :parameter_format,
       :header_format, :header_handle, :header_text, :body_text, :footer_text,
       body_examples: [],
-      variable_examples: {}
+      variable_examples: {},
+      buttons: [:type, :text, :url, :phone_number, { example: [] }]
     )
   end
 

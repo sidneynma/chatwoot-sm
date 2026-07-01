@@ -346,6 +346,13 @@ Rails.application.routes.draw do
             end if ChatwootApp.enterprise?
           end
 
+          if ChatwootApp.enterprise?
+            resource :conversation_redistribution, only: [], controller: 'conversation_redistributions' do
+              post :simulate, on: :collection
+              post :execute, on: :collection
+            end
+          end
+
           resources :webhooks, only: [:index, :create, :update, :destroy]
           namespace :integrations do
             resources :apps, only: [:index, :show]

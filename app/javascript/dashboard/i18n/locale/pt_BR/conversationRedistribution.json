@@ -1,0 +1,76 @@
+{
+  "CONVERSATION_REDISTRIBUTION": {
+    "HEADER": {
+      "TITLE": "Redistribuição de conversas",
+      "DESCRIPTION": "Redistribua conversas em lote entre agentes da inbox, com simulação obrigatória antes de aplicar as alterações."
+    },
+    "UNASSIGNED": "Sem responsável",
+    "FORM": {
+      "INBOX": "Inbox",
+      "INBOX_PLACEHOLDER": "Selecione uma inbox",
+      "TYPE": "Tipo de redistribuição",
+      "SOURCE_AGENT": "Agente de origem",
+      "SOURCE_AGENT_PLACEHOLDER": "Selecione o agente de origem",
+      "STATUSES": "Status das conversas",
+      "AGENTS": "Agentes participantes",
+      "AGENTS_HINT": "Selecione pelo menos dois agentes da inbox.",
+      "NO_AGENTS": "Nenhum agente encontrado para esta inbox.",
+      "STRATEGY": "Estratégia de distribuição"
+    },
+    "TYPE": {
+      "UNASSIGNED": "Conversas sem responsável",
+      "FROM_AGENT": "Conversas de um agente específico",
+      "ALL_OPEN": "Todas as conversas correspondentes"
+    },
+    "STATUS": {
+      "OPEN": "Aberta",
+      "PENDING": "Pendente",
+      "SNOOZED": "Adiada",
+      "RESOLVED": "Resolvida"
+    },
+    "STRATEGY": {
+      "ROUND_ROBIN": "Round robin",
+      "LOAD_BALANCE": "Balanceamento por carga"
+    },
+    "ACTIONS": {
+      "SIMULATE": "Simular",
+      "REDISTRIBUTE": "Redistribuir",
+      "CANCEL": "Cancelar",
+      "BACK": "Voltar",
+      "NEW": "Nova redistribuição"
+    },
+    "SIMULATION": {
+      "TITLE": "Prévia da simulação",
+      "CONVERSATIONS": "Conversas encontradas",
+      "AGENTS": "Agentes",
+      "SUMMARY_LINE": "{name}: {count}",
+      "TABLE": {
+        "CONVERSATION": "Conversa",
+        "DISPLAY_ID": "#{displayId}",
+        "CURRENT_AGENT": "Agente atual",
+        "NEW_AGENT": "Novo agente",
+        "TRUNCATED": "Exibindo {shown} de {total} conversas."
+      }
+    },
+    "CONFIRM": {
+      "TITLE": "Confirmar redistribuição",
+      "DESCRIPTION": "{count} conversas serão redistribuídas. Deseja continuar?"
+    },
+    "PROGRESS": {
+      "READING": "Lendo conversas...",
+      "CALCULATING": "Calculando distribuição...",
+      "UPDATING": "Atualizando..."
+    },
+    "SUCCESS": {
+      "TITLE": "Redistribuição realizada com sucesso",
+      "DESCRIPTION": "{count} conversas redistribuídas.",
+      "SUMMARY_LINE": "{name} → {count}",
+      "TOAST": "Redistribuição realizada com sucesso."
+    },
+    "ERRORS": {
+      "FETCH_AGENTS": "Não foi possível carregar os agentes da inbox.",
+      "SIMULATE": "Não foi possível simular a redistribuição.",
+      "EXECUTE": "Não foi possível executar a redistribuição."
+    }
+  }
+}

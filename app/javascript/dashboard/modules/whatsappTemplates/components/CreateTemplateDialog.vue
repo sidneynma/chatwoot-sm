@@ -10,6 +10,7 @@ import Input from 'dashboard/components-next/input/Input.vue';
 import Select from 'dashboard/components-next/select/Select.vue';
 import TextArea from 'dashboard/components-next/textarea/TextArea.vue';
 import WhatsappTemplatesAPI from '../api';
+import TemplateButtonsEditor from '../components/TemplateButtonsEditor.vue';
 import {
   detectParameterFormat,
   extractVariablesInOrder,
@@ -56,6 +57,8 @@ const exampleValues = ref({});
 const errors = ref({});
 const variableMode = ref('POSITIONAL');
 const namedVariableInput = ref('');
+const buttonsGroupType = ref('NONE');
+const templateButtons = ref([]);
 
 const categoryOptions = computed(() => [
   { value: 'UTILITY', label: t('WHATSAPP_TEMPLATES.ADMIN.CATEGORY.UTILITY') },
@@ -239,10 +242,88 @@ const resetForm = () => {
   errors.value = {};
   variableMode.value = 'POSITIONAL';
   namedVariableInput.value = '';
+  buttonsGroupType.value = 'NONE';
+  templateButtons.value = [];
 };
 
 const onMediaFileChange = event => {
   headerMediaFile.value = event.target.files?.[0] || null;
+};
+
+const validateButtons = () => {
+  if (buttonsGroupType.value === 'NONE') return;
+
+  if (!templateButtons.value.length) {
+    errors.value.buttons = t(
+      'WHATSAPP_TEMPLATES.ADMIN.CREATE.BUTTONS.VALIDATION.REQUIRED'
+    );
+    return;
+  }
+
+  if (buttonsGroupType.value === 'QUICK_REPLY') {
+    templateButtons.value.forEach((button, index) => {
+      if (!button.text?.trim()) {
+        errors.value[`button_${index}_text`] = t(
+          'WHATSAPP_TEMPLATES.ADMIN.CREATE.BUTTONS.VALIDATION.TEXT_REQUIRED'
+        );
+      } else if (button.text.trim().length > 25) {
+        errors.value[`button_${index}_text`] = t(
+          'WHATSAPP_TEMPLATES.ADMIN.CREATE.BUTTONS.VALIDATION.TEXT_LENGTH'
+        );
+      }
+    });
+    return;
+  }
+
+  const phoneCount = templateButtons.value.filter(
+    button => button.type === 'PHONE_NUMBER'
+  ).length;
+
+  if (phoneCount > 1) {
+    errors.value.buttons = t(
+      'WHATSAPP_TEMPLATES.ADMIN.CREATE.BUTTONS.VALIDATION.PHONE_LIMIT'
+    );
+  }
+
+  templateButtons.value.forEach((button, index) => {
+    if (!button.text?.trim()) {
+      errors.value[`button_${index}_text`] = t(
+        'WHATSAPP_TEMPLATES.ADMIN.CREATE.BUTTONS.VALIDATION.TEXT_REQUIRED'
+      );
+    } else if (button.text.trim().length > 25) {
+      errors.value[`button_${index}_text`] = t(
+        'WHATSAPP_TEMPLATES.ADMIN.CREATE.BUTTONS.VALIDATION.TEXT_LENGTH'
+      );
+    }
+
+    if (button.type === 'URL') {
+      if (!button.url?.trim()) {
+        errors.value[`button_${index}_url`] = t(
+          'WHATSAPP_TEMPLATES.ADMIN.CREATE.BUTTONS.VALIDATION.URL_REQUIRED'
+        );
+      } else if (
+        /\{\{[^}]+\}\}/.test(button.url) &&
+        !button.url_example?.trim()
+      ) {
+        errors.value[`button_${index}_url_example`] = t(
+          'WHATSAPP_TEMPLATES.ADMIN.CREATE.BUTTONS.VALIDATION.URL_EXAMPLE_REQUIRED'
+        );
+      }
+    }
+
+    if (button.type === 'PHONE_NUMBER') {
+      const phone = button.phone_number?.trim();
+      if (!phone) {
+        errors.value[`button_${index}_phone`] = t(
+          'WHATSAPP_TEMPLATES.ADMIN.CREATE.BUTTONS.VALIDATION.PHONE_REQUIRED'
+        );
+      } else if (!/^\+[1-9]\d{6,14}$/.test(phone)) {
+        errors.value[`button_${index}_phone`] = t(
+          'WHATSAPP_TEMPLATES.ADMIN.CREATE.BUTTONS.VALIDATION.PHONE_FORMAT'
+        );
+      }
+    }
+  });
 };
 
 const validate = () => {
@@ -294,6 +375,8 @@ const validate = () => {
       'WHATSAPP_TEMPLATES.ADMIN.CREATE.VALIDATION.EXAMPLES_REQUIRED'
     );
   }
+
+  validateButtons();
 
   return Object.keys(errors.value).length === 0;
 };
@@ -350,6 +433,33 @@ const handleSubmit = async () => {
     payload.header_handle = headerHandle;
   } else if (showTextHeader.value && form.value.header_text.trim()) {
     payload.header_text = form.value.header_text.trim();
+  }
+
+  if (buttonsGroupType.value !== 'NONE') {
+    payload.buttons = templateButtons.value.map(button => {
+      if (buttonsGroupType.value === 'QUICK_REPLY') {
+        return {
+          type: 'QUICK_REPLY',
+          text: button.text.trim(),
+        };
+      }
+
+      const ctaButton = {
+        type: button.type,
+        text: button.text.trim(),
+      };
+
+      if (button.type === 'URL') {
+        ctaButton.url = button.url.trim();
+        if (button.url_example?.trim()) {
+          ctaButton.example = [button.url_example.trim()];
+        }
+      } else {
+        ctaButton.phone_number = button.phone_number.trim();
+      }
+
+      return ctaButton;
+    });
   }
 
   emit('submit', payload);
@@ -582,6 +692,12 @@ watch(
             :placeholder="
               t('WHATSAPP_TEMPLATES.ADMIN.CREATE.FOOTER_PLACEHOLDER')
             "
+          />
+
+          <TemplateButtonsEditor
+            v-model:group-type="buttonsGroupType"
+            v-model:buttons="templateButtons"
+            :errors="errors"
           />
 
           <div v-if="templateVariables.length" class="flex flex-col gap-2">

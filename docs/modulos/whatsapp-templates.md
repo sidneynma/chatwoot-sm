@@ -46,7 +46,8 @@ Sem novas tabelas: os dados vivem em `channel_whatsapp.message_templates` /
 | `api.js` | Client HTTP (`get`, `create`, `delete`). |
 | `pages/Index.vue` | Tela principal: stats, busca, filtro de status, sincronizar, listagem. |
 | `components/TemplateCard.vue` | Card por template (badges + preview expansível + excluir). |
-| `components/CreateTemplateDialog.vue` | Formulário de criação (Meta) com variáveis `{{n}}`. |
+| `components/CreateTemplateDialog.vue` | Formulário de criação (Meta) com variáveis `{{n}}` e botões. |
+| `components/TemplateButtonsEditor.vue` | Editor de botões Meta (quick reply / URL / telefone). |
 | `templateDisplay.js` | Helpers para extrair header/body/footer/buttons. |
 
 ### Costuras no core (seams — já existentes, não duplicar)
@@ -88,8 +89,18 @@ Base: `/api/v1/accounts/:account_id/whatsapp/templates`
 }
 ```
 
-O serviço monta os `components` no formato da Meta (`HEADER`/`BODY`/`FOOTER`).
+O serviço monta os `components` no formato da Meta (`HEADER`/`BODY`/`FOOTER`/`BUTTONS`).
 Se o corpo tiver variáveis, `body_examples` vira `example.body_text`.
+
+Botões suportados na criação:
+
+| Tipo | Limite | Campos |
+|------|--------|--------|
+| `QUICK_REPLY` | até 3 | `text` |
+| `URL` | até 2 (CTA) | `text`, `url`, `example` (se URL tiver `{{1}}`) |
+| `PHONE_NUMBER` | 1 por template (CTA) | `text`, `phone_number` |
+
+Quick reply e call-to-action **não podem ser misturados** no mesmo template (regra da Meta).
 
 ---
 
@@ -124,7 +135,5 @@ Segue o padrão do Chatwoot — **não foi criado nenhum sistema de permissão n
 
 ## Como estender (futuro)
 
-- **Botões no template:** adicionar suporte a `BUTTONS` (quick reply / URL) em
-  `CreateTemplateDialog.vue` e em `TemplatesManagementService#build_components`.
-- **Mídia no header:** suportar `format: IMAGE/VIDEO/DOCUMENT` (upload + handle).
+- **COPY_CODE button:** suporte ao botão de copiar cupom (marketing).
 - **Status detalhado:** exibir motivo de rejeição vindo da Meta (`rejected_reason`).

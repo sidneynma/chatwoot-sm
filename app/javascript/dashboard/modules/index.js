@@ -1,6 +1,7 @@
 import whatsappTemplates from './whatsappTemplates';
+import conversationRedistribution from './conversationRedistribution';
 
-const customModules = [whatsappTemplates];
+const customModules = [whatsappTemplates, conversationRedistribution];
 
 export const customModuleRoutes = customModules.flatMap(
   module => module.routes || []

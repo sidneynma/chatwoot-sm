@@ -154,6 +154,38 @@
           "NAMED_FORMAT": "Named variable {variable} must use lowercase letters, numbers and underscore, starting with a letter.",
           "MEDIA_REQUIRED": "Select a sample file for the media header.",
           "MEDIA_UPLOAD_FAILED": "Failed to upload sample media. Please try again."
+        },
+        "BUTTONS": {
+          "SECTION_TITLE": "Buttons",
+          "SECTION_HINT": "Meta allows quick reply buttons (up to 3) or call-to-action buttons (up to 2 URL/phone). They cannot be mixed.",
+          "GROUP_LABEL": "Button type",
+          "GROUP_NONE": "None",
+          "GROUP_QUICK_REPLY": "Quick reply",
+          "GROUP_CALL_TO_ACTION": "Call to action",
+          "ITEM_LABEL": "Button {index}",
+          "ADD": "Add button",
+          "REMOVE": "Remove",
+          "TEXT_LABEL": "Button text",
+          "TEXT_PLACEHOLDER": "e.g. Confirm",
+          "TYPE_LABEL": "Button action",
+          "TYPE_URL": "Visit website",
+          "TYPE_PHONE": "Call phone number",
+          "URL_LABEL": "URL",
+          "URL_PLACEHOLDER": "https://example.com or https://example.com/{{1}}",
+          "URL_EXAMPLE_LABEL": "URL variable example",
+          "URL_EXAMPLE_PLACEHOLDER": "Example value for the URL variable",
+          "PHONE_LABEL": "Phone number",
+          "PHONE_PLACEHOLDER": "+5511999999999",
+          "VALIDATION": {
+            "REQUIRED": "Add at least one button.",
+            "TEXT_REQUIRED": "Button text is required.",
+            "TEXT_LENGTH": "Button text must be 25 characters or fewer.",
+            "URL_REQUIRED": "URL is required.",
+            "URL_EXAMPLE_REQUIRED": "Provide an example for the URL variable.",
+            "PHONE_REQUIRED": "Phone number is required.",
+            "PHONE_FORMAT": "Use international format, e.g. +5511999999999.",
+            "PHONE_LIMIT": "Only one phone number button is allowed."
+          }
         }
       }
     }
