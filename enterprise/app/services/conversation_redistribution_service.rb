@@ -162,12 +162,10 @@ class ConversationRedistributionService
   end
 
   def agents
-    @agents ||= account.users
-                       .joins(:inbox_members)
-                       .where(inbox_members: { inbox_id: inbox.id }, users: { id: agent_ids })
-                       .distinct
-                       .to_a
-                       .sort_by { |agent| agent_ids.index(agent.id) }
+    @agents ||= begin
+      member_ids = inbox.inbox_members.where(user_id: agent_ids).pluck(:user_id)
+      account.users.where(id: member_ids).to_a.sort_by { |agent| agent_ids.index(agent.id) }
+    end
   end
 
   def inbox_id

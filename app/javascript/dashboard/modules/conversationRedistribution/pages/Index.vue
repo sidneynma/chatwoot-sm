@@ -10,6 +10,7 @@ import SimulationTable from '../components/SimulationTable.vue';
 
 import Button from 'dashboard/components-next/button/Button.vue';
 import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
+import Select from 'dashboard/components-next/select/Select.vue';
 import Checkbox from 'dashboard/components-next/checkbox/Checkbox.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
@@ -84,6 +85,9 @@ const showSourceAgent = computed(
 
 const canSimulate = computed(() => {
   if (!selectedInboxId.value || selectedAgentIds.value.length < 2) {
+    return false;
+  }
+  if (!redistributionType.value || !strategy.value) {
     return false;
   }
   if (showSourceAgent.value && !sourceAgentId.value) {
@@ -303,9 +307,10 @@ onMounted(() => {
           <h3 class="text-base font-medium text-n-slate-12">
             {{ t('CONVERSATION_REDISTRIBUTION.FORM.TYPE') }}
           </h3>
-          <ComboBox
+          <Select
             v-model="redistributionType"
             :options="redistributionTypeOptions"
+            class="!w-full"
           />
         </section>
 
@@ -378,7 +383,11 @@ onMounted(() => {
           <h3 class="text-base font-medium text-n-slate-12">
             {{ t('CONVERSATION_REDISTRIBUTION.FORM.STRATEGY') }}
           </h3>
-          <ComboBox v-model="strategy" :options="strategyOptions" />
+          <Select
+            v-model="strategy"
+            :options="strategyOptions"
+            class="!w-full"
+          />
         </section>
 
         <div
