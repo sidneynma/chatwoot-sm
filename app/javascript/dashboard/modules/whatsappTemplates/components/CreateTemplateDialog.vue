@@ -57,7 +57,6 @@ const exampleValues = ref({});
 const errors = ref({});
 const variableMode = ref('POSITIONAL');
 const namedVariableInput = ref('');
-const buttonsGroupType = ref('NONE');
 const templateButtons = ref([]);
 
 const categoryOptions = computed(() => [
@@ -242,7 +241,6 @@ const resetForm = () => {
   errors.value = {};
   variableMode.value = 'POSITIONAL';
   namedVariableInput.value = '';
-  buttonsGroupType.value = 'NONE';
   templateButtons.value = [];
 };
 
@@ -251,16 +249,20 @@ const onMediaFileChange = event => {
 };
 
 const validateButtons = () => {
-  if (buttonsGroupType.value === 'NONE') return;
+  if (!templateButtons.value.length) return;
 
-  if (!templateButtons.value.length) {
+  const types = templateButtons.value.map(button => button.type);
+  const hasQuickReply = types.includes('QUICK_REPLY');
+  const hasCta = types.some(type => ['URL', 'PHONE_NUMBER'].includes(type));
+
+  if (hasQuickReply && hasCta) {
     errors.value.buttons = t(
-      'WHATSAPP_TEMPLATES.ADMIN.CREATE.BUTTONS.VALIDATION.REQUIRED'
+      'WHATSAPP_TEMPLATES.ADMIN.CREATE.BUTTONS.VALIDATION.MIXED_TYPES'
     );
     return;
   }
 
-  if (buttonsGroupType.value === 'QUICK_REPLY') {
+  if (hasQuickReply) {
     templateButtons.value.forEach((button, index) => {
       if (!button.text?.trim()) {
         errors.value[`button_${index}_text`] = t(
@@ -435,9 +437,9 @@ const handleSubmit = async () => {
     payload.header_text = form.value.header_text.trim();
   }
 
-  if (buttonsGroupType.value !== 'NONE') {
+  if (templateButtons.value.length) {
     payload.buttons = templateButtons.value.map(button => {
-      if (buttonsGroupType.value === 'QUICK_REPLY') {
+      if (button.type === 'QUICK_REPLY') {
         return {
           type: 'QUICK_REPLY',
           text: button.text.trim(),
@@ -695,7 +697,6 @@ watch(
           />
 
           <TemplateButtonsEditor
-            v-model:group-type="buttonsGroupType"
             v-model:buttons="templateButtons"
             :errors="errors"
           />
