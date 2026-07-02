@@ -714,17 +714,18 @@ watch(
             </div>
           </div>
 
+          <TemplateButtonsEditor
+            :buttons="templateButtons"
+            :errors="errors"
+            @update:buttons="templateButtons = $event"
+          />
+
           <Input
             v-model="form.footer_text"
             :label="t('WHATSAPP_TEMPLATES.ADMIN.CREATE.FOOTER_LABEL')"
             :placeholder="
               t('WHATSAPP_TEMPLATES.ADMIN.CREATE.FOOTER_PLACEHOLDER')
             "
-          />
-
-          <TemplateButtonsEditor
-            v-model:buttons="templateButtons"
-            :errors="errors"
           />
 
           <div v-if="templateVariables.length" class="flex flex-col gap-2">

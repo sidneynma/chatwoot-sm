@@ -132,10 +132,7 @@ build_docker_image() {
   local dockerfile
   dockerfile="$(mktemp "${TMPDIR:-/tmp}/chatwoot-sm-Dockerfile.XXXXXX")"
 
-  cleanup() {
-    rm -f "$dockerfile"
-  }
-  trap cleanup EXIT
+  trap "rm -f '${dockerfile}'" EXIT
 
   cp docker/Dockerfile "$dockerfile"
   printf '\nENV CW_EDITION="%s"\n' "$RELEASE_EDITION" >> "$dockerfile"

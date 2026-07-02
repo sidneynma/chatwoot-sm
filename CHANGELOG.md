@@ -25,7 +25,7 @@ Imagem Docker: `sidneynma/chatwoot-sm:v4.14.2.c`
 
 ### Corrigido
 
-- Editor de botões URL/CTA — opções sempre visíveis (sem dropdown); card com campos Texto + URL aparece ao clicar
+- Editor de botões URL/CTA — estado local no editor + seção antes do rodapé; card Texto + URL aparece ao clicar
 - Tipo de cabeçalho **Localização** — `ComboBox` trocado por `Select` para exibir todas as opções
 
 ### Documentação
