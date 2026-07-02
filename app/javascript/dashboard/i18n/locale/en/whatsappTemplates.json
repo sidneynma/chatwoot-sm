@@ -172,7 +172,7 @@
           "TYPE_URL": "Visit website",
           "TYPE_PHONE": "Call",
           "URL_LABEL": "URL",
-          "URL_PLACEHOLDER": "https://example.com or https://example.com/{{1}}",
+          "URL_PLACEHOLDER": "https://example.com or https://example.com/{'{{'}1{'}}'}",
           "URL_EXAMPLE_LABEL": "URL variable example",
           "URL_EXAMPLE_PLACEHOLDER": "Example value for the URL variable",
           "PHONE_LABEL": "Phone number",

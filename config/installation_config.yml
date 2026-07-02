@@ -79,6 +79,11 @@
   display_title: 'System events Webhook URL'
   description: 'The URL to which the system events like new accounts created will be sent'
   locked: false
+- name: CAMPAIGN_DASHBOARD_STATUS_WEBHOOK_URL
+  value:
+  display_title: 'Chatolhe — status WhatsApp (campanhas)'
+  description: 'URL do Campaign Dashboard Chatolhe para encaminhar status delivered/read/failed de envios rapidos sem mensagem na conversa. Ex.: https://dashboard.seudominio.com.br/api/webhooks/meta-status?token=SEU_WEBHOOK_SECRET'
+  locked: false
 - name: WEBHOOK_TIMEOUT
   value: 5
   display_title: 'Webhook request timeout (seconds)'

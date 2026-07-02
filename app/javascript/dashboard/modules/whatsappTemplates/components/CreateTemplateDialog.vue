@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 
@@ -262,6 +262,42 @@ const resetForm = () => {
 
 const onMediaFileChange = event => {
   headerMediaFile.value = event.target.files?.[0] || null;
+};
+
+const createTemplateButton = type => {
+  if (type === 'QUICK_REPLY') {
+    return { type: 'QUICK_REPLY', text: '' };
+  }
+
+  return {
+    type,
+    text: '',
+    url: '',
+    phone_number: '',
+    url_example: '',
+  };
+};
+
+const addTemplateButton = async type => {
+  const nextIndex = templateButtons.value.length;
+  templateButtons.value = [
+    ...templateButtons.value,
+    createTemplateButton(type),
+  ];
+  await nextTick();
+  document
+    .getElementById(`template-button-${nextIndex}`)
+    ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+const removeTemplateButton = index => {
+  templateButtons.value = templateButtons.value.filter((_, i) => i !== index);
+};
+
+const updateTemplateButton = ({ index, patch }) => {
+  templateButtons.value = templateButtons.value.map((button, i) =>
+    i === index ? { ...button, ...patch } : button
+  );
 };
 
 const validateButtons = () => {
@@ -714,11 +750,17 @@ watch(
             </div>
           </div>
 
-          <TemplateButtonsEditor
-            :buttons="templateButtons"
-            :errors="errors"
-            @update:buttons="templateButtons = $event"
-          />
+          <div
+            class="flex flex-col gap-2 p-3 rounded-xl border border-n-weak bg-n-surface-1"
+          >
+            <TemplateButtonsEditor
+              :buttons="templateButtons"
+              :errors="errors"
+              @add="addTemplateButton"
+              @remove="removeTemplateButton"
+              @update="updateTemplateButton"
+            />
+          </div>
 
           <Input
             v-model="form.footer_text"

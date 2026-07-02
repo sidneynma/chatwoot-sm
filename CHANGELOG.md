@@ -10,7 +10,36 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.14.2.c`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.14.2.d`
+
+---
+
+## [v4.14.2.d] — 2026-07-02
+
+**Base upstream:** Chatwoot `4.14.2`
+
+### Adicionado
+
+- **Campaign Dashboard (Chatolhe)** — encaminhamento de status WhatsApp (`delivered`/`read`/`failed`) para webhook externo quando não há mensagem na conversa (envio rápido `meta_direct`)
+- Config `CAMPAIGN_DASHBOARD_STATUS_WEBHOOK_URL` em Super Admin → Configurações
+
+### Corrigido
+
+- **WhatsApp Templates** — botão "Acessar o site" quebrava o editor com erro `Not allowed nest placeholder` (escape de `{{1}}` no placeholder de URL)
+- Editor de botões — estado gerenciado no dialog pai com eventos `@add`/`@remove`/`@update`; menu dropdown e scroll ao adicionar botão
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.14.2.d
+```
+
+### Release
+
+```bash
+./scripts/release.sh v4.14.2.d --push
+```
 
 ---
 
