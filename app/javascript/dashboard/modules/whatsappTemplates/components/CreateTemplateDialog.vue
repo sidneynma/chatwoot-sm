@@ -40,6 +40,13 @@ const { t } = useI18n();
 const NAME_REGEX = /^[a-z0-9_]+$/;
 const MEDIA_HEADER_TYPES = ['IMAGE', 'VIDEO', 'DOCUMENT'];
 
+const formatTemplateName = value =>
+  value
+    .toLowerCase()
+    .replace(/\s+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '');
+
 const form = ref({
   name: '',
   category: 'UTILITY',
@@ -49,6 +56,10 @@ const form = ref({
   body_text: '',
   footer_text: '',
 });
+
+const updateTemplateName = value => {
+  form.value.name = formatTemplateName(value);
+};
 
 const headerMediaFile = ref(null);
 const mediaInputRef = ref(null);
@@ -101,6 +112,10 @@ const headerTypeOptions = computed(() => [
     value: 'DOCUMENT',
     label: t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_TYPE_DOCUMENT'),
   },
+  {
+    value: 'LOCATION',
+    label: t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_TYPE_LOCATION'),
+  },
 ]);
 
 const isMediaHeader = computed(() =>
@@ -108,6 +123,8 @@ const isMediaHeader = computed(() =>
 );
 
 const showTextHeader = computed(() => form.value.header_type === 'TEXT');
+
+const isLocationHeader = computed(() => form.value.header_type === 'LOCATION');
 
 const mediaAccept = computed(() => {
   const acceptMap = {
@@ -335,7 +352,7 @@ const validate = () => {
     errors.value.name = t(
       'WHATSAPP_TEMPLATES.ADMIN.CREATE.VALIDATION.NAME_REQUIRED'
     );
-  } else if (!NAME_REGEX.test(form.value.name.trim())) {
+  } else if (!NAME_REGEX.test(formatTemplateName(form.value.name))) {
     errors.value.name = t(
       'WHATSAPP_TEMPLATES.ADMIN.CREATE.VALIDATION.NAME_FORMAT'
     );
@@ -418,7 +435,7 @@ const handleSubmit = async () => {
   );
 
   const payload = {
-    name: form.value.name.trim(),
+    name: formatTemplateName(form.value.name),
     category: form.value.category,
     language: form.value.language,
     body_text: form.value.body_text.trim(),
@@ -433,6 +450,8 @@ const handleSubmit = async () => {
   if (isMediaHeader.value) {
     payload.header_format = form.value.header_type;
     payload.header_handle = headerHandle;
+  } else if (isLocationHeader.value) {
+    payload.header_format = 'LOCATION';
   } else if (showTextHeader.value && form.value.header_text.trim()) {
     payload.header_text = form.value.header_text.trim();
   }
@@ -514,13 +533,14 @@ watch(
 
         <form class="flex flex-col gap-3" @submit.prevent="handleSubmit">
           <Input
-            v-model="form.name"
+            :model-value="form.name"
             :label="t('WHATSAPP_TEMPLATES.ADMIN.CREATE.NAME_LABEL')"
             :placeholder="t('WHATSAPP_TEMPLATES.ADMIN.CREATE.NAME_PLACEHOLDER')"
             :message="
               errors.name || t('WHATSAPP_TEMPLATES.ADMIN.CREATE.NAME_HINT')
             "
             :message-type="errors.name ? 'error' : 'info'"
+            @update:model-value="updateTemplateName"
           />
 
           <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -572,6 +592,10 @@ watch(
                 t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_PLACEHOLDER')
               "
             />
+
+            <p v-if="isLocationHeader" class="text-sm text-n-slate-11">
+              {{ t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_LOCATION_HINT') }}
+            </p>
 
             <div v-if="isMediaHeader" class="flex flex-col gap-2">
               <label class="text-sm font-medium text-n-slate-12">

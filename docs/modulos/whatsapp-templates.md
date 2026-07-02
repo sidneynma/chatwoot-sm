@@ -73,7 +73,26 @@ Base: `/api/v1/accounts/:account_id/whatsapp/templates`
 |--------|------|-----------|----------------|
 | `GET` | `/templates?inbox_id=:id` | Lista templates do banco | `inbox_id` (query) |
 | `POST` | `/templates` | Cria template na Meta + re-sync | `{ inbox_id, template: {...} }` |
+| `POST` | `/templates/upload_media` | Upload de mídia de exemplo (header) | `multipart`: `inbox_id`, `header_format`, `file` |
 | `DELETE` | `/templates/:name?inbox_id=:id` | Exclui template na Meta + re-sync | `:name` na URL, `inbox_id` (query) |
+
+### Cadeia de criação (o que acontece no `POST /templates`)
+
+1. **Frontend** (`api.js`) → `POST /api/v1/accounts/:account_id/whatsapp/templates`
+2. **Controller** (`enterprise/.../templates_controller.rb`) → valida admin + inbox WhatsApp Cloud
+3. **Service** (`Whatsapp::TemplatesManagementService#create`) → monta `components` e chama a Meta:
+
+```
+POST https://graph.facebook.com/v14.0/{WABA_ID}/message_templates
+Authorization: Bearer {channel.api_key}
+```
+
+4. Após sucesso → `channel.sync_templates` atualiza `message_templates` no banco.
+
+Referência oficial da Meta:
+[Message Templates — Business Management API](https://developers.facebook.com/docs/whatsapp/business-management-api/message-templates)
+
+Componente `BUTTONS` aceita `QUICK_REPLY`, `URL` (com `example` se a URL tiver variável) e `PHONE_NUMBER`.
 
 ### Payload de criação (`template`)
 
@@ -90,6 +109,7 @@ Base: `/api/v1/accounts/:account_id/whatsapp/templates`
 ```
 
 O serviço monta os `components` no formato da Meta (`HEADER`/`BODY`/`FOOTER`/`BUTTONS`).
+Headers suportados: `TEXT`, `IMAGE`, `VIDEO`, `DOCUMENT`, `LOCATION` (localização é preenchida no envio).
 Se o corpo tiver variáveis, `body_examples` vira `example.body_text`.
 
 Botões suportados na criação:
@@ -130,6 +150,67 @@ Segue o padrão do Chatwoot — **não foi criado nenhum sistema de permissão n
 2. **Sincronizar:** botão chama `InboxesAPI.syncTemplates` (fluxo nativo) e depois recarrega.
 3. **Criar:** `POST` → `TemplatesManagementService#create` (Graph API) → `channel.sync_templates` → retorna lista atualizada.
 4. **Excluir:** `DELETE` → `TemplatesManagementService#delete` (Graph API) → `channel.sync_templates` → retorna lista atualizada.
+
+---
+
+## Desenvolvimento local (sem rebuild de imagem a cada mudança)
+
+Para iterar no módulo de templates **não é necessário** gerar nova imagem Docker a cada
+alteração. Use um destes fluxos:
+
+### Opção A — Nativo (mais rápido para UI)
+
+```bash
+bundle install && pnpm install
+overmind start -f Procfile.dev
+# ou: pnpm dev  (vite) + bin/rails s -p 3000 em outro terminal
+```
+
+- **Frontend** (`app/javascript/...`) recarrega via Vite (hot reload).
+- **Backend** (`enterprise/app/...`) recarrega via Rails em development.
+- Acesse `http://localhost:3000` e vá em **WhatsApp → Templates**.
+
+> Para testar criação real na Meta, a inbox precisa ser WhatsApp Cloud com token válido
+> (mesmo em dev local).
+
+### Opção B — Docker Compose de desenvolvimento (código montado)
+
+O `docker-compose.yaml` do projeto já monta o repositório local:
+
+```yaml
+volumes:
+  - ./:/app:delegated
+```
+
+```bash
+docker compose up rails vite sidekiq postgres redis
+```
+
+Alterações em `app/javascript` e `enterprise/` refletem no container sem rebuild,
+desde que o serviço `vite` esteja rodando.
+
+### Opção C — Imagem de produção + volume (só backend)
+
+Se você já roda `sidneynma/chatwoot-sm:vX.Y.Z` em produção/staging e quer testar só
+mudanças Ruby sem rebuild completo, monte pastas específicas:
+
+```yaml
+services:
+  chatwoot:
+    image: sidneynma/chatwoot-sm:v4.14.2.a
+    volumes:
+      - ./enterprise:/app/enterprise:ro
+```
+
+**Limitação:** a imagem de produção traz o frontend **pré-compilado**. Mudanças em
+`app/javascript` exigem Opção A ou B (ou rebuild da imagem com `scripts/release.sh`).
+
+### Debug rápido do formulário de botões
+
+- Ao clicar **Adicionar botão → Acessar o site**, deve aparecer o card
+  **Botão 1 (Acessar o site)** com campos Texto + URL.
+- Quick reply e CTA não podem ser misturados (regra da Meta).
+- URL com variável (`https://site.com/{{1}}`) exige campo de exemplo.
 
 ---
 

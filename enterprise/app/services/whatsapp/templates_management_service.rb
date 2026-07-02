@@ -44,7 +44,11 @@ class Whatsapp::TemplatesManagementService
   end
 
   def header_component?(params)
-    media_header_format?(params) || params[:header_text].present?
+    location_header_format?(params) || media_header_format?(params) || params[:header_text].present?
+  end
+
+  def location_header_format?(params)
+    params[:header_format].to_s == 'LOCATION'
   end
 
   def media_header_format?(params)
@@ -52,6 +56,7 @@ class Whatsapp::TemplatesManagementService
   end
 
   def build_header_component(params)
+    return { type: 'HEADER', format: 'LOCATION' } if location_header_format?(params)
     return build_media_header_component(params) if media_header_format?(params)
 
     header = { type: 'HEADER', format: 'TEXT', text: params[:header_text] }

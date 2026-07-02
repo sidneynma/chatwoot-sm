@@ -1,23 +1,20 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { vOnClickOutside } from '@vueuse/components';
 
 import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 
-const props = defineProps({
-  buttons: {
-    type: Array,
-    default: () => [],
-  },
+defineProps({
   errors: {
     type: Object,
     default: () => ({}),
   },
 });
-const emit = defineEmits(['update:buttons']);
+
+const buttons = defineModel('buttons', { type: Array, default: () => [] });
+
 const QUICK_REPLY_LIMIT = 3;
 const CTA_LIMIT = 2;
 
@@ -25,23 +22,16 @@ const { t } = useI18n();
 
 const showAddMenu = ref(false);
 
-const buttonsModel = computed({
-  get: () => props.buttons,
-  set: value => emit('update:buttons', value),
-});
-
 const isQuickReplyMode = computed(() =>
-  buttonsModel.value.some(button => button.type === 'QUICK_REPLY')
+  buttons.value.some(button => button.type === 'QUICK_REPLY')
 );
 
 const isCtaMode = computed(() =>
-  buttonsModel.value.some(button =>
-    ['URL', 'PHONE_NUMBER'].includes(button.type)
-  )
+  buttons.value.some(button => ['URL', 'PHONE_NUMBER'].includes(button.type))
 );
 
 const addButtonOptions = computed(() => {
-  if (!buttonsModel.value.length) {
+  if (!buttons.value.length) {
     return [
       {
         type: 'QUICK_REPLY',
@@ -62,7 +52,7 @@ const addButtonOptions = computed(() => {
   }
 
   if (isQuickReplyMode.value) {
-    if (buttonsModel.value.length >= QUICK_REPLY_LIMIT) return [];
+    if (buttons.value.length >= QUICK_REPLY_LIMIT) return [];
 
     return [
       {
@@ -74,7 +64,7 @@ const addButtonOptions = computed(() => {
   }
 
   if (isCtaMode.value) {
-    if (buttonsModel.value.length >= CTA_LIMIT) return [];
+    if (buttons.value.length >= CTA_LIMIT) return [];
 
     const options = [
       {
@@ -84,7 +74,7 @@ const addButtonOptions = computed(() => {
       },
     ];
 
-    if (!buttonsModel.value.some(button => button.type === 'PHONE_NUMBER')) {
+    if (!buttons.value.some(button => button.type === 'PHONE_NUMBER')) {
       options.push({
         type: 'PHONE_NUMBER',
         icon: 'i-lucide-phone',
@@ -114,17 +104,26 @@ const createButton = type => {
   };
 };
 
-const addButton = type => {
-  buttonsModel.value = [...buttonsModel.value, createButton(type)];
+const scrollToButton = async index => {
+  await nextTick();
+  document
+    .getElementById(`template-button-${index}`)
+    ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+};
+
+const addButton = async type => {
+  const nextIndex = buttons.value.length;
+  buttons.value = [...buttons.value, createButton(type)];
   showAddMenu.value = false;
+  await scrollToButton(nextIndex);
 };
 
 const removeButton = index => {
-  buttonsModel.value = buttonsModel.value.filter((_, i) => i !== index);
+  buttons.value = buttons.value.filter((_, i) => i !== index);
 };
 
 const updateButton = (index, patch) => {
-  buttonsModel.value = buttonsModel.value.map((button, i) =>
+  buttons.value = buttons.value.map((button, i) =>
     i === index ? { ...button, ...patch } : button
   );
 };
@@ -153,10 +152,11 @@ const urlHasVariable = url => /\{\{[^}]+\}\}/.test(url || '');
       {{ t('WHATSAPP_TEMPLATES.ADMIN.CREATE.BUTTONS.SECTION_HINT') }}
     </p>
 
-    <div v-if="buttonsModel.length" class="flex flex-col gap-3">
+    <div v-if="buttons.length" class="flex flex-col gap-3">
       <div
-        v-for="(button, index) in buttonsModel"
-        :key="index"
+        v-for="(button, index) in buttons"
+        :id="`template-button-${index}`"
+        :key="`${button.type}-${index}`"
         class="flex flex-col gap-2 p-3 rounded-lg border border-n-weak"
       >
         <div class="flex items-center justify-between gap-2">
@@ -243,11 +243,7 @@ const urlHasVariable = url => /\{\{[^}]+\}\}/.test(url || '');
       {{ errors.buttons }}
     </div>
 
-    <div
-      v-if="canAddButton"
-      v-on-click-outside="() => (showAddMenu = false)"
-      class="relative"
-    >
+    <div v-if="canAddButton" class="flex flex-col gap-2">
       <Button
         type="button"
         size="sm"
@@ -261,7 +257,7 @@ const urlHasVariable = url => /\{\{[^}]+\}\}/.test(url || '');
 
       <div
         v-if="showAddMenu"
-        class="absolute left-0 right-0 z-20 mt-1 overflow-hidden rounded-lg border shadow-lg border-n-weak bg-n-surface-1"
+        class="flex flex-col overflow-hidden rounded-lg border border-n-weak bg-n-surface-1"
       >
         <button
           v-for="option in addButtonOptions"

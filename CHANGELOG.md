@@ -10,7 +10,63 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.14.2.a`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.14.2.c`
+
+---
+
+## [v4.14.2.c] — 2026-07-02
+
+**Base upstream:** Chatwoot `4.14.2`
+
+### Adicionado
+
+- **WhatsApp Templates** — cabeçalho `LOCATION` na criação de templates (local definido no envio)
+- Normalização automática do nome do template (`teste hoje` → `teste_hoje`)
+
+### Corrigido
+
+- Editor de botões URL/CTA — menu inline (botão não sumia ao adicionar)
+
+### Documentação
+
+- `docs/modulos/whatsapp-templates.md` — fluxo de criação, dev local e headers suportados
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.14.2.c
+```
+
+### Release
+
+```bash
+./scripts/release.sh v4.14.2.c --push
+```
+
+---
+
+## [v4.14.2.b] — 2026-07-01
+
+**Base upstream:** Chatwoot `4.14.2`
+
+### Corrigido
+
+- **Redistribuição de conversas** — erro PG `DISTINCT` em colunas JSON
+- **WhatsApp Templates** — redesign do editor de botões (estilo Meta)
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.14.2.b
+```
+
+### Release
+
+```bash
+./scripts/release.sh v4.14.2.b --push
+```
 
 ---
 
