@@ -119,6 +119,7 @@
         "HEADER_TYPE_VIDEO": "Vídeo",
         "HEADER_TYPE_DOCUMENT": "Documento",
         "HEADER_TYPE_LOCATION": "Localização",
+        "HEADER_TYPE_HINT": "Localização é um tipo de cabeçalho (mapa), não um botão. As coordenadas são definidas no envio.",
         "HEADER_LOCATION_HINT": "O local no mapa é definido no envio da mensagem, não na criação do template.",
         "HEADER_LABEL": "Texto do cabeçalho (opcional)",
         "HEADER_PLACEHOLDER": "Texto do cabeçalho",

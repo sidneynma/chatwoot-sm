@@ -5,7 +5,6 @@ import { useAlert } from 'dashboard/composables';
 
 import Button from 'dashboard/components-next/button/Button.vue';
 import TeleportWithDirection from 'dashboard/components-next/TeleportWithDirection.vue';
-import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import Select from 'dashboard/components-next/select/Select.vue';
 import TextArea from 'dashboard/components-next/textarea/TextArea.vue';
@@ -577,11 +576,14 @@ watch(
               <label class="text-sm font-medium text-n-slate-12">
                 {{ t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_TYPE_LABEL') }}
               </label>
-              <ComboBox
+              <Select
                 v-model="form.header_type"
                 :options="headerTypeOptions"
-                class="w-full"
+                class="!w-full"
               />
+              <p class="text-xs text-n-slate-11">
+                {{ t('WHATSAPP_TEMPLATES.ADMIN.CREATE.HEADER_TYPE_HINT') }}
+              </p>
             </div>
 
             <Input

@@ -119,6 +119,7 @@
         "HEADER_TYPE_VIDEO": "Video",
         "HEADER_TYPE_DOCUMENT": "Document",
         "HEADER_TYPE_LOCATION": "Location",
+        "HEADER_TYPE_HINT": "Location is a header type (map), not a message button. Coordinates are set when sending.",
         "HEADER_LOCATION_HINT": "The map location is defined when sending the message, not during template creation.",
         "HEADER_LABEL": "Header text (optional)",
         "HEADER_PLACEHOLDER": "Header text",

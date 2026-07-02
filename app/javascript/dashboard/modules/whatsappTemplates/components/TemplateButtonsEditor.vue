@@ -1,37 +1,46 @@
 <script setup>
-import { computed, nextTick, ref } from 'vue';
+import { computed, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import Button from 'dashboard/components-next/button/Button.vue';
 import Input from 'dashboard/components-next/input/Input.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 
-defineProps({
+const props = defineProps({
+  buttons: {
+    type: Array,
+    default: () => [],
+  },
   errors: {
     type: Object,
     default: () => ({}),
   },
 });
 
-const buttons = defineModel('buttons', { type: Array, default: () => [] });
+const emit = defineEmits(['update:buttons']);
 
 const QUICK_REPLY_LIMIT = 3;
 const CTA_LIMIT = 2;
 
 const { t } = useI18n();
 
-const showAddMenu = ref(false);
+const buttonsList = computed({
+  get: () => props.buttons,
+  set: value => emit('update:buttons', value),
+});
 
 const isQuickReplyMode = computed(() =>
-  buttons.value.some(button => button.type === 'QUICK_REPLY')
+  buttonsList.value.some(button => button.type === 'QUICK_REPLY')
 );
 
 const isCtaMode = computed(() =>
-  buttons.value.some(button => ['URL', 'PHONE_NUMBER'].includes(button.type))
+  buttonsList.value.some(button =>
+    ['URL', 'PHONE_NUMBER'].includes(button.type)
+  )
 );
 
 const addButtonOptions = computed(() => {
-  if (!buttons.value.length) {
+  if (!buttonsList.value.length) {
     return [
       {
         type: 'QUICK_REPLY',
@@ -52,7 +61,7 @@ const addButtonOptions = computed(() => {
   }
 
   if (isQuickReplyMode.value) {
-    if (buttons.value.length >= QUICK_REPLY_LIMIT) return [];
+    if (buttonsList.value.length >= QUICK_REPLY_LIMIT) return [];
 
     return [
       {
@@ -64,7 +73,7 @@ const addButtonOptions = computed(() => {
   }
 
   if (isCtaMode.value) {
-    if (buttons.value.length >= CTA_LIMIT) return [];
+    if (buttonsList.value.length >= CTA_LIMIT) return [];
 
     const options = [
       {
@@ -74,7 +83,7 @@ const addButtonOptions = computed(() => {
       },
     ];
 
-    if (!buttons.value.some(button => button.type === 'PHONE_NUMBER')) {
+    if (!buttonsList.value.some(button => button.type === 'PHONE_NUMBER')) {
       options.push({
         type: 'PHONE_NUMBER',
         icon: 'i-lucide-phone',
@@ -112,18 +121,17 @@ const scrollToButton = async index => {
 };
 
 const addButton = async type => {
-  const nextIndex = buttons.value.length;
-  buttons.value = [...buttons.value, createButton(type)];
-  showAddMenu.value = false;
+  const nextIndex = buttonsList.value.length;
+  buttonsList.value = [...buttonsList.value, createButton(type)];
   await scrollToButton(nextIndex);
 };
 
 const removeButton = index => {
-  buttons.value = buttons.value.filter((_, i) => i !== index);
+  buttonsList.value = buttonsList.value.filter((_, i) => i !== index);
 };
 
 const updateButton = (index, patch) => {
-  buttons.value = buttons.value.map((button, i) =>
+  buttonsList.value = buttonsList.value.map((button, i) =>
     i === index ? { ...button, ...patch } : button
   );
 };
@@ -152,9 +160,9 @@ const urlHasVariable = url => /\{\{[^}]+\}\}/.test(url || '');
       {{ t('WHATSAPP_TEMPLATES.ADMIN.CREATE.BUTTONS.SECTION_HINT') }}
     </p>
 
-    <div v-if="buttons.length" class="flex flex-col gap-3">
+    <div v-if="buttonsList.length" class="flex flex-col gap-3">
       <div
-        v-for="(button, index) in buttons"
+        v-for="(button, index) in buttonsList"
         :id="`template-button-${index}`"
         :key="`${button.type}-${index}`"
         class="flex flex-col gap-2 p-3 rounded-lg border border-n-weak"
@@ -244,26 +252,16 @@ const urlHasVariable = url => /\{\{[^}]+\}\}/.test(url || '');
     </div>
 
     <div v-if="canAddButton" class="flex flex-col gap-2">
-      <Button
-        type="button"
-        size="sm"
-        variant="outline"
-        color="slate"
-        icon="i-lucide-plus"
-        class="w-full"
-        :label="t('WHATSAPP_TEMPLATES.ADMIN.CREATE.BUTTONS.ADD')"
-        @click="showAddMenu = !showAddMenu"
-      />
+      <p v-if="buttonsList.length" class="text-xs font-medium text-n-slate-11">
+        {{ t('WHATSAPP_TEMPLATES.ADMIN.CREATE.BUTTONS.ADD') }}
+      </p>
 
-      <div
-        v-if="showAddMenu"
-        class="flex flex-col overflow-hidden rounded-lg border border-n-weak bg-n-surface-1"
-      >
+      <div class="flex flex-col gap-1">
         <button
           v-for="option in addButtonOptions"
           :key="option.type"
           type="button"
-          class="flex items-center w-full gap-2 px-3 py-2 text-sm text-left transition-colors text-n-slate-12 hover:bg-n-alpha-2"
+          class="flex items-center w-full gap-2 px-3 py-2 text-sm text-left transition-colors rounded-lg border border-n-weak text-n-slate-12 hover:bg-n-alpha-2"
           @click="addButton(option.type)"
         >
           <Icon :icon="option.icon" class="size-4 shrink-0 text-n-slate-11" />

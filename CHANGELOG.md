@@ -25,7 +25,8 @@ Imagem Docker: `sidneynma/chatwoot-sm:v4.14.2.c`
 
 ### Corrigido
 
-- Editor de botões URL/CTA — menu inline (botão não sumia ao adicionar)
+- Editor de botões URL/CTA — opções sempre visíveis (sem dropdown); card com campos Texto + URL aparece ao clicar
+- Tipo de cabeçalho **Localização** — `ComboBox` trocado por `Select` para exibir todas as opções
 
 ### Documentação
 
@@ -41,7 +42,10 @@ image: sidneynma/chatwoot-sm:v4.14.2.c
 ### Release
 
 ```bash
-./scripts/release.sh v4.14.2.c --push
+# Republicar na mesma tag (após commit):
+git tag -d v4.14.2.c && git push origin :refs/tags/v4.14.2.c
+git tag -a v4.14.2.c -m "release v4.14.2.c" && git push origin v4.14.2.c
+./scripts/release.sh v4.14.2.c --skip-tag --push
 ```
 
 ---
