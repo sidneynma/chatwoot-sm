@@ -42,6 +42,7 @@ import teamsSettings from './teamsSettings.json';
 import webhooks from './webhooks.json';
 import whatsappTemplates from './whatsappTemplates.json';
 import conversationRedistribution from './conversationRedistribution.json';
+import crmKanban from './crmKanban.json';
 import yearInReview from './yearInReview.json';
 
 export default {
@@ -89,5 +90,6 @@ export default {
   ...webhooks,
   ...whatsappTemplates,
   ...conversationRedistribution,
+  ...crmKanban,
   ...yearInReview,
 };

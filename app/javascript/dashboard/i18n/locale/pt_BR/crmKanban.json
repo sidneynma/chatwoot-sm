@@ -1,0 +1,86 @@
+{
+  "CRM_KANBAN": {
+    "LIST": {
+      "TITLE": "Funis CRM",
+      "DESCRIPTION": "Abra um funil para trabalhar com suas conversas por etapa.",
+      "EMPTY": "Nenhum funil disponível ainda.",
+      "EMPTY_AGENT": "Nenhum funil ativo disponível. Fale com o administrador.",
+      "STAGES": "etapas"
+    },
+    "BOARD": {
+      "TITLE": "Quadro do funil",
+      "DESCRIPTION": "Arraste os cards entre etapas. Cada card usa uma etiqueta deste funil.",
+      "DESCRIPTION_AGENT": "Somente conversas atribuídas a você são exibidas.",
+      "EMPTY_STAGES": "Este funil ainda não possui etapas configuradas.",
+      "INACTIVE": "Este funil está inativo.",
+      "UNASSIGNED": "Sem responsável",
+      "FILTER": {
+        "MINE": "Atribuídas a mim",
+        "ALL": "Todos os responsáveis"
+      },
+      "STATUS": {
+        "OPEN": "Abertas",
+        "PENDING": "Pendentes",
+        "ALL": "Todos os status"
+      }
+    },
+    "SETTINGS": {
+      "TITLE": "Funis CRM",
+      "DESCRIPTION": "Crie e gerencie funis. Ao excluir um funil, contatos, conversas e etiquetas são mantidos.",
+      "LOADING": "Carregando funis...",
+      "EMPTY": "Nenhum funil criado ainda.",
+      "COUNT": "{n} funis",
+      "CREATE_TITLE": "Criar funil",
+      "EDIT_TITLE": "Editar funil",
+      "DELETE_TITLE": "Excluir funil",
+      "DELETE_DESCRIPTION": "Excluir \"{name}\"? Contatos, conversas e etiquetas serão mantidos. Apenas a configuração do funil será removida.",
+      "ALL_INBOXES": "Todas as caixas",
+      "ACTIVE": "Ativo",
+      "INACTIVE": "Inativo",
+      "ADD_STAGE": "Adicionar etapa",
+      "ADD_STAGE_PLACEHOLDER": "Selecione uma etiqueta",
+      "NO_STAGES": "Adicione pelo menos uma etiqueta como etapa.",
+      "CREATE_SUCCESS": "Funil criado com sucesso.",
+      "UPDATE_SUCCESS": "Funil atualizado com sucesso.",
+      "DELETE_SUCCESS": "Funil excluído com sucesso.",
+      "ACTIVATE_SUCCESS": "Funil ativado com sucesso.",
+      "DEACTIVATE_SUCCESS": "Funil inativado com sucesso.",
+      "FORM": {
+        "NAME": "Nome",
+        "NAME_PLACEHOLDER": "Funil comercial",
+        "INBOX": "Caixa de entrada (opcional)",
+        "INBOX_PLACEHOLDER": "Filtrar quadro por caixa",
+        "ACTIVE": "Funil ativo"
+      },
+      "TABLE": {
+        "NAME": "Nome",
+        "INBOX": "Caixa",
+        "STAGES": "Etapas",
+        "STATUS": "Status",
+        "ACTIONS": "Ações"
+      }
+    },
+    "ACTIONS": {
+      "BACK": "Voltar",
+      "REFRESH": "Atualizar",
+      "CREATE_FUNNEL": "Criar funil",
+      "ADD": "Adicionar",
+      "EDIT": "Editar",
+      "DELETE": "Excluir",
+      "ACTIVATE": "Ativar",
+      "DEACTIVATE": "Inativar",
+      "CANCEL": "Cancelar",
+      "SAVE": "Salvar"
+    },
+    "ERRORS": {
+      "FETCH_FUNNELS": "Não foi possível carregar os funis.",
+      "FETCH_BOARD": "Não foi possível carregar o quadro do funil.",
+      "MOVE": "Não foi possível mover a conversa.",
+      "SAVE_FUNNEL": "Não foi possível salvar o funil.",
+      "DELETE_FUNNEL": "Não foi possível excluir o funil.",
+      "TOGGLE_FUNNEL": "Não foi possível atualizar o status do funil.",
+      "NAME_REQUIRED": "O nome do funil é obrigatório.",
+      "STAGES_REQUIRED": "Adicione pelo menos uma etapa."
+    }
+  }
+}

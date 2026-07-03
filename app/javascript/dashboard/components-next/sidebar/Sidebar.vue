@@ -291,6 +291,13 @@ const menuItems = computed(() => {
       },
     },
     {
+      name: 'CRM',
+      label: t('SIDEBAR.CRM'),
+      icon: 'i-lucide-kanban-square',
+      to: accountScopedRoute('crm_kanban_index'),
+      activeOn: ['crm_kanban_index', 'crm_kanban_board'],
+    },
+    {
       name: 'Conversation',
       label: t('SIDEBAR.CONVERSATIONS'),
       icon: 'i-lucide-message-circle',
@@ -780,6 +787,13 @@ const menuItems = computed(() => {
           icon: 'i-lucide-shuffle',
           to: accountScopedRoute('conversation_redistribution_index'),
           activeOn: ['conversation_redistribution_index'],
+        },
+        {
+          name: 'CRM Funnels',
+          label: t('SIDEBAR.CRM_FUNNELS'),
+          icon: 'i-lucide-kanban-square',
+          to: accountScopedRoute('crm_kanban_settings'),
+          activeOn: ['crm_kanban_settings'],
         },
         {
           name: 'Settings Security',

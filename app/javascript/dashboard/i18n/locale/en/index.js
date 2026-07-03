@@ -38,6 +38,7 @@ import snooze from './snooze.json';
 import teamsSettings from './teamsSettings.json';
 import whatsappTemplates from './whatsappTemplates.json';
 import conversationRedistribution from './conversationRedistribution.json';
+import crmKanban from './crmKanban.json';
 import contentTemplates from './contentTemplates.json';
 import mfa from './mfa.json';
 import onboarding from './onboarding.json';
@@ -84,6 +85,7 @@ export default {
   ...teamsSettings,
   ...whatsappTemplates,
   ...conversationRedistribution,
+  ...crmKanban,
   ...contentTemplates,
   ...mfa,
   ...onboarding,

@@ -1,7 +1,12 @@
 import whatsappTemplates from './whatsappTemplates';
 import conversationRedistribution from './conversationRedistribution';
+import crmKanban from './crmKanban';
 
-const customModules = [whatsappTemplates, conversationRedistribution];
+const customModules = [
+  whatsappTemplates,
+  conversationRedistribution,
+  crmKanban,
+];
 
 export const customModuleRoutes = customModules.flatMap(
   module => module.routes || []

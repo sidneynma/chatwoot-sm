@@ -384,7 +384,9 @@
     "SECURITY": "Security",
     "CAPTAIN_AI": "Captain",
     "CONVERSATION_WORKFLOW": "Conversation Workflow",
-    "CONVERSATION_REDISTRIBUTION": "Conversation redistribution"
+    "CONVERSATION_REDISTRIBUTION": "Conversation redistribution",
+    "CRM": "CRM",
+    "CRM_FUNNELS": "CRM pipelines"
   },
   "CAPTAIN_SETTINGS": {
     "TITLE": "Captain Settings",

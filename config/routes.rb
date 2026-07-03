@@ -347,6 +347,12 @@ Rails.application.routes.draw do
           end
 
           if ChatwootApp.enterprise?
+            resources :crm_funnels, only: [:index, :create, :show, :update, :destroy] do
+              member do
+                get :board
+                post :move
+              end
+            end
             resource :conversation_redistribution, only: [], controller: 'conversation_redistributions' do
               post :simulate, on: :collection
               post :execute, on: :collection

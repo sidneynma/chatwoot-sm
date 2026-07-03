@@ -10,7 +10,41 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.14.2.d`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.14.2.e`
+
+---
+
+## [v4.14.2.e] — 2026-07-03
+
+**Base upstream:** Chatwoot `4.14.2`
+
+### Adicionado
+
+- **CRM Kanban (Funis)** — módulo merge-safe com funis comerciais baseados em etiquetas
+  - Admin: criar/editar/inativar/excluir funis em **Configurações → Funis CRM** (`/settings/crm-funnels`)
+  - Agente e admin: quadro Kanban em **CRM** (`/crm`) com drag-and-drop entre etapas (1 etiqueta por funil)
+  - Cards com contato, responsável, última mensagem; clique abre a conversa
+  - Agente vê **somente conversas atribuídas a ele**; admin pode alternar filtro de responsável
+  - Excluir funil remove só a configuração — contatos, conversas e etiquetas são mantidos
+- Tabelas `crm_funnels` e `crm_funnel_stages` (migration `20260702180000_create_crm_funnels`)
+
+### Documentação
+
+- `docs/modulos/crm-kanban.md`
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.14.2.e
+```
+
+### Release
+
+```bash
+bundle exec rails db:migrate
+./scripts/release.sh v4.14.2.e --push
+```
 
 ---
 

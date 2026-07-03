@@ -384,7 +384,9 @@
     "SECURITY": "Segurança",
     "CAPTAIN_AI": "Capitão",
     "CONVERSATION_WORKFLOW": "Fluxo de Conversa",
-    "CONVERSATION_REDISTRIBUTION": "Redistribuição de conversas"
+    "CONVERSATION_REDISTRIBUTION": "Redistribuição de conversas",
+    "CRM": "CRM",
+    "CRM_FUNNELS": "Funis CRM"
   },
   "CAPTAIN_SETTINGS": {
     "TITLE": "Configurações do Capitão",

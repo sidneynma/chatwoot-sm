@@ -1,0 +1,86 @@
+{
+  "CRM_KANBAN": {
+    "LIST": {
+      "TITLE": "CRM Pipelines",
+      "DESCRIPTION": "Open a pipeline to work with your conversations by stage.",
+      "EMPTY": "No pipelines available yet.",
+      "EMPTY_AGENT": "No active pipelines available. Contact your administrator.",
+      "STAGES": "stages"
+    },
+    "BOARD": {
+      "TITLE": "Pipeline board",
+      "DESCRIPTION": "Drag cards between stages. Each card uses one label from this pipeline.",
+      "DESCRIPTION_AGENT": "Only conversations assigned to you are shown.",
+      "EMPTY_STAGES": "This pipeline has no stages configured yet.",
+      "INACTIVE": "This pipeline is inactive.",
+      "UNASSIGNED": "Unassigned",
+      "FILTER": {
+        "MINE": "Assigned to me",
+        "ALL": "All assignees"
+      },
+      "STATUS": {
+        "OPEN": "Open",
+        "PENDING": "Pending",
+        "ALL": "All statuses"
+      }
+    },
+    "SETTINGS": {
+      "TITLE": "CRM pipelines",
+      "DESCRIPTION": "Create and manage pipelines. Deleting a pipeline does not remove contacts, conversations or labels.",
+      "LOADING": "Loading pipelines...",
+      "EMPTY": "No pipelines created yet.",
+      "COUNT": "{n} pipelines",
+      "CREATE_TITLE": "Create pipeline",
+      "EDIT_TITLE": "Edit pipeline",
+      "DELETE_TITLE": "Delete pipeline",
+      "DELETE_DESCRIPTION": "Delete \"{name}\"? Contacts, conversations and labels will be kept. Only the pipeline configuration is removed.",
+      "ALL_INBOXES": "All inboxes",
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "ADD_STAGE": "Add stage",
+      "ADD_STAGE_PLACEHOLDER": "Select a label",
+      "NO_STAGES": "Add at least one label as a stage.",
+      "CREATE_SUCCESS": "Pipeline created successfully.",
+      "UPDATE_SUCCESS": "Pipeline updated successfully.",
+      "DELETE_SUCCESS": "Pipeline deleted successfully.",
+      "ACTIVATE_SUCCESS": "Pipeline activated successfully.",
+      "DEACTIVATE_SUCCESS": "Pipeline deactivated successfully.",
+      "FORM": {
+        "NAME": "Name",
+        "NAME_PLACEHOLDER": "Sales pipeline",
+        "INBOX": "Inbox (optional)",
+        "INBOX_PLACEHOLDER": "Filter board by inbox",
+        "ACTIVE": "Active pipeline"
+      },
+      "TABLE": {
+        "NAME": "Name",
+        "INBOX": "Inbox",
+        "STAGES": "Stages",
+        "STATUS": "Status",
+        "ACTIONS": "Actions"
+      }
+    },
+    "ACTIONS": {
+      "BACK": "Back",
+      "REFRESH": "Refresh",
+      "CREATE_FUNNEL": "Create pipeline",
+      "ADD": "Add",
+      "EDIT": "Edit",
+      "DELETE": "Delete",
+      "ACTIVATE": "Activate",
+      "DEACTIVATE": "Deactivate",
+      "CANCEL": "Cancel",
+      "SAVE": "Save"
+    },
+    "ERRORS": {
+      "FETCH_FUNNELS": "Could not load pipelines.",
+      "FETCH_BOARD": "Could not load pipeline board.",
+      "MOVE": "Could not move the conversation.",
+      "SAVE_FUNNEL": "Could not save the pipeline.",
+      "DELETE_FUNNEL": "Could not delete the pipeline.",
+      "TOGGLE_FUNNEL": "Could not update pipeline status.",
+      "NAME_REQUIRED": "Pipeline name is required.",
+      "STAGES_REQUIRED": "Add at least one stage."
+    }
+  }
+}
