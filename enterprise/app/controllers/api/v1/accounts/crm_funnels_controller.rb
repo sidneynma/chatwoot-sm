@@ -90,7 +90,7 @@ class Api::V1::Accounts::CrmFunnelsController < Api::V1::Accounts::EnterpriseAcc
   end
 
   def board_params
-    params.permit(:assignee_type, :status, :page)
+    params.permit(:assignee_type, :status, :stage_id, :page)
   end
 
   def move_params

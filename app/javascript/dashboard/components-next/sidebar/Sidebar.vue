@@ -22,6 +22,7 @@ import SidebarAccountSwitcher from './SidebarAccountSwitcher.vue';
 import Logo from 'next/icon/Logo.vue';
 import ComposeConversation from 'dashboard/components-next/NewConversation/ComposeConversation.vue';
 import { getCustomSidebarItems } from 'dashboard/modules';
+import { filterLabelsForUserInboxes } from 'dashboard/modules/inboxScopedResources';
 
 const props = defineProps({
   isMobileSidebarOpen: {
@@ -176,6 +177,12 @@ useEventListener(document, 'touchend', onResizeEnd);
 
 const inboxes = useMapGetter('inboxes/getInboxes');
 const labels = useMapGetter('labels/getLabelsOnSidebar');
+const scopedSidebarLabels = computed(() =>
+  filterLabelsForUserInboxes(
+    labels.value,
+    inboxes.value.map(inbox => inbox.id)
+  )
+);
 const getInboxUnreadCount = useMapGetter(
   'conversationUnreadCounts/getInboxUnreadCount'
 );
@@ -239,7 +246,7 @@ const sortedInboxes = computed(() =>
 
 const sortedLabels = computed(() =>
   sortByUnreadCount(
-    labels.value,
+    scopedSidebarLabels.value,
     label => label.title,
     label => getLabelUnreadCount.value(label.id)
   )
@@ -503,7 +510,7 @@ const menuItems = computed(() => {
           name: 'Tagged With',
           icon: 'i-lucide-tag',
           label: t('SIDEBAR.TAGGED_WITH'),
-          children: labels.value.map(label => ({
+          children: sortedLabels.value.map(label => ({
             name: `${label.title}-${label.id}`,
             label: label.title,
             icon: h('span', {

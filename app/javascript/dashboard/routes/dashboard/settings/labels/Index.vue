@@ -15,10 +15,13 @@ import {
   BaseTableRow,
   BaseTableCell,
 } from 'dashboard/components-next/table';
+import { getInboxScopeLabel } from 'dashboard/modules/inboxScopedResources';
 
 const getters = useStoreGetters();
 const store = useStore();
 const { t } = useI18n();
+
+const inboxes = computed(() => getters['inboxes/getInboxes'].value);
 
 const loading = ref({});
 const showAddPopup = ref(false);
@@ -87,13 +90,17 @@ const tableHeaders = computed(() => {
   return [
     t('LABEL_MGMT.LIST.TABLE_HEADER.NAME'),
     t('LABEL_MGMT.LIST.TABLE_HEADER.DESCRIPTION'),
+    t('INBOX_SCOPED_RESOURCES.INBOX.LABEL'),
     t('LABEL_MGMT.LIST.TABLE_HEADER.COLOR'),
     t('LABEL_MGMT.LIST.TABLE_HEADER.ACTION'),
   ];
 });
 
+const labelScopeName = label => getInboxScopeLabel(label, inboxes.value, t);
+
 onBeforeMount(() => {
   store.dispatch('labels/get');
+  store.dispatch('inboxes/get');
 });
 </script>
 
@@ -147,6 +154,12 @@ onBeforeMount(() => {
               <BaseTableCell>
                 <span class="text-body-main text-n-slate-11">
                   {{ label.description }}
+                </span>
+              </BaseTableCell>
+
+              <BaseTableCell>
+                <span class="text-body-main text-n-slate-11">
+                  {{ labelScopeName(label) }}
                 </span>
               </BaseTableCell>
 

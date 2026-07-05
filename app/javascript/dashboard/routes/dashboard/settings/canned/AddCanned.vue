@@ -6,6 +6,7 @@ import { useAlert } from 'dashboard/composables';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Modal from '../../../../components/Modal.vue';
 import WootMessageEditor from 'dashboard/components/widgets/WootWriter/Editor.vue';
+import { InboxScopeSelect } from 'dashboard/modules/inboxScopedResources';
 
 export default {
   name: 'AddCanned',
@@ -13,6 +14,7 @@ export default {
     NextButton,
     Modal,
     WootMessageEditor,
+    InboxScopeSelect,
   },
   props: {
     responseContent: {
@@ -31,6 +33,7 @@ export default {
     return {
       shortCode: '',
       content: this.responseContent || '',
+      inboxId: null,
       addCanned: {
         showLoading: false,
         message: '',
@@ -62,6 +65,7 @@ export default {
         .dispatch('createCannedResponse', {
           short_code: this.shortCode,
           content: this.content,
+          inbox_id: this.inboxId,
         })
         .then(() => {
           // Reset Form, Show success message
@@ -118,6 +122,11 @@ export default {
             />
           </div>
         </div>
+
+        <div class="w-full">
+          <InboxScopeSelect v-model="inboxId" />
+        </div>
+
         <div class="flex flex-row justify-end w-full gap-2 px-0 py-2">
           <NextButton
             faded

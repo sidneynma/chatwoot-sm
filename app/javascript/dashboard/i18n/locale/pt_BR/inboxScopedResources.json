@@ -1,0 +1,10 @@
+{
+  "INBOX_SCOPED_RESOURCES": {
+    "ALL_INBOXES": "Todas as caixas",
+    "INBOX": {
+      "LABEL": "Caixa de entrada",
+      "PLACEHOLDER": "Selecione uma caixa",
+      "HELP": "Deixe em todas as caixas para disponibilizar a etiqueta em todo lugar, ou escolha uma caixa para restringir."
+    }
+  }
+}

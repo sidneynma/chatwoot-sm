@@ -5,10 +5,12 @@ import validations, { getLabelTitleErrorMessage } from './validations';
 import { useVuelidate } from '@vuelidate/core';
 
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import { InboxScopeSelect } from 'dashboard/modules/inboxScopedResources';
 
 export default {
   components: {
     NextButton,
+    InboxScopeSelect,
   },
   props: {
     selectedResponse: {
@@ -26,6 +28,7 @@ export default {
       description: '',
       showOnSidebar: true,
       color: '',
+      inboxId: null,
     };
   },
   validations,
@@ -55,6 +58,7 @@ export default {
       this.description = this.selectedResponse.description;
       this.showOnSidebar = this.selectedResponse.show_on_sidebar;
       this.color = this.selectedResponse.color;
+      this.inboxId = this.selectedResponse.inbox_id ?? null;
     },
     editLabel() {
       this.$store
@@ -64,6 +68,7 @@ export default {
           description: this.description,
           title: this.title.toLowerCase(),
           show_on_sidebar: this.showOnSidebar,
+          inbox_id: this.inboxId,
         })
         .then(() => {
           useAlert(this.$t('LABEL_MGMT.EDIT.API.SUCCESS_MESSAGE'));
@@ -106,6 +111,9 @@ export default {
           {{ $t('LABEL_MGMT.FORM.COLOR.LABEL') }}
           <woot-color-picker v-model="color" />
         </label>
+      </div>
+      <div class="w-full">
+        <InboxScopeSelect v-model="inboxId" />
       </div>
       <div class="flex items-center w-full gap-2">
         <input v-model="showOnSidebar" type="checkbox" :value="true" />

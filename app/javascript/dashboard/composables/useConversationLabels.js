@@ -1,5 +1,6 @@
 import { computed } from 'vue';
 import { useStore, useStoreGetters } from 'dashboard/composables/store';
+import { filterLabelsForInbox } from 'dashboard/modules/inboxScopedResources';
 
 /**
  * Composable for managing conversation labels
@@ -25,7 +26,12 @@ export function useConversationLabels() {
    * All labels available for the account
    * @type {import('vue').ComputedRef<Array>}
    */
-  const accountLabels = computed(() => getters['labels/getLabels'].value);
+  const accountLabels = computed(() => {
+    const labels = getters['labels/getLabels'].value;
+    const inboxId = currentChat.value?.inbox_id;
+    if (!inboxId) return labels;
+    return filterLabelsForInbox(labels, inboxId);
+  });
 
   /**
    * Labels currently saved to the conversation

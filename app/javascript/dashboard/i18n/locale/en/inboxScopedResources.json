@@ -1,0 +1,10 @@
+{
+  "INBOX_SCOPED_RESOURCES": {
+    "ALL_INBOXES": "All inboxes",
+    "INBOX": {
+      "LABEL": "Inbox",
+      "PLACEHOLDER": "Select an inbox",
+      "HELP": "Leave as all inboxes to make this label available everywhere, or pick one inbox to restrict it."
+    }
+  }
+}

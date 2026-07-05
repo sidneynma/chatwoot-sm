@@ -17,6 +17,7 @@ import {
   BaseTableRow,
   BaseTableCell,
 } from 'dashboard/components-next/table';
+import { getInboxScopeLabel } from 'dashboard/modules/inboxScopedResources';
 
 defineOptions({
   name: 'CannedResponseSettings',
@@ -37,6 +38,8 @@ const cannedResponseAPI = ref({ message: '' });
 
 const sortOrder = ref('asc');
 const searchQuery = ref('');
+
+const inboxes = computed(() => getters['inboxes/getInboxes'].value);
 
 const records = computed(() =>
   getters.getSortedCannedResponses.value(sortOrder.value)
@@ -80,6 +83,7 @@ const fetchCannedResponses = async () => {
 
 onMounted(() => {
   fetchCannedResponses();
+  store.dispatch('inboxes/get');
 });
 
 const showAlertMessage = message => {
@@ -133,9 +137,13 @@ const confirmDeletion = () => {
 const tableHeaders = computed(() => {
   return [
     t('CANNED_MGMT.LIST.TABLE_HEADER.SHORT_CODE'),
+    t('INBOX_SCOPED_RESOURCES.INBOX.LABEL'),
     t('CANNED_MGMT.LIST.TABLE_HEADER.ACTIONS'),
   ];
 });
+
+const cannedScopeName = cannedItem =>
+  getInboxScopeLabel(cannedItem, inboxes.value, t);
 </script>
 
 <template>
@@ -202,6 +210,9 @@ const tableHeaders = computed(() => {
         <template #header-1>
           {{ tableHeaders[1] }}
         </template>
+        <template #header-2>
+          {{ tableHeaders[2] }}
+        </template>
 
         <template #row="{ items }">
           <BaseTableRow
@@ -219,6 +230,12 @@ const tableHeaders = computed(() => {
                     {{ getPlainText(cannedItem.content) }}
                   </p>
                 </div>
+              </BaseTableCell>
+
+              <BaseTableCell>
+                <span class="text-body-main text-n-slate-11">
+                  {{ cannedScopeName(cannedItem) }}
+                </span>
               </BaseTableCell>
 
               <BaseTableCell align="end" class="w-24">
@@ -256,6 +273,7 @@ const tableHeaders = computed(() => {
         :id="activeResponse.id"
         :edshort-code="activeResponse.short_code"
         :edcontent="activeResponse.content"
+        :edinbox-id="activeResponse.inbox_id"
         :on-close="hideEditPopup"
       />
     </woot-modal>

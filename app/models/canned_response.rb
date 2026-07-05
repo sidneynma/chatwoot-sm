@@ -28,3 +28,5 @@ class CannedResponse < ApplicationRecord
     order(Arel.sql(order_clause) => :desc)
   }
 end
+
+CannedResponse.prepend_mod_with('CannedResponse')

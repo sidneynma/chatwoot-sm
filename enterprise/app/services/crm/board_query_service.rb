@@ -4,6 +4,8 @@ class Crm::BoardQueryService
   pattr_initialize [:funnel!, :user!, :account!, :params]
 
   def perform
+    return stage_page_payload if params[:stage_id].present?
+
     {
       funnel: funnel_payload,
       stages: stages_payload
@@ -11,6 +13,22 @@ class Crm::BoardQueryService
   end
 
   private
+
+  def stage_page_payload
+    stage = funnel.stages.find_by(id: params[:stage_id])
+    raise ActiveRecord::RecordNotFound, 'Stage not found' if stage.blank?
+
+    conversations, total_count = stage_conversations(stage)
+    current_page = page.to_i
+
+    {
+      stage_id: stage.id,
+      conversations: conversations,
+      total_count: total_count,
+      page: current_page,
+      has_more: total_count > (current_page * PER_PAGE)
+    }
+  end
 
   def funnel_payload
     {
@@ -23,21 +41,23 @@ class Crm::BoardQueryService
 
   def stages_payload
     funnel.stages.includes(:label).map do |stage|
-      conversations, total_count = stage_conversations(stage)
+      conversations, total_count = stage_conversations(stage, page: 1)
       {
         id: stage.id,
         position: stage.position,
         label: label_payload(stage.label),
         total_count: total_count,
-        conversations: conversations
+        conversations: conversations,
+        has_more: total_count > conversations.length
       }
     end
   end
 
-  def stage_conversations(stage)
+  def stage_conversations(stage, page: nil)
     scope = base_scope.tagged_with(stage.label.title, any: true)
     total_count = scope.count
-    paginated = scope.sort_on_last_activity_at.page(page).per(PER_PAGE)
+    current_page = page || self.page
+    paginated = scope.sort_on_last_activity_at.page(current_page).per(PER_PAGE)
 
     [serialize_conversations(paginated), total_count]
   end

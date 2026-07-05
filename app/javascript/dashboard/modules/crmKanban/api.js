@@ -10,6 +10,12 @@ class CrmKanbanAPI extends ApiClient {
     return axios.get(`${this.url}/${funnelId}/board`, { params });
   }
 
+  getBoardStage(funnelId, stageId, params = {}) {
+    return axios.get(`${this.url}/${funnelId}/board`, {
+      params: { ...params, stage_id: stageId },
+    });
+  }
+
   getForSettings() {
     return axios.get(this.url, { params: { include_inactive: true } });
   }

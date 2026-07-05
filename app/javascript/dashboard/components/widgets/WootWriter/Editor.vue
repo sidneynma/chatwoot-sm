@@ -92,6 +92,7 @@ const props = defineProps({
   allowSignature: { type: Boolean, default: false },
   channelType: { type: String, default: '' },
   conversationId: { type: Number, default: null },
+  inboxId: { type: Number, default: null },
   medium: { type: String, default: '' },
   focusOnMount: { type: Boolean, default: true },
 });
@@ -880,6 +881,7 @@ useEmitter(BUS_EVENTS.INSERT_INTO_RICH_EDITOR, insertContentIntoEditor);
     <CannedResponse
       v-if="shouldShowCannedResponses"
       :search-key="cannedSearchTerm"
+      :inbox-id="inboxId"
       @replace="content => insertSpecialContent('cannedResponse', content)"
     />
     <VariableList

@@ -1326,6 +1326,7 @@ export default {
           ref="messageEditor"
           v-model="message"
           :conversation-id="conversationId"
+          :inbox-id="inboxId"
           :editor-id="editorStateId"
           class="input popover-prosemirror-menu"
           :is-private="isOnPrivateNote"

@@ -6,10 +6,12 @@ import { getRandomColor } from 'dashboard/helper/labelColor';
 import { useVuelidate } from '@vuelidate/core';
 
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import { InboxScopeSelect } from 'dashboard/modules/inboxScopedResources';
 
 export default {
   components: {
     NextButton,
+    InboxScopeSelect,
   },
   props: {
     prefillTitle: {
@@ -27,6 +29,7 @@ export default {
       description: '',
       title: '',
       showOnSidebar: true,
+      inboxId: null,
     };
   },
   validations,
@@ -54,6 +57,7 @@ export default {
           description: this.description,
           title: this.title.toLowerCase(),
           show_on_sidebar: this.showOnSidebar,
+          inbox_id: this.inboxId,
         });
         useAlert(this.$t('LABEL_MGMT.ADD.API.SUCCESS_MESSAGE'));
         this.onClose();
@@ -102,6 +106,9 @@ export default {
           {{ $t('LABEL_MGMT.FORM.COLOR.LABEL') }}
           <woot-color-picker v-model="color" />
         </label>
+      </div>
+      <div class="w-full">
+        <InboxScopeSelect v-model="inboxId" />
       </div>
       <div class="flex items-center w-full gap-2">
         <input v-model="showOnSidebar" type="checkbox" :value="true" />

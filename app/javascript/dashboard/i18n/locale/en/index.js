@@ -39,6 +39,7 @@ import teamsSettings from './teamsSettings.json';
 import whatsappTemplates from './whatsappTemplates.json';
 import conversationRedistribution from './conversationRedistribution.json';
 import crmKanban from './crmKanban.json';
+import inboxScopedResources from './inboxScopedResources.json';
 import contentTemplates from './contentTemplates.json';
 import mfa from './mfa.json';
 import onboarding from './onboarding.json';
@@ -86,6 +87,7 @@ export default {
   ...whatsappTemplates,
   ...conversationRedistribution,
   ...crmKanban,
+  ...inboxScopedResources,
   ...contentTemplates,
   ...mfa,
   ...onboarding,

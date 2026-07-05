@@ -43,6 +43,7 @@ import webhooks from './webhooks.json';
 import whatsappTemplates from './whatsappTemplates.json';
 import conversationRedistribution from './conversationRedistribution.json';
 import crmKanban from './crmKanban.json';
+import inboxScopedResources from './inboxScopedResources.json';
 import yearInReview from './yearInReview.json';
 
 export default {
@@ -91,5 +92,6 @@ export default {
   ...whatsappTemplates,
   ...conversationRedistribution,
   ...crmKanban,
+  ...inboxScopedResources,
   ...yearInReview,
 };

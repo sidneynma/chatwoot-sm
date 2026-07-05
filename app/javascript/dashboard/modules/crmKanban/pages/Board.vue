@@ -24,6 +24,8 @@ const isLoading = ref(false);
 const isMoving = ref(false);
 const funnel = ref(null);
 const stages = ref([]);
+const stagePages = ref({});
+const stageLoadingMore = ref({});
 
 const assigneeOptions = computed(() => [
   { value: 'me', label: t('CRM_KANBAN.BOARD.FILTER.MINE') },
@@ -38,16 +40,27 @@ const statusOptions = computed(() => [
 
 const isInactive = ref(false);
 
+const boardParams = () => ({
+  assignee_type: isAdmin.value ? assigneeType.value : 'me',
+  status: status.value,
+});
+
+const resetStagePages = () => {
+  stagePages.value = {};
+  stageLoadingMore.value = {};
+};
+
 const fetchBoard = async () => {
   isLoading.value = true;
   isInactive.value = false;
+  resetStagePages();
   try {
-    const { data } = await CrmKanbanAPI.getBoard(funnelId.value, {
-      assignee_type: isAdmin.value ? assigneeType.value : 'me',
-      status: status.value,
-    });
+    const { data } = await CrmKanbanAPI.getBoard(funnelId.value, boardParams());
     funnel.value = data.payload.funnel;
     stages.value = data.payload.stages;
+    stages.value.forEach(stage => {
+      stagePages.value[stage.id] = 1;
+    });
   } catch (error) {
     if (error?.response?.status === 403) {
       isInactive.value = true;
@@ -56,6 +69,37 @@ const fetchBoard = async () => {
     }
   } finally {
     isLoading.value = false;
+  }
+};
+
+const loadMoreStage = async stage => {
+  if (stageLoadingMore.value[stage.id] || !stage.has_more) return;
+
+  const nextPage = (stagePages.value[stage.id] || 1) + 1;
+  stageLoadingMore.value[stage.id] = true;
+
+  try {
+    const { data } = await CrmKanbanAPI.getBoardStage(
+      funnelId.value,
+      stage.id,
+      { ...boardParams(), page: nextPage }
+    );
+    const payload = data.payload;
+    const targetStage = stages.value.find(s => s.id === stage.id);
+    if (!targetStage) return;
+
+    const existingIds = new Set(targetStage.conversations.map(c => c.id));
+    const newConversations = payload.conversations.filter(
+      c => !existingIds.has(c.id)
+    );
+    targetStage.conversations.push(...newConversations);
+    targetStage.has_more = payload.has_more;
+    targetStage.total_count = payload.total_count;
+    stagePages.value[stage.id] = nextPage;
+  } catch {
+    useAlert(t('CRM_KANBAN.ERRORS.FETCH_BOARD'));
+  } finally {
+    stageLoadingMore.value[stage.id] = false;
   }
 };
 
@@ -161,14 +205,19 @@ onMounted(fetchBoard);
       {{ $t('CRM_KANBAN.BOARD.EMPTY_STAGES') }}
     </div>
 
-    <div v-else class="flex flex-1 gap-4 p-6 overflow-x-auto overflow-y-hidden">
+    <div
+      v-else
+      class="flex flex-1 gap-4 p-6 overflow-x-auto overflow-y-hidden min-h-0"
+    >
       <KanbanColumn
         v-for="stage in stages"
         :key="stage.id"
         :stage="stage"
         :is-moving="isMoving"
+        :is-loading-more="!!stageLoadingMore[stage.id]"
         @card-change="onCardChange"
         @open-conversation="openConversation"
+        @load-more="loadMoreStage"
       />
     </div>
   </div>

@@ -1,6 +1,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import MentionBox from '../mentions/MentionBox.vue';
+import { filterCannedResponsesForInbox } from 'dashboard/modules/inboxScopedResources';
 
 export default {
   components: { MentionBox },
@@ -9,14 +10,21 @@ export default {
       type: String,
       default: '',
     },
+    inboxId: {
+      type: Number,
+      default: null,
+    },
   },
   emits: ['replace'],
   computed: {
     ...mapGetters({
       cannedMessages: 'getCannedResponses',
     }),
+    scopedCannedMessages() {
+      return filterCannedResponsesForInbox(this.cannedMessages, this.inboxId);
+    },
     items() {
-      return this.cannedMessages.map(cannedMessage => ({
+      return this.scopedCannedMessages.map(cannedMessage => ({
         label: cannedMessage.short_code,
         key: cannedMessage.short_code,
         description: cannedMessage.content,

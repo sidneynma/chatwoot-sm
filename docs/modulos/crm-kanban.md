@@ -103,11 +103,23 @@ Remove todas as labels do funil da conversa e adiciona a label da etapa destino.
 
 ### Board params
 
-- `assignee_type`: `me` | `all` (padrão: `all`)
+- `assignee_type`: `me` | `all` (padrão: `me` para agente)
 - `status`: `open` | `pending` | `all` (padrão: `open`)
-- `page`: paginação por coluna (20 cards)
+- `stage_id` + `page`: carrega mais cards de uma coluna (infinite scroll)
+
+**Carga inicial:** `GET /:id/board` — 20 cards por coluna + `has_more` e `total_count`.
+
+**Scroll infinito:** `GET /:id/board?stage_id=7&page=2` — próxima página da coluna.
 
 ---
+
+## Scroll infinito por coluna
+
+- Cada coluna tem barra de rolagem vertical independente.
+- Carregamento inicial: 20 cards por etapa (rápido mesmo com milhares de contatos).
+- Ao rolar perto do fim, busca a próxima página e anexa os cards.
+- O contador no topo da coluna mostra o total real (`total_count`).
+
 
 ## Segurança
 
