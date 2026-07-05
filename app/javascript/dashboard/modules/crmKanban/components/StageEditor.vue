@@ -98,43 +98,47 @@ watch(() => props.modelValue, syncFromProps, { immediate: true, deep: true });
     </div>
 
     <div
-      v-if="localStages.length === 0"
-      class="py-6 text-sm text-center text-n-slate-11"
+      class="flex flex-col gap-2 min-h-0 max-h-72 overflow-y-auto rounded-lg border border-n-weak bg-n-alpha-2 p-2"
     >
-      {{ $t('CRM_KANBAN.SETTINGS.NO_STAGES') }}
-    </div>
+      <div
+        v-if="localStages.length === 0"
+        class="py-6 text-sm text-center text-n-slate-11"
+      >
+        {{ $t('CRM_KANBAN.SETTINGS.NO_STAGES') }}
+      </div>
 
-    <Draggable
-      v-else
-      v-model="localStages"
-      item-key="label_id"
-      class="flex flex-col gap-2"
-      @end="onDragEnd"
-    >
-      <template #item="{ element, index }">
-        <div
-          class="flex items-center gap-3 p-3 border rounded-lg border-n-weak bg-n-solid-1"
-        >
-          <Icon
-            icon="i-woot-drag-indicator"
-            class="size-4 text-n-slate-11 cursor-move shrink-0"
-          />
-          <span
-            class="size-3 rounded-sm shrink-0"
-            :style="{ backgroundColor: element.label?.color }"
-          />
-          <span class="flex-1 text-sm capitalize text-n-slate-12">
-            {{ element.label?.title }}
-          </span>
-          <button
-            type="button"
-            class="text-n-slate-11 hover:text-n-ruby-11"
-            @click="removeStage(index)"
+      <Draggable
+        v-else
+        v-model="localStages"
+        item-key="label_id"
+        class="flex flex-col gap-2"
+        @end="onDragEnd"
+      >
+        <template #item="{ element, index }">
+          <div
+            class="flex items-center gap-3 p-3 border rounded-lg border-n-weak bg-n-solid-1"
           >
-            <Icon icon="i-lucide-trash-2" class="size-4" />
-          </button>
-        </div>
-      </template>
-    </Draggable>
+            <Icon
+              icon="i-woot-drag-indicator"
+              class="size-4 text-n-slate-11 cursor-move shrink-0"
+            />
+            <span
+              class="size-3 rounded-sm shrink-0"
+              :style="{ backgroundColor: element.label?.color }"
+            />
+            <span class="flex-1 text-sm capitalize text-n-slate-12">
+              {{ element.label?.title }}
+            </span>
+            <button
+              type="button"
+              class="text-n-slate-11 hover:text-n-ruby-11"
+              @click="removeStage(index)"
+            >
+              <Icon icon="i-lucide-trash-2" class="size-4" />
+            </button>
+          </div>
+        </template>
+      </Draggable>
+    </div>
   </div>
 </template>

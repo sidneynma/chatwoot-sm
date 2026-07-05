@@ -10,7 +10,44 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.14.2.e`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.14.2.f`
+
+---
+
+## [v4.14.2.f] — 2026-07-05
+
+**Base upstream:** Chatwoot `4.14.2`
+
+### Adicionado
+
+- **Etiquetas por caixa de entrada** — ao criar/editar etiqueta, escolher **Todas as caixas** ou uma caixa específica (`labels.inbox_id`)
+  - Agente: vê globais + etiquetas das caixas em que é membro (sidebar, conversa, API)
+  - Admin: vê e edita todas em **Configurações → Etiquetas**
+- **Respostas rápidas por caixa de entrada** — mesmo escopo para `canned_responses.inbox_id`
+  - Editor da conversa (`/`) filtra pela caixa da conversa
+  - Admin configura em **Configurações → Respostas rápidas**
+- Módulo frontend `inboxScopedResources` — `InboxScopeSelect` e filtros reutilizáveis
+- **CRM Kanban — scroll infinito por coluna** — carga inicial de 20 cards; ao rolar, busca próximas páginas (`stage_id` + `page`)
+- **Funis CRM — scroll na lista de etapas** — dialog de criar/editar funil mantém tamanho fixo; etapas adicionadas rolam dentro do card
+
+### Documentação
+
+- `docs/modulos/inbox-scoped-resources.md`
+- `docs/modulos/crm-kanban.md` (scroll infinito)
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.14.2.f
+```
+
+### Release
+
+```bash
+bundle exec rails db:migrate
+./scripts/release.sh v4.14.2.f --push
+```
 
 ---
 
