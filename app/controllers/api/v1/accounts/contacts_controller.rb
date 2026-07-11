@@ -255,3 +255,5 @@ end
     render json: error, status: error_status
   end
 end
+
+Api::V1::Accounts::ContactsController.prepend_mod_with('Api::V1::Accounts::ContactsController')
