@@ -10,7 +10,42 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.14.2.f`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.a`
+
+---
+
+## [v4.15.1.a] — 2026-07-11
+
+**Base upstream:** Chatwoot `4.15.1`
+
+### Adicionado
+
+- **Chat interno (Team chat)** — chat entre agentes da mesma conta, isolado de conversas/contatos
+  - DM 1:1 (buscar agente) e grupos (admin cria/edita/exclui/membros)
+  - Texto, emoji, arquivo e áudio em tempo real (ActionCable)
+  - Fechar conversa (some da lista; histórico preservado); nova mensagem ou busca reabre
+  - Agente removido da conta: histórico mantido, envio bloqueado, banner “agente inativo”
+  - Busca encontra grupos fechados e DMs com agentes inativos para consultar histórico
+  - Ícone de chat na sidebar (`i-lucide-message-square`)
+- Migrations `create_internal_chat` e `add_closed_at_to_internal_chat_memberships`
+
+### Documentação
+
+- `docs/modulos/internal-chat.md`
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.15.1.a
+```
+
+### Release
+
+```bash
+bundle exec rails db:migrate
+./scripts/release.sh v4.15.1.a --push
+```
 
 ---
 

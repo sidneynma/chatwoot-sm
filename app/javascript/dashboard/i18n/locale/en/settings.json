@@ -412,7 +412,8 @@
     "CONVERSATION_WORKFLOW": "Conversation Workflow",
     "CONVERSATION_REDISTRIBUTION": "Conversation redistribution",
     "CRM": "CRM",
-    "CRM_FUNNELS": "CRM pipelines"
+    "CRM_FUNNELS": "CRM pipelines",
+    "INTERNAL_CHAT": "Team chat"
   },
   "CAPTAIN_SETTINGS": {
     "TITLE": "Captain Settings",

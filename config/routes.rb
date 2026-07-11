@@ -358,6 +358,21 @@ Rails.application.routes.draw do
               post :simulate, on: :collection
               post :execute, on: :collection
             end
+            namespace :internal_chat do
+              resources :rooms, only: [:index, :create, :show, :update, :destroy] do
+                collection do
+                  post :direct, action: :create_direct
+                  get :search
+                end
+                member do
+                  post :mark_read
+                  post :close
+                  post :reopen
+                end
+                resources :messages, only: [:index, :create]
+                resources :members, only: [:create, :destroy]
+              end
+            end
           end
 
           resources :webhooks, only: [:index, :create, :update, :destroy]

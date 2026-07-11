@@ -386,7 +386,8 @@
     "CONVERSATION_WORKFLOW": "Fluxo de Conversa",
     "CONVERSATION_REDISTRIBUTION": "Redistribuição de conversas",
     "CRM": "CRM",
-    "CRM_FUNNELS": "Funis CRM"
+    "CRM_FUNNELS": "Funis CRM",
+    "INTERNAL_CHAT": "Chat interno"
   },
   "CAPTAIN_SETTINGS": {
     "TITLE": "Configurações do Capitão",

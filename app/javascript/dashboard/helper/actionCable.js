@@ -3,6 +3,7 @@ import BaseActionCableConnector from '../../shared/helpers/BaseActionCableConnec
 import DashboardAudioNotificationHelper from './AudioAlerts/DashboardAudioNotificationHelper';
 import { BUS_EVENTS } from 'shared/constants/busEvents';
 import { emitter } from 'shared/helpers/mitt';
+import { INTERNAL_CHAT_EVENTS } from 'dashboard/modules/internalChat/cable';
 import { useImpersonation } from 'dashboard/composables/useImpersonation';
 import { useCallsStore } from 'dashboard/stores/calls';
 import {
@@ -50,6 +51,14 @@ class ActionCableConnector extends BaseActionCableConnector {
       'account.cache_invalidated': this.onCacheInvalidate,
       'account.enrichment_completed': this.onEnrichmentCompleted,
       'copilot.message.created': this.onCopilotMessageCreated,
+      [INTERNAL_CHAT_EVENTS.MESSAGE_CREATED]: data =>
+        emitter.emit(INTERNAL_CHAT_EVENTS.MESSAGE_CREATED, data),
+      [INTERNAL_CHAT_EVENTS.ROOM_UPDATED]: data =>
+        emitter.emit(INTERNAL_CHAT_EVENTS.ROOM_UPDATED, data),
+      [INTERNAL_CHAT_EVENTS.ROOM_CREATED]: data =>
+        emitter.emit(INTERNAL_CHAT_EVENTS.ROOM_CREATED, data),
+      [INTERNAL_CHAT_EVENTS.ROOM_DELETED]: data =>
+        emitter.emit(INTERNAL_CHAT_EVENTS.ROOM_DELETED, data),
       'voice_call.incoming': this.onVoiceCallIncoming,
       'voice_call.outbound_connected': this.onVoiceCallOutboundConnected,
       'voice_call.outbound_accepted': this.onVoiceCallOutboundAccepted,
