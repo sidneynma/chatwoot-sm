@@ -4,7 +4,7 @@ class Api::V1::Accounts::CrmFunnelsController < Api::V1::Accounts::EnterpriseAcc
   before_action :check_authorization
 
   def index
-    @crm_funnels = Current.account.crm_funnels.includes(stages: :label).order(:name)
+    @crm_funnels = funnels_scope.includes(stages: [:label, :responsible_team]).order(:name)
     @crm_funnels = @crm_funnels.active unless include_inactive?
   end
 
@@ -43,7 +43,15 @@ class Api::V1::Accounts::CrmFunnelsController < Api::V1::Accounts::EnterpriseAcc
   private
 
   def fetch_funnel
-    @crm_funnel = Current.account.crm_funnels.includes(stages: :label).find(params[:id])
+    @crm_funnel = funnels_scope.includes(stages: [:label, :responsible_team]).find(params[:id])
+  end
+
+  # Admin: all funnels. Agent: inbox membership OR handoff team on a stage.
+  def funnels_scope
+    scope = Current.account.crm_funnels
+    return scope if Current.account_user.administrator?
+
+    scope.visible_to(Current.user, Current.account)
   end
 
   def funnel_params
@@ -56,7 +64,10 @@ class Api::V1::Accounts::CrmFunnelsController < Api::V1::Accounts::EnterpriseAcc
 
   def sync_stages
     permitted_stages = stages_params.map do |stage|
-      stage.permit(:label_id, :position).to_h.symbolize_keys
+      stage.permit(
+        :label_id, :position, :responsible_team_id,
+        :can_resolve, :auto_resolve_on_enter, :clear_assignment_on_resolve
+      ).to_h.symbolize_keys
     end
 
     Crm::FunnelStagesSyncService.new(
@@ -68,7 +79,7 @@ class Api::V1::Accounts::CrmFunnelsController < Api::V1::Accounts::EnterpriseAcc
   end
 
   def reload_funnel
-    @crm_funnel = Current.account.crm_funnels.includes(stages: :label).find(@crm_funnel.id)
+    @crm_funnel = Current.account.crm_funnels.includes(stages: [:label, :responsible_team]).find(@crm_funnel.id)
   end
 
   def board_service

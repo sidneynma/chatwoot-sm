@@ -33,10 +33,12 @@ class InternalChat::CreateMessageService
   private
 
   def update_room_state!(message)
-    room.update!(last_message_at: message.created_at)
+    # Prefer update_columns: room.update! can validate in-memory messages and raise
+    # "Messages is invalid", which skipped reopen for recipients with a closed chat.
+    room.update_columns(last_message_at: message.created_at, updated_at: Time.current)
     room.reopen_for_active_members!
     membership = room.memberships.find_by(user_id: user.id)
-    membership&.update!(last_read_at: message.created_at, closed_at: nil)
+    membership&.update_columns(last_read_at: message.created_at, closed_at: nil)
   rescue StandardError => e
     Rails.logger.warn("Internal chat room state update failed: #{e.class}: #{e.message}")
   end

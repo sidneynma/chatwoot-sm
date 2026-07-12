@@ -20,6 +20,14 @@ class Api::V1::Accounts::InternalChat::RoomsController < Api::V1::Accounts::Ente
     render :index
   end
 
+  def unread_count
+    total = InternalChat::UnreadCountService.new(
+      account: Current.account,
+      user: Current.user
+    ).perform
+    render json: { unread_count: total }
+  end
+
   def show; end
 
   def create
@@ -117,7 +125,7 @@ class Api::V1::Accounts::InternalChat::RoomsController < Api::V1::Accounts::Ente
     case action_name
     when 'create_direct'
       authorize(InternalChatRoom, :create_direct?)
-    when 'search'
+    when 'search', 'unread_count'
       authorize(InternalChatRoom, :index?)
     when 'mark_read'
       authorize(@room, :mark_read?)

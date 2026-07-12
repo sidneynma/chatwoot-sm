@@ -96,6 +96,13 @@ const openEditDialog = funnel => {
       label_id: stage.label.id,
       position: stage.position,
       label: stage.label,
+      responsible_team_id: stage.responsible_team_id || '',
+      can_resolve: Boolean(stage.can_resolve),
+      auto_resolve_on_enter: Boolean(stage.auto_resolve_on_enter),
+      clear_assignment_on_resolve:
+        stage.clear_assignment_on_resolve === undefined
+          ? true
+          : Boolean(stage.clear_assignment_on_resolve),
     })),
   };
   formDialogRef.value?.open();
@@ -114,6 +121,10 @@ const buildPayload = (overrides = {}) => ({
     stages: form.value.stages.map((stage, index) => ({
       label_id: stage.label_id,
       position: index,
+      responsible_team_id: stage.responsible_team_id || null,
+      can_resolve: Boolean(stage.can_resolve),
+      auto_resolve_on_enter: Boolean(stage.auto_resolve_on_enter),
+      clear_assignment_on_resolve: Boolean(stage.clear_assignment_on_resolve),
     })),
     ...overrides,
   },
@@ -199,6 +210,7 @@ const initializePage = async () => {
   await Promise.all([
     store.dispatch('labels/get'),
     store.dispatch('inboxes/get'),
+    store.dispatch('teams/get'),
     fetchFunnels(),
   ]);
 
@@ -366,9 +378,12 @@ onActivated(fetchFunnels);
           />
         </div>
 
-        <Checkbox v-model="form.active">
-          {{ $t('CRM_KANBAN.SETTINGS.FORM.ACTIVE') }}
-        </Checkbox>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <Checkbox v-model="form.active" />
+          <span class="text-sm text-n-slate-12">
+            {{ $t('CRM_KANBAN.SETTINGS.FORM.ACTIVE') }}
+          </span>
+        </label>
 
         <StageEditor v-model="form.stages" />
       </div>

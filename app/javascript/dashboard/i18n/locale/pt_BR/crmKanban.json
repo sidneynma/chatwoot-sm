@@ -9,14 +9,16 @@
     },
     "BOARD": {
       "TITLE": "Quadro do funil",
-      "DESCRIPTION": "Arraste os cards entre etapas. Cada card usa uma etiqueta deste funil.",
-      "DESCRIPTION_AGENT": "Somente conversas atribuídas a você são exibidas.",
+      "DESCRIPTION": "Arraste os cards entre etapas. O handoff atribui o time da conversa para o setor revisar.",
+      "DESCRIPTION_AGENT": "Exibe conversas atribuídas a você ou entregues ao seu time.",
       "EMPTY_STAGES": "Este funil ainda não possui etapas configuradas.",
       "INACTIVE": "Este funil está inativo.",
       "UNASSIGNED": "Sem responsável",
+      "READ_ONLY": "Somente leitura",
       "FILTER": {
-        "MINE": "Atribuídas a mim",
-        "ALL": "Todos os responsáveis"
+        "MINE": "Minhas / fila do time",
+        "MY_TEAM": "Meu time",
+        "ALL": "Todas visíveis"
       },
       "STATUS": {
         "OPEN": "Abertas",
@@ -51,6 +53,14 @@
         "INBOX": "Caixa de entrada (opcional)",
         "INBOX_PLACEHOLDER": "Filtrar quadro por caixa",
         "ACTIVE": "Funil ativo"
+      },
+      "STAGE": {
+        "TEAM": "Time responsável (handoff)",
+        "TEAM_PLACEHOLDER": "Sem time",
+        "NO_TEAMS": "Nenhum time encontrado. Crie um time em Configurações → Equipes.",
+        "CAN_RESOLVE": "Time pode resolver a conversa",
+        "AUTO_RESOLVE": "Resolver automaticamente ao entrar nesta etapa",
+        "CLEAR_ASSIGNMENT": "Limpar responsável e time ao resolver"
       },
       "TABLE": {
         "NAME": "Nome",

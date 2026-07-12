@@ -6,13 +6,23 @@ class Crm::MoveConversationService
   def perform
     validate_params!
     authorize_conversation!
-    validate_assignee!
+    validate_can_move!
 
-    conversation.update!(label_list: updated_labels)
+    ActiveRecord::Base.transaction do
+      conversation.update!(label_list: updated_labels)
+      Crm::HandoffService.new(
+        conversation: conversation,
+        target_stage: target_stage,
+        funnel: funnel
+      ).perform
+    end
 
     {
       conversation_id: conversation.display_id,
-      labels: conversation.cached_label_list_array
+      labels: conversation.reload.cached_label_list_array,
+      status: conversation.status,
+      team_id: conversation.team_id,
+      assignee_id: conversation.assignee_id
     }
   end
 
@@ -25,14 +35,26 @@ class Crm::MoveConversationService
   end
 
   def authorize_conversation!
+    access = conversation_access
+    return if access.inbox_member? || access.team_member? || account_user&.administrator?
+
     Pundit.authorize(pundit_user, conversation, :show?, policy_class: ConversationPolicy)
   end
 
-  def validate_assignee!
+  def validate_can_move!
     return if account_user&.administrator?
     return if conversation.assignee_id == user.id
+    return if conversation_access.team_member?
 
-    raise ValidationError, 'You can only move conversations assigned to you'
+    raise ValidationError, 'You can only move conversations assigned to you or your team'
+  end
+
+  def conversation_access
+    @conversation_access ||= Crm::ConversationAccess.new(
+      user: user,
+      account: account,
+      conversation: conversation
+    )
   end
 
   def pundit_user

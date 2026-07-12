@@ -22,10 +22,15 @@ contatos do Chatwoot (não usa `Conversation` / `Message`).
 
 ### Fechar / agente inativo
 - **Fechar conversa** (por membership `closed_at`) — some da lista; histórico preservado
-- Nova mensagem ou buscar o mesmo agente e enviar — **reabre** a sala
+- Nova mensagem ou buscar o mesmo agente e enviar — **reabre** a sala (via `update_columns` + `reopen_for_active_members!`, sem revalidar mensagens)
 - API `GET rooms` retorna só salas abertas
 - Agente removido da conta — DM permanece com histórico; `peer_inactive` + envio bloqueado; banner na UI
 - Agente só aparece na busca se for membro da **conta atual**
+
+### Badge de não lidas (sidebar)
+- Contagem total via `GET .../internal_chat/rooms/unread_count`
+- Store Vuex `internalChat/getUnreadCount` no item do menu
+- Atualiza no load da sidebar, reconnect ActionCable, nova mensagem e ao marcar como lida
 
 ---
 

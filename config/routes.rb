@@ -363,6 +363,7 @@ Rails.application.routes.draw do
                 collection do
                   post :direct, action: :create_direct
                   get :search
+                  get :unread_count
                 end
                 member do
                   post :mark_read

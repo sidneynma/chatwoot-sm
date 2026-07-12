@@ -220,6 +220,7 @@ onMounted(() => {
   store.dispatch('labels/get');
   store.dispatch('inboxes/get');
   store.dispatch('notifications/unReadCount');
+  store.dispatch('internalChat/fetchUnreadCount');
   store.dispatch('teams/get');
   store.dispatch('attributes/get');
   store.dispatch('customViews/get', 'conversation');

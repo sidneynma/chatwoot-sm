@@ -9,14 +9,16 @@
     },
     "BOARD": {
       "TITLE": "Pipeline board",
-      "DESCRIPTION": "Drag cards between stages. Each card uses one label from this pipeline.",
-      "DESCRIPTION_AGENT": "Only conversations assigned to you are shown.",
+      "DESCRIPTION": "Drag cards between stages. Team handoff assigns the conversation team for back-office review.",
+      "DESCRIPTION_AGENT": "Shows conversations assigned to you or handed to your team.",
       "EMPTY_STAGES": "This pipeline has no stages configured yet.",
       "INACTIVE": "This pipeline is inactive.",
       "UNASSIGNED": "Unassigned",
+      "READ_ONLY": "Read-only",
       "FILTER": {
-        "MINE": "Assigned to me",
-        "ALL": "All assignees"
+        "MINE": "Mine / my team queue",
+        "MY_TEAM": "My team",
+        "ALL": "All visible"
       },
       "STATUS": {
         "OPEN": "Open",
@@ -51,6 +53,14 @@
         "INBOX": "Inbox (optional)",
         "INBOX_PLACEHOLDER": "Filter board by inbox",
         "ACTIVE": "Active pipeline"
+      },
+      "STAGE": {
+        "TEAM": "Responsible team (handoff)",
+        "TEAM_PLACEHOLDER": "No team",
+        "NO_TEAMS": "No teams found. Create a team in Settings → Teams first.",
+        "CAN_RESOLVE": "Team may resolve the conversation",
+        "AUTO_RESOLVE": "Auto-resolve when card enters this stage",
+        "CLEAR_ASSIGNMENT": "Clear assignee and team on auto-resolve"
       },
       "TABLE": {
         "NAME": "Name",

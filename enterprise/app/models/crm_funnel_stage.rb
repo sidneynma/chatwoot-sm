@@ -1,10 +1,12 @@
 class CrmFunnelStage < ApplicationRecord
   belongs_to :crm_funnel, inverse_of: :stages
   belongs_to :label
+  belongs_to :responsible_team, class_name: 'Team', optional: true
 
   validates :position, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :label_id, uniqueness: { scope: :crm_funnel_id }
   validate :label_belongs_to_account
+  validate :team_belongs_to_account
 
   default_scope { order(:position) }
 
@@ -15,4 +17,11 @@ class CrmFunnelStage < ApplicationRecord
 
     errors.add(:label_id, :invalid)
   end
+
+  def team_belongs_to_account
+    return if responsible_team.blank? || responsible_team.account_id == crm_funnel.account_id
+
+    errors.add(:responsible_team_id, :invalid)
+  end
 end
+

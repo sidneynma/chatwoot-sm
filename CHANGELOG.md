@@ -10,7 +10,48 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.a`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.b`
+
+---
+
+## [v4.15.1.b] — 2026-07-12
+
+**Base upstream:** Chatwoot `4.15.1`
+
+### Adicionado
+
+- **CRM Kanban — handoff por time (etapa)** — associação de time responsável à etapa do funil
+  - Ao entrar na etapa: conversa vai para o time; estado anterior em `crm_case_states`
+  - Ao sair: restaura assignee/team anteriores
+  - Time sem inbox: leitura + notas privadas; reply pública bloqueada; resolve só se `can_resolve`
+  - Opções de etapa: `can_resolve`, `auto_resolve_on_enter`, `clear_assignment_on_resolve`
+  - Filtros do quadro: **Minhas / fila do time**, **Meu time**; **Todas visíveis** só para admin
+  - Lista de funis do agente: só inbox dele **ou** funil com etapa do time dele
+- Migration `add_crm_team_handoff` (`crm_case_states` + campos nas etapas)
+- **Chat interno** — badge de não lidas na sidebar (store + ActionCable + API)
+
+### Corrigido
+
+- Exclusão de funil: FK em `crm_funnel_stages` (`dependent: :destroy` síncrono)
+
+### Documentação
+
+- `docs/modulos/crm-kanban.md` (handoff, filtros, visibilidade)
+- `docs/modulos/internal-chat.md` (badge)
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.15.1.b
+```
+
+### Release
+
+```bash
+bundle exec rails db:migrate
+./scripts/release.sh v4.15.1.b --push
+```
 
 ---
 
@@ -26,7 +67,7 @@ Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.a`
   - Fechar conversa (some da lista; histórico preservado); nova mensagem ou busca reabre
   - Agente removido da conta: histórico mantido, envio bloqueado, banner “agente inativo”
   - Busca encontra grupos fechados e DMs com agentes inativos para consultar histórico
-  - Ícone de chat na sidebar (`i-lucide-message-square`)
+  - Ícone de chat na sidebar (`i-ri-chat-1-line`)
 - Migrations `create_internal_chat` e `add_closed_at_to_internal_chat_memberships`
 
 ### Documentação

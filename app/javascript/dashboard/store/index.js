@@ -60,6 +60,7 @@ import copilotMessages from './captain/copilotMessages';
 import captainScenarios from './captain/scenarios';
 import captainTools from './captain/tools';
 import captainCustomTools from './captain/customTools';
+import internalChat from 'dashboard/modules/internalChat/store';
 
 const plugins = [];
 
@@ -102,6 +103,7 @@ export default createStore({
     inboxes,
     inboxMembers,
     integrations,
+    internalChat,
     labels,
     macros,
     notifications,

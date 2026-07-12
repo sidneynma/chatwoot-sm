@@ -22,15 +22,26 @@ const assigneeType = ref('me');
 const status = ref('open');
 const isLoading = ref(false);
 const isMoving = ref(false);
+const isInactive = ref(false);
+const isFetchError = ref(false);
 const funnel = ref(null);
 const stages = ref([]);
 const stagePages = ref({});
 const stageLoadingMore = ref({});
 
-const assigneeOptions = computed(() => [
-  { value: 'me', label: t('CRM_KANBAN.BOARD.FILTER.MINE') },
-  { value: 'all', label: t('CRM_KANBAN.BOARD.FILTER.ALL') },
-]);
+const assigneeOptions = computed(() => {
+  const options = [
+    { value: 'me', label: t('CRM_KANBAN.BOARD.FILTER.MINE') },
+    { value: 'my_team', label: t('CRM_KANBAN.BOARD.FILTER.MY_TEAM') },
+  ];
+
+  // Only admins can browse the full funnel board (same as before handoff).
+  if (isAdmin.value) {
+    options.push({ value: 'all', label: t('CRM_KANBAN.BOARD.FILTER.ALL') });
+  }
+
+  return options;
+});
 
 const statusOptions = computed(() => [
   { value: 'open', label: t('CRM_KANBAN.BOARD.STATUS.OPEN') },
@@ -38,12 +49,11 @@ const statusOptions = computed(() => [
   { value: 'all', label: t('CRM_KANBAN.BOARD.STATUS.ALL') },
 ]);
 
-const isInactive = ref(false);
-
-const boardParams = () => ({
-  assignee_type: isAdmin.value ? assigneeType.value : 'me',
-  status: status.value,
-});
+const boardParams = () => {
+  let type = assigneeType.value;
+  if (!isAdmin.value && type === 'all') type = 'me';
+  return { assignee_type: type, status: status.value };
+};
 
 const resetStagePages = () => {
   stagePages.value = {};
@@ -53,6 +63,7 @@ const resetStagePages = () => {
 const fetchBoard = async () => {
   isLoading.value = true;
   isInactive.value = false;
+  isFetchError.value = false;
   resetStagePages();
   try {
     const { data } = await CrmKanbanAPI.getBoard(funnelId.value, boardParams());
@@ -62,9 +73,11 @@ const fetchBoard = async () => {
       stagePages.value[stage.id] = 1;
     });
   } catch (error) {
+    stages.value = [];
     if (error?.response?.status === 403) {
       isInactive.value = true;
     } else {
+      isFetchError.value = true;
       useAlert(t('CRM_KANBAN.ERRORS.FETCH_BOARD'));
     }
   } finally {
@@ -169,12 +182,7 @@ onMounted(fetchBoard);
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <Select
-          v-if="isAdmin"
-          v-model="assigneeType"
-          :options="assigneeOptions"
-          size="sm"
-        />
+        <Select v-model="assigneeType" :options="assigneeOptions" size="sm" />
         <Select v-model="status" :options="statusOptions" size="sm" />
         <Button
           icon="i-lucide-refresh-cw"
@@ -196,6 +204,13 @@ onMounted(fetchBoard);
       class="flex flex-1 items-center justify-center text-n-slate-11"
     >
       {{ $t('CRM_KANBAN.BOARD.INACTIVE') }}
+    </div>
+
+    <div
+      v-else-if="isFetchError"
+      class="flex flex-1 items-center justify-center text-n-slate-11"
+    >
+      {{ $t('CRM_KANBAN.ERRORS.FETCH_BOARD') }}
     </div>
 
     <div

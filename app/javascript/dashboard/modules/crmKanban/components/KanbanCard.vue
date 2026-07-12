@@ -21,6 +21,8 @@ const contactName = computed(
 );
 
 const assigneeName = computed(() => props.conversation.assignee?.name);
+const teamName = computed(() => props.conversation.team?.name);
+const isReadOnly = computed(() => Boolean(props.conversation.read_only));
 
 const lastMessagePreview = computed(() => {
   const content = props.conversation.last_message?.content;
@@ -65,15 +67,31 @@ const openConversation = () => {
     <div
       class="flex items-center justify-between gap-2 text-xs text-n-slate-11"
     >
-      <div v-if="assigneeName" class="flex items-center gap-1 min-w-0">
-        <Avatar
-          :name="assigneeName"
-          :src="conversation.assignee?.thumbnail"
-          :size="16"
-        />
-        <span class="truncate">{{ assigneeName }}</span>
+      <div class="flex items-center gap-2 min-w-0">
+        <div v-if="assigneeName" class="flex items-center gap-1 min-w-0">
+          <Avatar
+            :name="assigneeName"
+            :src="conversation.assignee?.thumbnail"
+            :size="16"
+          />
+          <span class="truncate">{{ assigneeName }}</span>
+        </div>
+        <span v-else class="italic">{{
+          $t('CRM_KANBAN.BOARD.UNASSIGNED')
+        }}</span>
+        <span
+          v-if="teamName"
+          class="truncate px-1.5 py-0.5 rounded bg-n-alpha-2 text-n-slate-11"
+        >
+          {{ teamName }}
+        </span>
+        <span
+          v-if="isReadOnly"
+          class="shrink-0 px-1.5 py-0.5 rounded bg-n-slate-3 text-n-slate-11"
+        >
+          {{ $t('CRM_KANBAN.BOARD.READ_ONLY') }}
+        </span>
       </div>
-      <span v-else class="italic">{{ $t('CRM_KANBAN.BOARD.UNASSIGNED') }}</span>
       <span v-if="conversation.timestamp" class="shrink-0">
         {{ dynamicTime(conversation.timestamp) }}
       </span>

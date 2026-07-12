@@ -42,6 +42,7 @@ const loadRooms = async () => {
   try {
     const { data } = await InternalChatAPI.getRooms();
     rooms.value = sortRooms(data.payload || []);
+    store.dispatch('internalChat/fetchUnreadCount');
   } catch (error) {
     useAlert(t('INTERNAL_CHAT.ERROR_LOAD'));
   }
@@ -64,6 +65,7 @@ const loadMessages = async ({ before } = {}) => {
     await InternalChatAPI.markRead(activeRoom.value.id);
     const room = rooms.value.find(item => item.id === activeRoom.value.id);
     if (room) room.unread_count = 0;
+    store.dispatch('internalChat/fetchUnreadCount');
   } catch (error) {
     useAlert(t('INTERNAL_CHAT.ERROR_LOAD'));
   } finally {
@@ -231,6 +233,7 @@ const closeRoom = async () => {
     rooms.value = rooms.value.filter(item => item.id !== roomId);
     activeRoom.value = null;
     messages.value = [];
+    store.dispatch('internalChat/fetchUnreadCount');
     router.replace(accountScopedRoute('internal_chat_index'));
   } catch (error) {
     useAlert(t('INTERNAL_CHAT.ERROR_CLOSE'));
@@ -255,7 +258,9 @@ const onMessageCreated = data => {
     if (!messages.value.some(item => item.id === data.id)) {
       messages.value = [...messages.value, data];
     }
-    InternalChatAPI.markRead(data.room_id);
+    InternalChatAPI.markRead(data.room_id).then(() => {
+      store.dispatch('internalChat/fetchUnreadCount');
+    });
   }
 };
 

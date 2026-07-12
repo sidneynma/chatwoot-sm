@@ -51,14 +51,21 @@ class ActionCableConnector extends BaseActionCableConnector {
       'account.cache_invalidated': this.onCacheInvalidate,
       'account.enrichment_completed': this.onEnrichmentCompleted,
       'copilot.message.created': this.onCopilotMessageCreated,
-      [INTERNAL_CHAT_EVENTS.MESSAGE_CREATED]: data =>
-        emitter.emit(INTERNAL_CHAT_EVENTS.MESSAGE_CREATED, data),
+      [INTERNAL_CHAT_EVENTS.MESSAGE_CREATED]: data => {
+        emitter.emit(INTERNAL_CHAT_EVENTS.MESSAGE_CREATED, data);
+        const currentUserId = this.app.$store.getters.getCurrentUserID;
+        if (data?.sender?.id !== currentUserId) {
+          this.app.$store.dispatch('internalChat/fetchUnreadCount');
+        }
+      },
       [INTERNAL_CHAT_EVENTS.ROOM_UPDATED]: data =>
         emitter.emit(INTERNAL_CHAT_EVENTS.ROOM_UPDATED, data),
       [INTERNAL_CHAT_EVENTS.ROOM_CREATED]: data =>
         emitter.emit(INTERNAL_CHAT_EVENTS.ROOM_CREATED, data),
-      [INTERNAL_CHAT_EVENTS.ROOM_DELETED]: data =>
-        emitter.emit(INTERNAL_CHAT_EVENTS.ROOM_DELETED, data),
+      [INTERNAL_CHAT_EVENTS.ROOM_DELETED]: data => {
+        emitter.emit(INTERNAL_CHAT_EVENTS.ROOM_DELETED, data);
+        this.app.$store.dispatch('internalChat/fetchUnreadCount');
+      },
       'voice_call.incoming': this.onVoiceCallIncoming,
       'voice_call.outbound_connected': this.onVoiceCallOutboundConnected,
       'voice_call.outbound_accepted': this.onVoiceCallOutboundAccepted,
@@ -69,6 +76,7 @@ class ActionCableConnector extends BaseActionCableConnector {
   // eslint-disable-next-line class-methods-use-this
   onReconnect = () => {
     emitter.emit(BUS_EVENTS.WEBSOCKET_RECONNECT);
+    this.app.$store.dispatch('internalChat/fetchUnreadCount');
   };
 
   // eslint-disable-next-line class-methods-use-this

@@ -22,8 +22,8 @@ comerciais. Cada conversa aparece em **uma coluna por funil** (modo exclusivo).
 
 | Público | Caminho |
 |---------|---------|
-| Todos (agente/admin) | Menu **CRM** → lista de funis → quadro |
-| Admin | **Configurações → Funis CRM** |
+| Agente | Menu **CRM** → só funis da inbox / time de handoff |
+| Admin | Menu **CRM** (todos) + **Configurações → Funis CRM** |
 
 Rotas:
 
@@ -40,11 +40,14 @@ Rotas:
 | Arquivo | Responsabilidade |
 |---------|------------------|
 | `enterprise/app/models/crm_funnel.rb` | Funil (nome, inbox opcional, ativo) |
-| `enterprise/app/models/crm_funnel_stage.rb` | Etapa = etiqueta + posição |
+| `enterprise/app/models/crm_funnel_stage.rb` | Etapa = etiqueta + time/handoff |
 | `enterprise/app/controllers/api/v1/accounts/crm_funnels_controller.rb` | CRUD + board + move |
 | `enterprise/app/services/crm/board_query_service.rb` | Carrega colunas e conversas |
-| `enterprise/app/services/crm/move_conversation_service.rb` | Move card → atualiza labels |
+| `enterprise/app/services/crm/move_conversation_service.rb` | Move card → labels + handoff |
 | `enterprise/app/services/crm/funnel_stages_sync_service.rb` | Sincroniza etapas do funil |
+| `enterprise/app/services/crm/handoff_service.rb` | Atribui time / restaura / auto-resolve |
+| `enterprise/app/services/crm/conversation_access.rb` | Leitura vs reply/resolve para time sem inbox |
+| `enterprise/app/models/crm_case_state.rb` | Estado de handoff (previous team/assignee) |
 | `enterprise/app/policies/crm_funnel_policy.rb` | Admin CRUD; agente lê/move |
 
 ### Frontend (`app/javascript/dashboard/modules/crmKanban/`)
@@ -103,7 +106,11 @@ Remove todas as labels do funil da conversa e adiciona a label da etapa destino.
 
 ### Board params
 
-- `assignee_type`: `me` | `all` (padrão: `me` para agente)
+- `assignee_type`: `me` | `my_team` | `all` (padrão: `me`)
+  - `me` — atribuídas a mim **ou** com `team_id` de um time do usuário (fila de handoff)
+  - `my_team` — só conversas com time do usuário
+  - `all` — **somente admin** (UI + backend); agente que enviar `all` cai no mesmo escopo de `me`
+  - Agente: opções na UI = `me` + `my_team` (não vê “Todas visíveis”)
 - `status`: `open` | `pending` | `all` (padrão: `open`)
 - `stage_id` + `page`: carrega mais cards de uma coluna (infinite scroll)
 
@@ -126,6 +133,7 @@ Remove todas as labels do funil da conversa e adiciona a label da etapa destino.
 - `Conversations::PermissionFilterService` — agente só vê inboxes atribuídas.
 - `authorize conversation, :show?` no move.
 - CRUD de funis: **somente administrador**.
+- Lista / board / show de funis (agente): só funis da **inbox** do usuário **ou** com etapa cujo **time responsável** é dele. Funil global (`inbox_id` nulo) sem time em etapa = só admin. Admin vê todos.
 
 ---
 
@@ -145,13 +153,48 @@ Remove apenas `crm_funnels` e `crm_funnel_stages`. **Não** remove:
 - Etiquetas da conta
 - Etiquetas já aplicadas nas conversas
 
+## Handoff por time (setores)
+
+Fluxo para Comercial → Financeiro/Jurídico sem exigir membership na inbox.
+
+### Configuração por etapa
+
+Em **Configurações → Funis CRM**, cada etapa pode ter:
+
+| Campo | Efeito |
+|-------|--------|
+| `responsible_team_id` | Ao entrar na etapa, a conversa recebe esse `team_id` (handoff) |
+| `can_resolve` | Membros do time (sem inbox) podem resolver a conversa |
+| `auto_resolve_on_enter` | Ao entrar na etapa: `status = resolved` |
+| `clear_assignment_on_resolve` | Com auto-resolve: limpa `assignee_id` e `team_id` |
+
+### Comportamento no move
+
+1. Comercial escreve **nota privada** + anexos e arrasta o card.
+2. Etapa com time → `conversation.team_id` = time; estado anterior salvo em `crm_case_states`.
+3. Time vê o card no CRM (filtro **Meu time** / **Minhas**) e abre a conversa em **somente leitura** (sem inbox).
+4. Time move para etapa sem time → restaura `team_id` anterior.
+5. Etapa final com auto-resolve → resolve e limpa atribuição; próximo contato do cliente entra na divisão da inbox.
+
+### Visibilidade / permissões
+
+- Board: inbox **OU** `team_id` do usuário (back-office não precisa da caixa).
+- Abrir conversa: `ConversationPolicy#team_access?` (já nativo).
+- Somente leitura: não envia mensagem pública; nota privada permitida; resolve só se `can_resolve`.
+- Abrir ≠ atribuir assignee.
+
+### Tabelas
+
+- `crm_funnel_stages` — campos de handoff
+- `crm_case_states` — `previous_assignee_id`, `previous_team_id`, `in_handoff`
+
+---
+
 ## Fase 2 (planejada)
 
 - Métricas por etapa
-- Automações ao mudar etapa
 - Coluna “sem etapa” para conversas sem label do funil
-- Filtros avançados (equipe, período)
-- Paginação infinita por coluna
+- Histórico dedicado de eventos CRM (além do activity nativo)
 
 ---
 
@@ -161,4 +204,4 @@ Remove apenas `crm_funnels` e `crm_funnel_stages`. **Não** remove:
 bundle exec rails db:migrate
 ```
 
-Tabelas: `crm_funnels`, `crm_funnel_stages`.
+Tabelas: `crm_funnels`, `crm_funnel_stages`, `crm_case_states`.
