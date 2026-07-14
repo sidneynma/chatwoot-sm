@@ -10,7 +10,36 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.b`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.c`
+
+---
+
+## [v4.15.1.c] — 2026-07-14
+
+**Base upstream:** Chatwoot `4.15.1`
+
+### Adicionado
+
+- **CRM** — filtro de caixa na lista `/crm` e nome da caixa no card do funil (ao lado das etapas)
+
+### Corrigido / UI
+
+- Modal criar/editar funil mais compacto (altura limitada + scroll nas etapas)
+- Opções de etapa independentes (`auto_resolve` não marca mais `clear_assignment` automaticamente)
+- Tarja branca na lista com 3 cards (`flex-1 w-full` no layout CRM)
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.15.1.c
+```
+
+### Release
+
+```bash
+./scripts/release.sh v4.15.1.c --push
+```
 
 ---
 
