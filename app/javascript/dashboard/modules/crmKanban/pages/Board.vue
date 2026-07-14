@@ -154,7 +154,9 @@ onMounted(fetchBoard);
 </script>
 
 <template>
-  <div class="flex flex-col h-full overflow-hidden bg-n-background">
+  <div
+    class="flex flex-col flex-1 w-full min-w-0 h-full overflow-hidden bg-n-background"
+  >
     <header
       class="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-n-weak"
     >

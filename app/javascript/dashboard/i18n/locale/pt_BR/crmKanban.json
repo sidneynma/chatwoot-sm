@@ -5,6 +5,9 @@
       "DESCRIPTION": "Abra um funil para trabalhar com suas conversas por etapa.",
       "EMPTY": "Nenhum funil disponível ainda.",
       "EMPTY_AGENT": "Nenhum funil ativo disponível. Fale com o administrador.",
+      "EMPTY_FILTER": "Nenhum funil para esta caixa.",
+      "ALL_INBOXES": "Todas as caixas",
+      "NO_INBOX": "Sem caixa",
       "STAGES": "etapas"
     },
     "BOARD": {

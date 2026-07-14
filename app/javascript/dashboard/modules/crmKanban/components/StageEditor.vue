@@ -45,10 +45,7 @@ const syncFromProps = () => {
     responsible_team_id: stage.responsible_team_id || '',
     can_resolve: Boolean(stage.can_resolve),
     auto_resolve_on_enter: Boolean(stage.auto_resolve_on_enter),
-    clear_assignment_on_resolve:
-      stage.clear_assignment_on_resolve === undefined
-        ? true
-        : Boolean(stage.clear_assignment_on_resolve),
+    clear_assignment_on_resolve: Boolean(stage.clear_assignment_on_resolve),
   }));
 };
 
@@ -85,7 +82,7 @@ const addStage = () => {
     responsible_team_id: '',
     can_resolve: false,
     auto_resolve_on_enter: false,
-    clear_assignment_on_resolve: true,
+    clear_assignment_on_resolve: false,
   });
   selectedLabelId.value = null;
   emitUpdate();
@@ -104,7 +101,7 @@ watch(() => props.modelValue, syncFromProps, { immediate: true, deep: true });
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
+  <div class="flex flex-col gap-2">
     <div class="flex items-end gap-2">
       <div class="flex-1">
         <label class="block mb-1 text-sm text-n-slate-11">
@@ -127,11 +124,11 @@ watch(() => props.modelValue, syncFromProps, { immediate: true, deep: true });
     </div>
 
     <div
-      class="flex flex-col gap-2 min-h-0 max-h-96 overflow-y-auto rounded-lg border border-n-weak bg-n-alpha-2 p-2"
+      class="flex flex-col gap-1.5 min-h-0 max-h-56 overflow-y-auto rounded-lg border border-n-weak bg-n-alpha-2 p-1.5"
     >
       <div
         v-if="localStages.length === 0"
-        class="py-6 text-sm text-center text-n-slate-11"
+        class="py-4 text-sm text-center text-n-slate-11"
       >
         {{ $t('CRM_KANBAN.SETTINGS.NO_STAGES') }}
       </div>
@@ -140,14 +137,14 @@ watch(() => props.modelValue, syncFromProps, { immediate: true, deep: true });
         v-else
         v-model="localStages"
         item-key="label_id"
-        class="flex flex-col gap-2"
+        class="flex flex-col gap-1.5"
         @end="onDragEnd"
       >
         <template #item="{ element, index }">
           <div
-            class="flex flex-col gap-3 p-3 border rounded-lg border-n-weak bg-n-solid-1"
+            class="flex flex-col gap-2 p-2 border rounded-lg border-n-weak bg-n-solid-1"
           >
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
               <Icon
                 icon="i-woot-drag-indicator"
                 class="size-4 text-n-slate-11 cursor-move shrink-0"
@@ -168,15 +165,15 @@ watch(() => props.modelValue, syncFromProps, { immediate: true, deep: true });
               </button>
             </div>
 
-            <div class="pl-7 flex flex-col gap-2">
+            <div class="pl-6 flex flex-col gap-1.5">
               <div>
-                <label class="block mb-1 text-xs text-n-slate-11">
+                <label class="block mb-0.5 text-xs text-n-slate-11">
                   {{ $t('CRM_KANBAN.SETTINGS.STAGE.TEAM') }}
                 </label>
                 <!-- Native select: avoids ComboBox being clipped by overflow-y-auto -->
                 <select
                   v-model="element.responsible_team_id"
-                  class="w-full appearance-none rounded-lg border-0 outline-1 outline -outline-offset-1 outline-n-weak hover:outline-n-slate-6 focus:outline-n-blue-9 bg-n-surface-1 py-2 px-3 text-sm text-n-slate-12 capitalize"
+                  class="w-full appearance-none rounded-lg border-0 outline-1 outline -outline-offset-1 outline-n-weak hover:outline-n-slate-6 focus:outline-n-blue-9 bg-n-surface-1 py-1.5 px-2.5 text-sm text-n-slate-12 capitalize"
                   @change="emitUpdate"
                 >
                   <option value="">
@@ -192,7 +189,7 @@ watch(() => props.modelValue, syncFromProps, { immediate: true, deep: true });
                 </select>
                 <p
                   v-if="teamOptions.length === 0"
-                  class="mt-1 text-xs text-n-slate-11"
+                  class="mt-0.5 text-xs text-n-slate-11"
                 >
                   {{ $t('CRM_KANBAN.SETTINGS.STAGE.NO_TEAMS') }}
                 </p>
@@ -218,10 +215,7 @@ watch(() => props.modelValue, syncFromProps, { immediate: true, deep: true });
                 </span>
               </label>
 
-              <label
-                v-if="element.auto_resolve_on_enter"
-                class="flex items-center gap-2 cursor-pointer"
-              >
+              <label class="flex items-center gap-2 cursor-pointer">
                 <Checkbox
                   v-model="element.clear_assignment_on_resolve"
                   @update:model-value="emitUpdate"

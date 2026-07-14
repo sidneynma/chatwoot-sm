@@ -5,6 +5,9 @@
       "DESCRIPTION": "Open a pipeline to work with your conversations by stage.",
       "EMPTY": "No pipelines available yet.",
       "EMPTY_AGENT": "No active pipelines available. Contact your administrator.",
+      "EMPTY_FILTER": "No pipelines for this inbox.",
+      "ALL_INBOXES": "All inboxes",
+      "NO_INBOX": "No inbox",
       "STAGES": "stages"
     },
     "BOARD": {
@@ -60,7 +63,7 @@
         "NO_TEAMS": "No teams found. Create a team in Settings → Teams first.",
         "CAN_RESOLVE": "Team may resolve the conversation",
         "AUTO_RESOLVE": "Auto-resolve when card enters this stage",
-        "CLEAR_ASSIGNMENT": "Clear assignee and team on auto-resolve"
+        "CLEAR_ASSIGNMENT": "Clear assignee and team when resolving"
       },
       "TABLE": {
         "NAME": "Name",

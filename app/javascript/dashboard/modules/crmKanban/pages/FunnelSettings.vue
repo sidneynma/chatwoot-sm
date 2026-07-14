@@ -99,10 +99,7 @@ const openEditDialog = funnel => {
       responsible_team_id: stage.responsible_team_id || '',
       can_resolve: Boolean(stage.can_resolve),
       auto_resolve_on_enter: Boolean(stage.auto_resolve_on_enter),
-      clear_assignment_on_resolve:
-        stage.clear_assignment_on_resolve === undefined
-          ? true
-          : Boolean(stage.clear_assignment_on_resolve),
+      clear_assignment_on_resolve: Boolean(stage.clear_assignment_on_resolve),
     })),
   };
   formDialogRef.value?.open();
@@ -345,6 +342,7 @@ onActivated(fetchFunnels);
       ref="formDialogRef"
       type="edit"
       width="2xl"
+      overflow-y-auto
       :title="
         isEditing
           ? $t('CRM_KANBAN.SETTINGS.EDIT_TITLE')
@@ -354,7 +352,9 @@ onActivated(fetchFunnels);
       :show-cancel-button="false"
       @close="resetForm"
     >
-      <div class="flex flex-col gap-4">
+      <div
+        class="flex flex-col gap-3 max-h-[min(62vh,520px)] overflow-y-auto pr-1"
+      >
         <div>
           <label class="block mb-1 text-sm text-n-slate-11">
             {{ $t('CRM_KANBAN.SETTINGS.FORM.NAME') }}
