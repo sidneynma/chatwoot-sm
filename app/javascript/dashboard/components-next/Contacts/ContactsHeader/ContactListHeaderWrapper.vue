@@ -2,7 +2,7 @@
 import { ref, computed, unref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useAlert, useTrack } from 'dashboard/composables';
 import { CONTACTS_EVENTS } from 'dashboard/helper/AnalyticsHelper/events';
 import filterQueryGenerator from 'dashboard/helper/filterQueryGenerator';
@@ -49,6 +49,21 @@ const emit = defineEmits([
 const { t } = useI18n();
 const store = useStore();
 const router = useRouter();
+const route = useRoute();
+
+const navigateToContactDetails = contactId => {
+  const routeTypes = {
+    contacts_dashboard_segments_index: ['contacts_edit_segment', 'segmentId'],
+    contacts_dashboard_labels_index: ['contacts_edit_label', 'label'],
+  };
+  const [name, paramKey] = routeTypes[route.name] || ['contacts_edit'];
+  const params = {
+    contactId,
+    ...(paramKey && { [paramKey]: route.params[paramKey] }),
+  };
+
+  return router.push({ name, params, query: { page: 1 } });
+};
 
 const createNewContactDialogRef = ref(null);
 const contactExportDialogRef = ref(null);
@@ -82,11 +97,14 @@ const openDeleteSegmentDialog = () =>
 
 const onCreate = async contact => {
   try {
-    await store.dispatch('contacts/create', contact);
+    const createdContact = await store.dispatch('contacts/create', contact);
     createNewContactDialogRef.value?.onSuccess();
     useAlert(
       t('CONTACTS_LAYOUT.HEADER.ACTIONS.CONTACT_CREATION.SUCCESS_MESSAGE')
     );
+    if (createdContact?.id) {
+      await navigateToContactDetails(createdContact.id);
+    }
   } catch (error) {
     const i18nPrefix = 'CONTACTS_LAYOUT.HEADER.ACTIONS.CONTACT_CREATION';
     if (error instanceof DuplicateContactException) {

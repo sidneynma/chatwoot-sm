@@ -424,8 +424,25 @@ const handleSort = async ({ sort, order }) => {
     : fetchContacts());
 };
 
+const navigateToContactDetails = contactId => {
+  const routeTypes = {
+    contacts_dashboard_segments_index: ['contacts_edit_segment', 'segmentId'],
+    contacts_dashboard_labels_index: ['contacts_edit_label', 'label'],
+  };
+  const [name, paramKey] = routeTypes[route.name] || ['contacts_edit'];
+  const params = {
+    contactId,
+    ...(paramKey && { [paramKey]: route.params[paramKey] }),
+  };
+
+  return router.push({ name, params, query: { page: 1 } });
+};
+
 const createContact = async contact => {
-  await store.dispatch('contacts/create', contact);
+  const createdContact = await store.dispatch('contacts/create', contact);
+  if (createdContact?.id) {
+    await navigateToContactDetails(createdContact.id);
+  }
 };
 
 watch(hasSelection, value => {
