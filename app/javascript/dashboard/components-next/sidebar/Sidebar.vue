@@ -59,8 +59,13 @@ const isMobile = computed(() => windowWidth.value < 768);
 
 const accountId = useMapGetter('getCurrentAccountId');
 const currentUserId = useMapGetter('getCurrentUserID');
+const getAccount = useMapGetter('accounts/getAccount');
 const isFeatureEnabledonAccount = useMapGetter(
   'accounts/isFeatureEnabledonAccount'
+);
+
+const chatolheModules = computed(
+  () => getAccount.value(accountId.value)?.chatolhe_modules || {}
 );
 
 const hasAdvancedAssignment = computed(() => {
@@ -323,7 +328,7 @@ const newReportRoutes = () => [
 const reportRoutes = computed(() => newReportRoutes());
 
 const menuItems = computed(() => {
-  return [
+  const items = [
     {
       name: 'Inbox',
       label: t('SIDEBAR.INBOX'),
@@ -334,13 +339,19 @@ const menuItems = computed(() => {
         count: 'notifications/getUnreadCount',
       },
     },
-    {
+  ];
+
+  if (chatolheModules.value.crm) {
+    items.push({
       name: 'CRM',
       label: t('SIDEBAR.CRM'),
       icon: 'i-lucide-kanban-square',
       to: accountScopedRoute('crm_kanban_index'),
       activeOn: ['crm_kanban_index', 'crm_kanban_board'],
-    },
+    });
+  }
+
+  items.push(
     {
       name: 'Conversation',
       label: t('SIDEBAR.CONVERSATIONS'),
@@ -660,7 +671,11 @@ const menuItems = computed(() => {
         },
       ],
     },
-    ...getCustomSidebarItems({ t, accountScopedRoute }),
+    ...getCustomSidebarItems({
+      t,
+      accountScopedRoute,
+      chatolheModules: chatolheModules.value,
+    }),
     {
       name: 'Portals',
       label: t('SIDEBAR.HELP_CENTER.TITLE'),
@@ -853,13 +868,17 @@ const menuItems = computed(() => {
           to: accountScopedRoute('conversation_redistribution_index'),
           activeOn: ['conversation_redistribution_index'],
         },
-        {
-          name: 'CRM Funnels',
-          label: t('SIDEBAR.CRM_FUNNELS'),
-          icon: 'i-lucide-kanban-square',
-          to: accountScopedRoute('crm_kanban_settings'),
-          activeOn: ['crm_kanban_settings'],
-        },
+        ...(chatolheModules.value.crm
+          ? [
+              {
+                name: 'CRM Funnels',
+                label: t('SIDEBAR.CRM_FUNNELS'),
+                icon: 'i-lucide-kanban-square',
+                to: accountScopedRoute('crm_kanban_settings'),
+                activeOn: ['crm_kanban_settings'],
+              },
+            ]
+          : []),
         {
           name: 'Settings Security',
           label: t('SIDEBAR.SECURITY'),
@@ -873,8 +892,10 @@ const menuItems = computed(() => {
           to: accountScopedRoute('billing_settings_index'),
         },
       ],
-    },
-  ];
+    }
+  );
+
+  return items;
 });
 </script>
 

@@ -150,3 +150,10 @@ shopify:
   enabled: true
   icon: 'icon-shopify'
   config_key: 'shopify'
+# ---- Chatolhe (append-only) ------------------------------------------------
+disparador:
+  name: 'Disparador'
+  description: 'Batch size, Meta concurrency and scheduler settings for Chatolhe campaigns.'
+  enabled: true
+  icon: 'icon-megaphone-line'
+  config_key: 'disparador'

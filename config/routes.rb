@@ -354,6 +354,22 @@ Rails.application.routes.draw do
                 post :move
               end
             end
+            resources :disparador_campaigns, only: [:index, :create, :show, :update, :destroy] do
+              collection do
+                get :export
+                post :upload_media, to: 'disparador_media#create'
+              end
+              member do
+                post :archive
+                post :unarchive
+                post :dispatch, action: :dispatch_now
+                post :retry_failed
+                get :stats
+                get :dispatch_status
+              end
+              resources :recipients, only: [:index, :create], controller: 'disparador_recipients'
+            end
+            resources :disparador_schedules, only: [:index, :create, :update, :destroy]
             resource :conversation_redistribution, only: [], controller: 'conversation_redistributions' do
               post :simulate, on: :collection
               post :execute, on: :collection

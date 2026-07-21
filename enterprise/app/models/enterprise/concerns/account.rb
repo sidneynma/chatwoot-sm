@@ -16,6 +16,7 @@ module Enterprise::Concerns::Account
 
     has_many :copilot_threads, dependent: :destroy_async
     has_many :crm_funnels, dependent: :destroy_async
+    has_many :disparador_campaigns, dependent: :destroy_async
     has_many :internal_chat_rooms, dependent: :destroy_async
     has_many :companies, dependent: :destroy_async
     has_many :calls, dependent: :destroy_async

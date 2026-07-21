@@ -84,6 +84,48 @@
   display_title: 'Chatolhe — status WhatsApp (campanhas)'
   description: 'URL do Campaign Dashboard Chatolhe para encaminhar status delivered/read/failed de envios rapidos sem mensagem na conversa. Ex.: https://dashboard.seudominio.com.br/api/webhooks/meta-status?token=SEU_WEBHOOK_SECRET'
   locked: false
+# ---- Chatolhe Disparador (mirrors dashord-campanha stack env) ----------------
+- name: DISPARADOR_DISPATCH_BATCH_SIZE
+  value: 50
+  display_title: 'Disparador — batch size'
+  description: 'Quantidade de destinatarios processados por lote no disparo (DISPATCH_BATCH_SIZE)'
+  locked: false
+- name: DISPARADOR_META_CONCURRENCY
+  value: 20
+  display_title: 'Disparador — concorrencia Meta'
+  description: 'Envios paralelos para a Meta por worker (DISPATCH_META_CONCURRENCY)'
+  locked: false
+- name: DISPARADOR_SCHEDULER_ENABLED
+  type: boolean
+  value: true
+  display_title: 'Disparador — scheduler ativo'
+  description: 'Habilita o agendador de campanhas e mensagens agendadas (SCHEDULER_ENABLED)'
+  locked: false
+- name: DISPARADOR_SCHEDULER_INTERVAL_MS
+  value: 60000
+  display_title: 'Disparador — intervalo do scheduler (ms)'
+  description: 'Intervalo entre ticks do scheduler (SCHEDULER_INTERVAL_MS)'
+  locked: false
+- name: DISPARADOR_SCHEDULER_INITIAL_DELAY_MS
+  value: 15000
+  display_title: 'Disparador — delay inicial do scheduler (ms)'
+  description: 'Atraso antes do primeiro tick apos o boot (SCHEDULER_INITIAL_DELAY_MS)'
+  locked: false
+- name: DISPARADOR_SCHEDULER_BATCH_CAMPAIGNS
+  value: 5
+  display_title: 'Disparador — campanhas por tick'
+  description: 'Maximo de campanhas agendadas iniciadas por tick (SCHEDULER_BATCH_CAMPAIGNS)'
+  locked: false
+- name: DISPARADOR_MEDIA_PUBLIC_BASE_URL
+  value:
+  display_title: 'Disparador — URL publica de midia'
+  description: 'Base HTTPS publica do bucket MinIO de campanhas (ex.: https://minio.dominio/imagemcampanha). Meta exige URL publica.'
+  locked: false
+- name: DISPARADOR_MEDIA_BUCKET
+  value: imagemcampanha
+  display_title: 'Disparador — Bucket MinIO de midia'
+  description: 'Bucket dedicado para midia de campanhas (mesmo STORAGE_* do stack). Padrao: imagemcampanha'
+  locked: false
 - name: WEBHOOK_TIMEOUT
   value: 5
   display_title: 'Webhook request timeout (seconds)'

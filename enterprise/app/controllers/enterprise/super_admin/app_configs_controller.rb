@@ -2,6 +2,12 @@ module Enterprise::SuperAdmin::AppConfigsController
   private
 
   def allowed_configs
+    # Chatolhe Disparador is available on all plans (self-hosted).
+    if @config == 'disparador'
+      @allowed_configs = disparador_config_options
+      return
+    end
+
     return super if ChatwootHub.pricing_plan == 'community'
 
     case @config
@@ -52,5 +58,19 @@ module Enterprise::SuperAdmin::AppConfigsController
 
   def saml_config_options
     %w[ENABLE_SAML_SSO_LOGIN]
+  end
+
+  def disparador_config_options
+    %w[
+      DISPARADOR_DISPATCH_BATCH_SIZE
+      DISPARADOR_META_CONCURRENCY
+      DISPARADOR_SCHEDULER_ENABLED
+      DISPARADOR_SCHEDULER_INTERVAL_MS
+      DISPARADOR_SCHEDULER_INITIAL_DELAY_MS
+      DISPARADOR_SCHEDULER_BATCH_CAMPAIGNS
+      DISPARADOR_MEDIA_PUBLIC_BASE_URL
+      DISPARADOR_MEDIA_BUCKET
+      CAMPAIGN_DASHBOARD_STATUS_WEBHOOK_URL
+    ]
   end
 end

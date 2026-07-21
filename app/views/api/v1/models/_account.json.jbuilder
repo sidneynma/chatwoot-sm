@@ -25,6 +25,7 @@ if resource.custom_attributes.present?
 end
 json.domain @account.domain
 json.features @account.enabled_features
+json.chatolhe_modules SuperAdmin::AccountFeaturesHelper.chatolhe_modules_enabled_hash(resource)
 json.id @account.id
 json.locale @account.locale
 json.name @account.name

@@ -68,6 +68,11 @@ module Enterprise::Account
     saml_settings&.saml_enabled? || false
   end
 
+  # Chatolhe modules (Disparador, CRM, etc.) — stored in custom_attributes, not feature_flags.
+  def chatolhe_module_enabled?(name)
+    SuperAdmin::AccountFeaturesHelper.chatolhe_module_enabled?(self, name)
+  end
+
   private
 
   def sync_assignment_features

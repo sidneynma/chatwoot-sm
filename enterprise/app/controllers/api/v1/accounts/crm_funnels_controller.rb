@@ -1,4 +1,5 @@
 class Api::V1::Accounts::CrmFunnelsController < Api::V1::Accounts::EnterpriseAccountsController
+  before_action :ensure_crm_module_enabled!
   before_action :fetch_funnel, only: [:show, :update, :destroy, :board, :move]
   before_action :ensure_funnel_accessible!, only: [:board, :move]
   before_action :check_authorization
@@ -116,5 +117,11 @@ class Api::V1::Accounts::CrmFunnelsController < Api::V1::Accounts::EnterpriseAcc
     return if @crm_funnel.active? || Current.account_user.administrator?
 
     render json: { error: 'Funnel is inactive' }, status: :forbidden
+  end
+
+  def ensure_crm_module_enabled!
+    return if Current.account.chatolhe_module_enabled?('crm')
+
+    render json: { error: 'CRM module is not enabled for this account' }, status: :forbidden
   end
 end

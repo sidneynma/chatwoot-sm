@@ -6,6 +6,9 @@
 # help_url: the url to the help center article
 # chatwoot_internal: whether the feature is internal to Chatwoot and should not be shown in the UI for other self hosted installations
 # deprecated: purpose of feature flag is done, no need to show it in the UI anymore
+#
+# Chatolhe custom modules (Disparador, etc.) live in config/chatolhe_modules.yml —
+# accounts.feature_flags is a signed bigint and already at the 63-feature ceiling.
 - name: inbound_emails
   display_name: Inbound Emails
   enabled: true

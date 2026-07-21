@@ -1,0 +1,18 @@
+# Chatolhe account modules (Super Admin → Accounts → Módulos).
+# Stored in accounts.custom_attributes['chatolhe_modules'] — NOT in feature_flags
+# (signed bigint is at the 63-feature ceiling; see config/features.yml).
+#
+# Append-only. name is the stable key used in code and billing sync.
+# default_enabled: used when the key was never saved for an account (legacy).
+- name: disparador
+  display_name: Disparador (módulo)
+  description: Campanhas em massa (WhatsApp)
+  default_enabled: false
+- name: mensagens_agendadas
+  display_name: Mensagens Agendadas (módulo)
+  description: Agendamento 1:1 em conversas
+  default_enabled: false
+- name: crm
+  display_name: CRM (módulo)
+  description: Funis e quadro Kanban nativos
+  default_enabled: true

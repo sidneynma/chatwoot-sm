@@ -7,6 +7,38 @@ module SuperAdmin::AccountFeaturesHelper
     account_features.filter { |feature| feature['premium'] }.pluck('name')
   end
 
+  # Chatolhe modules catalog (separate from FlagShihTzu feature_flags).
+  def self.chatolhe_modules_catalog
+    @chatolhe_modules_catalog ||= YAML.safe_load(
+      Rails.root.join('config/chatolhe_modules.yml').read
+    ).freeze
+  end
+
+  def self.chatolhe_module_names
+    chatolhe_modules_catalog.pluck('name')
+  end
+
+  def self.chatolhe_module_enabled?(account, name)
+    name = name.to_s
+    stored = account.custom_attributes&.dig('chatolhe_modules') || {}
+    return ActiveModel::Type::Boolean.new.cast(stored[name]) if stored.key?(name)
+
+    entry = chatolhe_modules_catalog.find { |mod| mod['name'] == name }
+    ActiveModel::Type::Boolean.new.cast(entry&.fetch('default_enabled', false))
+  end
+
+  # Hash of module_name => enabled for API / sidebar.
+  def self.chatolhe_modules_enabled_hash(account)
+    chatolhe_module_names.index_with { |name| chatolhe_module_enabled?(account, name) }
+  end
+
+  # Returns [[name, display_name], enabled_boolean] pairs for Super Admin UI.
+  def self.chatolhe_modules_for(account)
+    chatolhe_modules_catalog.to_h do |mod|
+      [[mod['name'], mod['display_name']], chatolhe_module_enabled?(account, mod['name'])]
+    end
+  end
+
   # Returns a hash mapping feature names to their display names
   def self.feature_display_names
     account_features.each_with_object({}) do |feature, hash|

@@ -43,6 +43,12 @@ as defined by the routes in the `admin/` namespace
         %>
 
       <% end %>
+      <%= render partial: "nav_item", locals: {
+            icon: 'icon-megaphone-line',
+            url: super_admin_app_config_url(config: 'disparador'),
+            label: 'Disparador',
+          }
+        %>
       <%= render 'settings_menu', open: settings_open? %>
     </ul>
   </div>
