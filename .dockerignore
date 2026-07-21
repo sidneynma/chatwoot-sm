@@ -16,3 +16,5 @@ vendor/bundle
 .DS_Store
 *.swp
 *~
+script/disparador_import_account_10.sql
+script/disparador_import_account_10_data.sql
