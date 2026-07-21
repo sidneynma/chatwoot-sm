@@ -12,19 +12,57 @@ class Disparador::ApplyStatusService
     'cancelled' => 6
   }.freeze
 
-  pattr_initialize [:meta_message_id, :status, :phone, :error_message, :account_id]
+  TRACKABLE_STATUSES = %w[queued sent delivered read].freeze
+
+  pattr_initialize [
+    :meta_message_id,
+    :status,
+    :phone,
+    :error_message,
+    :account_id,
+    :chatwoot_message_id,
+    :conversation_id,
+    :contact_id,
+    :recipient_id
+  ]
 
   def perform
     recipient = find_recipient
-    return if recipient.blank?
-    return unless should_upgrade?(recipient.status, normalized_status)
+    if recipient.blank?
+      Rails.logger.info(
+        "[Disparador::ApplyStatus] skip status=#{status} " \
+        "meta_id=#{meta_message_id} message_id=#{chatwoot_message_id} " \
+        "conversation_id=#{conversation_id} contact_id=#{contact_id} " \
+        "phone=#{phone} reason=recipient_not_found"
+      )
+      return
+    end
+
+    sync_message_ids!(recipient)
+    return if status.blank?
+
+    unless should_upgrade?(recipient.status, normalized_status)
+      Rails.logger.info(
+        "[Disparador::ApplyStatus] skip recipient=#{recipient.id} " \
+        "current=#{recipient.status} incoming=#{normalized_status} reason=no_upgrade"
+      )
+      return
+    end
 
     attrs = {
       status: normalized_status,
       last_event_at: Time.current
     }
     attrs[:error_message] = error_message if normalized_status == 'failed' && error_message.present?
+
+    previous_status = recipient.status
     recipient.update!(attrs)
+
+    Rails.logger.info(
+      "[Disparador::ApplyStatus] ok recipient=#{recipient.id} " \
+      "campaign=#{recipient.disparador_campaign_id} #{previous_status}->#{normalized_status}"
+    )
+
     maybe_complete_campaign!(recipient.disparador_campaign)
     recipient
   end
@@ -49,17 +87,70 @@ class Disparador::ApplyStatusService
     scope = DisparadorRecipient.joins(:disparador_campaign)
     scope = scope.where(disparador_campaigns: { account_id: account_id }) if account_id.present?
 
+    if recipient_id.present?
+      found = scope.find_by(id: recipient_id)
+      return found if found
+    end
+
     if meta_message_id.present?
-      found = scope.where("disparador_recipients.metadata->>'meta_message_id' = ?", meta_message_id).first
+      found = scope.where("disparador_recipients.metadata->>'meta_message_id' = ?", meta_message_id.to_s).first
+      return found if found
+    end
+
+    if chatwoot_message_id.present?
+      found = scope.where(
+        "disparador_recipients.metadata->>'chatwoot_message_id' = ?",
+        chatwoot_message_id.to_s
+      ).first
+      return found if found
+    end
+
+    if conversation_id.present?
+      found = trackable_scope(scope).where(conversation_id: conversation_id)
+                                   .order(updated_at: :desc)
+                                   .first
+      return found if found
+    end
+
+    if contact_id.present?
+      found = trackable_scope(scope).where(contact_id: contact_id)
+                                   .order(updated_at: :desc)
+                                   .first
       return found if found
     end
 
     return if phone.blank?
 
     digits = phone.to_s.gsub(/\D/, '')
-    scope.where(status: %w[queued sent delivered read]).find do |r|
-      r.phone.to_s.gsub(/\D/, '').end_with?(digits.last(10)) || digits.end_with?(r.phone.to_s.gsub(/\D/, '').last(10))
+    return if digits.blank?
+
+    trackable_scope(scope).order(updated_at: :desc).find do |r|
+      r_digits = r.phone.to_s.gsub(/\D/, '')
+      next if r_digits.blank?
+
+      r_digits.end_with?(digits.last(10)) || digits.end_with?(r_digits.last(10))
     end
+  end
+
+  def trackable_scope(scope)
+    scope.where(status: TRACKABLE_STATUSES)
+  end
+
+  def sync_message_ids!(recipient)
+    meta = (recipient.metadata || {}).stringify_keys
+    changed = false
+
+    if meta_message_id.present? && meta['meta_message_id'].blank?
+      meta['meta_message_id'] = meta_message_id.to_s
+      changed = true
+    end
+
+    if chatwoot_message_id.present? && meta['chatwoot_message_id'].blank?
+      meta['chatwoot_message_id'] = chatwoot_message_id.to_i
+      changed = true
+    end
+
+    recipient.update_column(:metadata, meta) if changed # rubocop:disable Rails/SkipsModelValidations
   end
 
   def should_upgrade?(current, incoming)

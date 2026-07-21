@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { useAccount } from 'dashboard/composables/useAccount';
@@ -18,6 +18,7 @@ const editing = ref(null);
 const editDate = ref('');
 const editMessage = ref('');
 const isSaving = ref(false);
+let pollTimer = null;
 
 const statusOptions = computed(() => [
   { value: 'pending', label: t('DISPARADOR.SCHEDULES.FILTER_PENDING') },
@@ -43,7 +44,8 @@ const statusClass = status => {
     pending: 'bg-n-amber-3 text-n-amber-11',
     sent: 'bg-n-teal-3 text-n-teal-11',
     delivered: 'bg-n-teal-3 text-n-teal-11',
-    read: 'bg-n-teal-3 text-n-teal-11',
+    read: 'bg-n-brand/10 text-n-brand',
+    replied: 'bg-n-teal-3 text-n-teal-11',
     failed: 'bg-n-ruby-3 text-n-ruby-11',
     cancelled: 'bg-n-slate-3 text-n-slate-11',
   };
@@ -87,8 +89,8 @@ const conversationUrl = conversationId => {
   return `/app/accounts/${accountId.value}/conversations/${conversationId}`;
 };
 
-const loadSchedules = async () => {
-  isLoading.value = true;
+const loadSchedules = async ({ quiet = false } = {}) => {
+  if (!quiet) isLoading.value = true;
   try {
     const { data } = await DisparadorAPI.getSchedules({
       status: statusFilter.value || undefined,
@@ -97,10 +99,24 @@ const loadSchedules = async () => {
     items.value = data.payload || [];
     scope.value = data.scope || 'mine';
   } catch (error) {
-    useAlert(t('DISPARADOR.SCHEDULES.LOAD_ERROR'));
+    if (!quiet) useAlert(t('DISPARADOR.SCHEDULES.LOAD_ERROR'));
   } finally {
-    isLoading.value = false;
+    if (!quiet) isLoading.value = false;
   }
+};
+
+const stopPolling = () => {
+  if (pollTimer) {
+    clearInterval(pollTimer);
+    pollTimer = null;
+  }
+};
+
+const startPolling = () => {
+  stopPolling();
+  pollTimer = setInterval(() => {
+    loadSchedules({ quiet: true });
+  }, 5000);
 };
 
 const openEdit = item => {
@@ -160,7 +176,12 @@ const cancelItem = async item => {
   }
 };
 
-onMounted(loadSchedules);
+onMounted(() => {
+  loadSchedules();
+  startPolling();
+});
+
+onUnmounted(stopPolling);
 </script>
 
 <template>
@@ -186,7 +207,7 @@ onMounted(loadSchedules);
             variant="outline"
             size="sm"
             :is-loading="isLoading"
-            @click="loadSchedules"
+            @click="() => loadSchedules()"
           />
         </div>
 
@@ -200,7 +221,7 @@ onMounted(loadSchedules);
             <select
               v-model="statusFilter"
               class="h-9 rounded-lg border border-n-weak bg-n-background px-3 text-sm text-n-slate-12 outline-none focus:border-n-brand"
-              @change="loadSchedules"
+              @change="() => loadSchedules()"
             >
               <option
                 v-for="opt in statusOptions"

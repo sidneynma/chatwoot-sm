@@ -104,3 +104,7 @@ CLAUDE.local.md
 .pnpm-store/*
 local/
 Procfile.worktree
+
+# One-off Disparador import dumps (run manually against Postgres; do not ship in image)
+script/disparador_import_account_10.sql
+script/disparador_import_account_10_data.sql

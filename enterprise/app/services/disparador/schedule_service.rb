@@ -114,6 +114,8 @@ class Disparador::ScheduleService
         scheduled_at: scheduled_at,
         metadata: recipient_meta
       )
+
+      link_schedule_conversation!(conversation_id, campaign, recipient)
     end
 
     if scheduled_at <= Time.current
@@ -180,8 +182,12 @@ class Disparador::ScheduleService
   def filter_status(scope, status)
     return scope if status.blank?
 
-    if status.to_s == 'pending'
+    case status.to_s
+    when 'pending'
       scope.where(status: %w[pending queued])
+    when 'sent'
+      # "Enviados" includes the full delivery funnel after send
+      scope.where(status: %w[sent delivered read replied])
     else
       scope.where(status: status)
     end
@@ -248,6 +254,19 @@ class Disparador::ScheduleService
 
   def normalize_phone(phone)
     phone.to_s.gsub(/\D/, '')
+  end
+
+  def link_schedule_conversation!(conversation_id, campaign, recipient)
+    conversation = account.conversations.find_by(id: conversation_id)
+    return if conversation.blank?
+
+    attrs = (conversation.additional_attributes || {}).stringify_keys
+    conversation.update!(
+      additional_attributes: attrs.merge(
+        'disparador_campaign_id' => campaign.id,
+        'disparador_recipient_id' => recipient.id
+      )
+    )
   end
 
   def build_template_params_body(values)

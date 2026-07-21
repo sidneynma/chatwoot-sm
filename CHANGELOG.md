@@ -10,7 +10,43 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.d`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.e`
+
+---
+
+## [v4.15.1.e] — 2026-07-21
+
+**Base upstream:** Chatwoot `4.15.1`
+
+### Adicionado
+
+- **Disparador** — módulo nativo de campanhas WhatsApp (Meta + Chatolhe API) e agendamento 1:1 na conversa
+- Métricas de campanha: enviado / entregue / lida / respondida / falha (webhook Meta + listener Evolution/API)
+- Importação opcional do Campaign Dashboard antigo (`rake disparador:import_from_dashboard`)
+
+### Melhorado
+
+- Agendamentos 1:1 vinculam a conversa ao destinatário para marcar respondida
+- Lista de agendamentos atualiza sozinha e exibe status lida/respondida
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.15.1.e
+```
+
+Após o migrate, importar campanhas históricas da conta 10 (one-off, fora da imagem):
+
+```bash
+psql -d SEU_BANCO_CHATWOOT -v ON_ERROR_STOP=1 -f disparador_import_account_10_data.sql
+```
+
+### Release
+
+```bash
+./scripts/release.sh v4.15.1.e --push
+```
 
 ---
 

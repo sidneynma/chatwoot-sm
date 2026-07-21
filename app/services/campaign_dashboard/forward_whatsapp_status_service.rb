@@ -16,9 +16,18 @@ class CampaignDashboard::ForwardWhatsappStatusService
   def apply_native_disparador_status
     error = status[:errors]&.first
     error_message = error.present? ? "#{error[:code]}: #{error[:title]}" : nil
+    message = Message.find_by(source_id: status[:id], account_id: inbox.account_id)
+
+    Rails.logger.info(
+      "[Disparador::ForwardStatus] meta status=#{status[:status]} " \
+      "meta_id=#{status[:id]} phone=#{status[:recipient_id]} " \
+      "message_id=#{message&.id} account=#{inbox.account_id}"
+    )
 
     Disparador::ApplyStatusService.new(
       meta_message_id: status[:id],
+      chatwoot_message_id: message&.id,
+      conversation_id: message&.conversation_id,
       status: status[:status],
       phone: status[:recipient_id],
       error_message: error_message,

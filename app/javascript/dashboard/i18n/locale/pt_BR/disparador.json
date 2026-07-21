@@ -252,6 +252,7 @@
         "sent": "Enviada",
         "delivered": "Entregue",
         "read": "Lida",
+        "replied": "Respondida",
         "failed": "Falhou",
         "cancelled": "Cancelada"
       }

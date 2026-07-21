@@ -81,6 +81,7 @@ class Disparador::DispatchRecipientService
         'evolution_instance' => campaign.metadata&.dig('inbox_name') || campaign.metadata&.dig('evolution_instance')
       }
     )
+    link_conversation_to_recipient!(conversation, campaign)
 
     message_params = {
       content: content.presence || '',
@@ -241,6 +242,7 @@ class Disparador::DispatchRecipientService
         'disparador_recipient_id' => recipient.id
       }
     )
+    link_conversation_to_recipient!(conversation, campaign)
 
     template_params = template_params_for(campaign)
     message = Messages::MessageBuilder.new(
@@ -275,5 +277,21 @@ class Disparador::DispatchRecipientService
     return if digits.blank?
 
     "+#{digits.delete_prefix('+')}"
+  end
+
+  # 1:1 schedules reuse an existing conversation — stamp recipient id so replies map back.
+  def link_conversation_to_recipient!(conversation, campaign)
+    return if conversation.blank?
+
+    attrs = (conversation.additional_attributes || {}).stringify_keys
+    desired_recipient = recipient.id.to_s
+    return if attrs['disparador_recipient_id'].to_s == desired_recipient
+
+    conversation.update!(
+      additional_attributes: attrs.merge(
+        'disparador_campaign_id' => campaign.id,
+        'disparador_recipient_id' => recipient.id
+      )
+    )
   end
 end

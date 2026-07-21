@@ -252,6 +252,7 @@
         "sent": "Sent",
         "delivered": "Delivered",
         "read": "Read",
+        "replied": "Replied",
         "failed": "Failed",
         "cancelled": "Cancelled"
       }

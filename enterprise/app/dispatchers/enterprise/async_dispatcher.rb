@@ -1,7 +1,9 @@
 module Enterprise::AsyncDispatcher
   def listeners
     super + [
-      CaptainListener.instance
+      CaptainListener.instance,
+      DisparadorListener.instance
     ]
   end
 end
+
