@@ -39,6 +39,7 @@ class Disparador::ApplyStatusService
     end
 
     sync_message_ids!(recipient)
+    sync_links!(recipient)
     return if status.blank?
 
     unless should_upgrade?(recipient.status, normalized_status)
@@ -121,15 +122,35 @@ class Disparador::ApplyStatusService
 
     return if phone.blank?
 
-    digits = phone.to_s.gsub(/\D/, '')
-    return if digits.blank?
+    phone_keys = phone_match_keys(phone)
+    return if phone_keys.empty?
 
     trackable_scope(scope).order(updated_at: :desc).find do |r|
-      r_digits = r.phone.to_s.gsub(/\D/, '')
-      next if r_digits.blank?
-
-      r_digits.end_with?(digits.last(10)) || digits.end_with?(r_digits.last(10))
+      (phone_match_keys(r.phone) & phone_keys).any?
     end
+  end
+
+  # BR mobiles often differ by the 9th digit (55 43 98823-5592 vs 55 43 8823-5592).
+  # Build comparable keys so webhook contact phones still match campaign CSV phones.
+  def phone_match_keys(value)
+    digits = value.to_s.gsub(/\D/, '')
+    return [] if digits.blank?
+
+    keys = [digits]
+    national = digits.start_with?('55') && digits.length >= 12 ? digits[2..] : digits
+    keys << national
+    keys << "55#{national}" unless national.start_with?('55')
+
+    body = national
+    if body.length == 11 && body[2] == '9'
+      without_nine = "#{body[0, 2]}#{body[3..]}"
+      keys.push(without_nine, "55#{without_nine}")
+    elsif body.length == 10
+      with_nine = "#{body[0, 2]}9#{body[2..]}"
+      keys.push(with_nine, "55#{with_nine}")
+    end
+
+    keys.uniq
   end
 
   def trackable_scope(scope)
@@ -151,6 +172,28 @@ class Disparador::ApplyStatusService
     end
 
     recipient.update_column(:metadata, meta) if changed # rubocop:disable Rails/SkipsModelValidations
+  end
+
+  def sync_links!(recipient)
+    attrs = {}
+    attrs[:contact_id] = contact_id if contact_id.present? && recipient.contact_id.blank?
+    attrs[:conversation_id] = conversation_id if conversation_id.present? && recipient.conversation_id.blank?
+    recipient.update_columns(attrs.merge(updated_at: Time.current)) if attrs.present? # rubocop:disable Rails/SkipsModelValidations
+
+    return if conversation_id.blank? || normalized_status != 'replied'
+
+    conversation = Conversation.find_by(id: conversation_id, account_id: account_id)
+    return if conversation.blank?
+
+    ca = (conversation.additional_attributes || {}).stringify_keys
+    return if ca['disparador_recipient_id'].to_s == recipient.id.to_s
+
+    conversation.update!(
+      additional_attributes: ca.merge(
+        'disparador_campaign_id' => recipient.disparador_campaign_id,
+        'disparador_recipient_id' => recipient.id
+      )
+    )
   end
 
   def should_upgrade?(current, incoming)

@@ -60,6 +60,32 @@ const formatDateTimeH = value => {
   return s === '—' ? s : `${s}h`;
 };
 
+const formatDuration = (startedAt, completedAt) => {
+  const start = new Date(startedAt);
+  const end = new Date(completedAt);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return '';
+
+  const totalSeconds = Math.max(0, Math.round((end - start) / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    return t('DISPARADOR.DETAIL.DURATION_HOURS_MINUTES_SECONDS', {
+      hours,
+      minutes,
+      seconds,
+    });
+  }
+  if (minutes > 0) {
+    return t('DISPARADOR.DETAIL.DURATION_MINUTES_SECONDS', {
+      minutes,
+      seconds,
+    });
+  }
+  return t('DISPARADOR.DETAIL.DURATION_SECONDS', { n: Math.max(1, seconds) });
+};
+
 const ratePct = (num, den) => {
   const n = Number(num) || 0;
   const d = Number(den) || 0;
@@ -452,6 +478,11 @@ const timelineText = computed(() => {
   let text = `${t('DISPARADOR.DETAIL.STARTED')} ${formatDateTimeH(campaign.value.started_at)}`;
   if (campaign.value.completed_at) {
     text += ` · ${t('DISPARADOR.DETAIL.FINISHED_AT')} ${formatDateTimeH(campaign.value.completed_at)}`;
+    const duration = formatDuration(
+      campaign.value.started_at,
+      campaign.value.completed_at
+    );
+    if (duration) text += ` · ${duration}`;
   }
   return text;
 });

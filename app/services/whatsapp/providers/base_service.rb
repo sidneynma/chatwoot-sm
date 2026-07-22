@@ -43,13 +43,17 @@ class Whatsapp::Providers::BaseService
 
   def handle_error(response, message)
     Rails.logger.error response.body
-    return if message.blank?
-
     # https://developers.facebook.com/docs/whatsapp/cloud-api/support/error-codes/#sample-response
-    error_message = error_message(response)
-    return if error_message.blank?
+    api_error = error_message(response)
 
-    message.external_error = error_message
+    # meta_direct / services that call send_template without a Message need the real Meta error
+    if message.blank?
+      raise StandardError, api_error.presence || "WhatsApp API error (HTTP #{response.code})"
+    end
+
+    return if api_error.blank?
+
+    message.external_error = api_error
     message.status = :failed
     message.save!
   end

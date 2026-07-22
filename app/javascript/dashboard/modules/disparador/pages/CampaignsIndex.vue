@@ -15,6 +15,7 @@ import {
   extractBodyText,
   extractHeaderComponent,
   extractFooterText,
+  extractTemplateButtons,
   extractVariableKeys,
   extractEvolutionVariableKeys,
   parseRecipientsText,
@@ -218,6 +219,22 @@ const templateHeaderText = computed(() => {
 const templateFooterText = computed(() =>
   selectedTemplate.value ? extractFooterText(selectedTemplate.value) : ''
 );
+
+const templateButtons = computed(() =>
+  selectedTemplate.value ? extractTemplateButtons(selectedTemplate.value) : []
+);
+
+const templateButtonLabel = button => {
+  const type = String(button?.type || '').toUpperCase();
+  const text = button?.text || button?.type || '—';
+  if (type === 'PHONE_NUMBER') {
+    return `${text} (${button.phone_number || '—'})`;
+  }
+  if (type === 'URL') {
+    return `${text} (${button.url || '—'})`;
+  }
+  return text;
+};
 
 const templateHeaderFormat = computed(() =>
   (headerComponent.value?.format || '').toUpperCase()
@@ -790,9 +807,13 @@ const createCampaign = async () => {
     });
     messageTemplate = form.value.message_template.trim();
   } else {
+    const bodyParams = {};
+    variableKeys.value.forEach(key => {
+      bodyParams[key] = form.value.bodyParams?.[key] || '';
+    });
     metadata = buildTemplateMetadata({
       template: selectedTemplate.value,
-      bodyParams: form.value.bodyParams,
+      bodyParams,
       headerMediaUrl: form.value.header_media_url,
       headerMediaType:
         form.value.header_media_type ||
@@ -1514,6 +1535,28 @@ onMounted(async () => {
                         class="whitespace-pre-wrap font-mono text-xs text-n-slate-12"
                       >
                         {{ templateBodyRaw || '—' }}
+                      </p>
+                    </div>
+
+                    <div
+                      v-if="templateButtons.length"
+                      class="rounded-lg border border-n-weak p-3 sm:col-span-2"
+                    >
+                      <p
+                        class="mb-1 text-[11px] font-semibold uppercase tracking-wide text-n-slate-11"
+                      >
+                        {{ t('DISPARADOR.CAMPAIGNS.TEMPLATE_BUTTONS') }}
+                      </p>
+                      <ul class="space-y-1 text-sm text-n-slate-12">
+                        <li
+                          v-for="(button, idx) in templateButtons"
+                          :key="`${button.type}-${idx}`"
+                        >
+                          {{ templateButtonLabel(button) }}
+                        </li>
+                      </ul>
+                      <p class="mt-2 text-xs text-n-slate-11">
+                        {{ t('DISPARADOR.CAMPAIGNS.TEMPLATE_BUTTONS_HINT') }}
                       </p>
                     </div>
                   </div>

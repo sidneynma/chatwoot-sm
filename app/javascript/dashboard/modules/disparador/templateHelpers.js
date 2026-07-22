@@ -20,6 +20,15 @@ export const extractFooterText = template => {
   return footer?.text || '';
 };
 
+export const extractTemplateButtons = template => {
+  const buttonsComponent = (template?.components || []).find(
+    c => (c.type || '').toUpperCase() === 'BUTTONS'
+  );
+  return Array.isArray(buttonsComponent?.buttons)
+    ? buttonsComponent.buttons
+    : [];
+};
+
 export const extractEvolutionVariableKeys = text => {
   const keys = [];
   const source = text || '';
@@ -202,8 +211,8 @@ export const parseRecipientsText = (
         name &&
         (variableKeys.includes('nome') || variableKeys.includes('name'))
       ) {
-        body.nome = body.nome || name;
-        body.name = body.name || name;
+        if (variableKeys.includes('nome')) body.nome = body.nome || name;
+        if (variableKeys.includes('name')) body.name = body.name || name;
       }
 
       const extras = extrasByPhone[phone] || extrasByPhone[`+${phone}`] || {};

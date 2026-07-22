@@ -10,7 +10,40 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.e`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.f`
+
+---
+
+## [v4.15.1.f] — 2026-07-22
+
+**Base upstream:** Chatwoot `4.15.1`
+
+### Corrigido
+
+- **Disparador** — respostas em Meta direto passam a bater telefone com/sem o 9º dígito BR (status respondida)
+- Erro Meta `#132000` ao enviar parâmetros a mais no body do template
+- Erro genérico “Meta did not return a message id” agora propaga a mensagem real da API
+
+### Melhorado
+
+- Duração da campanha na tela de detalhe (minutos e segundos)
+- Preview dos botões estáticos do template (CALL / URL)
+- Meta direto grava `contact_id` e vincula a conversa ao marcar respondida
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.15.1.f
+```
+
+Para leilões (2k–3k em 5–10 min), preferir **2 réplicas** do Sidekiq e modo **Rápido (Meta direto)**.
+
+### Release
+
+```bash
+./scripts/release.sh v4.15.1.f --push
+```
 
 ---
 

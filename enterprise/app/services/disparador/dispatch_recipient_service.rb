@@ -184,11 +184,34 @@ class Disparador::DispatchRecipientService
   def merge_body_params(template)
     defaults = (template.dig('processed_params', 'body') || {}).stringify_keys
     overrides = (recipient.metadata&.dig('template_params', 'body') || {}).stringify_keys
-    defaults.merge(overrides).tap do |body|
-      if Array(template['variable_keys']).include?('nome') || body.key?('nome')
-        body['nome'] = recipient.name if body['nome'].blank?
-      end
+    merged = defaults.merge(overrides)
+
+    keys = Array(template['variable_keys']).map(&:to_s)
+    if keys.blank?
+      keys = String(template['body_text']).scan(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/).flatten.uniq
     end
+
+    autofill_contact_vars!(merged, keys)
+
+    # Meta (#132000): only send the exact body placeholders the template expects
+    return keys.index_with { |key| merged[key].to_s } if keys.present?
+
+    merged
+  end
+
+  def autofill_contact_vars!(body, keys)
+    name = recipient.name.to_s.strip
+    return if name.blank?
+
+    contact_keys = keys.select { |key| %w[nome name 1].include?(key.downcase) }
+    if contact_keys.present?
+      contact_keys.each { |key| body[key] = name if body[key].blank? }
+      return
+    end
+
+    # Legacy recipients may carry nome/name even when template uses {{1}}
+    body['1'] = name if keys == ['1'] && body['1'].blank?
+    body['nome'] = body['nome'].presence || body['name'].presence || name if keys.include?('nome')
   end
 
   def send_via_meta_direct(campaign, inbox)
@@ -208,14 +231,31 @@ class Disparador::DispatchRecipientService
     )
     raise 'Meta did not return a message id' if meta_message_id.blank?
 
+    contact_inbox = resolve_contact_inbox_for_phone(campaign, inbox, phone)
+
     {
       status: 'sent',
+      contact_id: contact_inbox&.contact_id,
       metadata: {
         'dispatch_mode' => 'meta_direct',
         'meta_message_id' => meta_message_id,
         'template_params' => template_params
       }
     }
+  end
+
+  def resolve_contact_inbox_for_phone(_campaign, inbox, phone)
+    ContactInboxWithContactBuilder.new(
+      source_id: phone,
+      inbox: inbox,
+      contact_attributes: {
+        name: recipient.name.presence || phone,
+        phone_number: phone_e164(phone)
+      }
+    ).perform
+  rescue StandardError => e
+    Rails.logger.warn("[Disparador] meta_direct contact resolve failed: #{e.message}")
+    nil
   end
 
   def send_via_conversation(campaign, inbox)
