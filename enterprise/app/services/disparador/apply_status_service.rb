@@ -197,8 +197,11 @@ class Disparador::ApplyStatusService
   end
 
   def should_upgrade?(current, incoming)
-    return true if incoming == 'failed' && STATUS_RANK.fetch(current.to_s, 0) < STATUS_RANK['sent']
-    return false if incoming == 'failed'
+    if incoming == 'failed'
+      # Meta often accepts the send (status=sent + wamid) and later webhooks
+      # undeliverable (e.g. #131026). Allow failed until a positive delivery signal.
+      return %w[pending queued sent].include?(current.to_s)
+    end
 
     STATUS_RANK.fetch(incoming, 0) > STATUS_RANK.fetch(current.to_s, 0)
   end

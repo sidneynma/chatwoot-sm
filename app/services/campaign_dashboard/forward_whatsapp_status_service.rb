@@ -15,7 +15,7 @@ class CampaignDashboard::ForwardWhatsappStatusService
 
   def apply_native_disparador_status
     error = status[:errors]&.first
-    error_message = error.present? ? "#{error[:code]}: #{error[:title]}" : nil
+    error_message = format_meta_error(error)
     message = Message.find_by(source_id: status[:id], account_id: inbox.account_id)
 
     Rails.logger.info(
@@ -52,5 +52,18 @@ class CampaignDashboard::ForwardWhatsappStatusService
     }
 
     WebhookJob.perform_later(webhook_url, payload)
+  end
+
+  def format_meta_error(error)
+    return if error.blank?
+
+    data = error.with_indifferent_access
+    code = data[:code]
+    title = data[:title].presence || data[:message]
+    details = data.dig(:error_data, :details)
+    base = [code, title].compact.join(': ')
+    return base if details.blank?
+
+    "#{base} — #{details}"
   end
 end

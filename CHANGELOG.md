@@ -10,7 +10,36 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.f`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.g`
+
+---
+
+## [v4.15.1.g] — 2026-07-22
+
+**Base upstream:** Chatwoot `4.15.1`
+
+### Corrigido
+
+- **Disparador** — webhook Meta `failed` (ex. `#131026` undeliverable) após `sent` passa a marcar falha e gravar o erro na coluna Erro
+
+### Melhorado
+
+- Cards da campanha filtráveis (todas / enviadas / entregues / lidas / respostas / falhas / total envios)
+- Lista de destinatários paginada (50 por página) com meta na API
+- Excel/PDF respeitam o filtro ativo
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.15.1.g
+```
+
+### Release
+
+```bash
+./scripts/release.sh v4.15.1.g --push
+```
 
 ---
 

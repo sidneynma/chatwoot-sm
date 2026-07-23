@@ -3,10 +3,15 @@ class Api::V1::Accounts::DisparadorRecipientsController < Api::V1::Accounts::Ent
   before_action :fetch_campaign
   before_action :check_authorization
 
+  DEFAULT_PER_PAGE = 50
+  MAX_PER_PAGE = 200
+
   def index
-    @recipients = @campaign.disparador_recipients.order(id: :desc)
-                           .limit((params[:limit] || 200).to_i)
-                           .offset((params[:offset] || 0).to_i)
+    scope = filtered_recipients
+    @meta = pagination_meta(scope)
+    @recipients = scope.order(id: :desc)
+                       .offset((@meta[:page] - 1) * @meta[:per_page])
+                       .limit(@meta[:per_page])
   end
 
   def create
@@ -18,6 +23,12 @@ class Api::V1::Accounts::DisparadorRecipientsController < Api::V1::Accounts::Ent
     end
 
     @recipients = created
+    @meta = {
+      total_count: created.size,
+      page: 1,
+      per_page: created.size,
+      total_pages: 1
+    }
     render :index
   end
 
@@ -25,6 +36,38 @@ class Api::V1::Accounts::DisparadorRecipientsController < Api::V1::Accounts::Ent
 
   def fetch_campaign
     @campaign = Current.account.disparador_campaigns.find(params[:disparador_campaign_id])
+  end
+
+  def filtered_recipients
+    scope = @campaign.disparador_recipients
+    return scope if params[:status].blank?
+
+    statuses = params[:status].to_s.split(',').map(&:strip) & DisparadorRecipient::STATUSES
+    return scope if statuses.blank?
+
+    scope.where(status: statuses)
+  end
+
+  def pagination_meta(scope)
+    per_page = (params[:per_page].presence || params[:limit].presence || DEFAULT_PER_PAGE).to_i
+    per_page = DEFAULT_PER_PAGE if per_page <= 0
+    per_page = [per_page, MAX_PER_PAGE].min
+
+    page = params[:page].to_i
+    if page <= 0 && params[:offset].present?
+      page = (params[:offset].to_i / per_page) + 1
+    end
+    page = 1 if page <= 0
+
+    total_count = scope.count
+    total_pages = total_count.zero? ? 0 : (total_count.to_f / per_page).ceil
+
+    {
+      total_count: total_count,
+      page: page,
+      per_page: per_page,
+      total_pages: total_pages
+    }
   end
 
   def recipients_payload

@@ -18,12 +18,34 @@ const campaignId = computed(() => Number(route.params.campaignId));
 const campaign = ref(null);
 const stats = ref({});
 const recipients = ref([]);
+const recipientsMeta = ref({
+  total_count: 0,
+  page: 1,
+  per_page: 50,
+  total_pages: 0,
+});
+const activeFilterKey = ref('total');
+const recipientsPage = ref(1);
 const isLoading = ref(true);
+const isLoadingRecipients = ref(false);
 const isDispatching = ref(false);
 const isRefreshing = ref(false);
 const showTemplate = ref(false);
 const dispatchMode = ref('meta_direct');
 let pollTimer = null;
+
+const PAGE_SIZE = 50;
+
+// Card key → API status filter (comma-separated). null = all recipients.
+const FILTER_STATUS_BY_CARD = {
+  total: null,
+  sent: 'sent,delivered,read,replied',
+  delivered: 'delivered',
+  read: 'read',
+  replied: 'replied',
+  failed: 'failed',
+  total_envios: 'sent,delivered,read,replied,failed',
+};
 
 const modeOptions = computed(() => [
   {
@@ -235,6 +257,21 @@ const detailCards = computed(() => {
   ];
 });
 
+const activeStatusParam = computed(
+  () => FILTER_STATUS_BY_CARD[activeFilterKey.value] ?? null
+);
+
+const recipientsFilterLabel = computed(() => {
+  const card = detailCards.value.find(c => c.key === activeFilterKey.value);
+  return card?.label || t('DISPARADOR.DETAIL.STATS.TOTAL');
+});
+
+const canGoPrevPage = computed(() => recipientsPage.value > 1);
+const canGoNextPage = computed(() => {
+  const totalPages = Number(recipientsMeta.value.total_pages) || 0;
+  return totalPages > 0 && recipientsPage.value < totalPages;
+});
+
 const templatePreview = computed(() => {
   if (!campaign.value) return '';
   const meta = campaign.value.metadata?.template || {};
@@ -248,13 +285,44 @@ const templatePreview = computed(() => {
   return header ? `${header}\n\n${body}` : body;
 });
 
+const recipientsQueryParams = ({
+  page = recipientsPage.value,
+  perPage = PAGE_SIZE,
+} = {}) => {
+  const params = { page, per_page: perPage };
+  if (activeStatusParam.value) params.status = activeStatusParam.value;
+  return params;
+};
+
+const loadRecipients = async ({ page } = {}) => {
+  if (page) recipientsPage.value = page;
+  isLoadingRecipients.value = true;
+  try {
+    const { data } = await DisparadorAPI.getRecipients(
+      campaignId.value,
+      recipientsQueryParams()
+    );
+    recipients.value = data.payload || [];
+    recipientsMeta.value = {
+      total_count: data.meta?.total_count || 0,
+      page: data.meta?.page || recipientsPage.value,
+      per_page: data.meta?.per_page || PAGE_SIZE,
+      total_pages: data.meta?.total_pages || 0,
+    };
+    recipientsPage.value = recipientsMeta.value.page;
+  } catch (error) {
+    useAlert(t('DISPARADOR.CAMPAIGNS.LOAD_ERROR'));
+  } finally {
+    isLoadingRecipients.value = false;
+  }
+};
+
 const loadAll = async ({ quiet = false } = {}) => {
   if (!quiet) isLoading.value = true;
   try {
-    const [campaignRes, statsRes, recipientsRes] = await Promise.all([
+    const [campaignRes, statsRes] = await Promise.all([
       DisparadorAPI.getCampaign(campaignId.value),
       DisparadorAPI.getStats(campaignId.value),
-      DisparadorAPI.getRecipients(campaignId.value, { limit: 200 }),
     ]);
     campaign.value = campaignRes.data;
     stats.value = {
@@ -276,17 +344,52 @@ const loadAll = async ({ quiet = false } = {}) => {
         ...stats.value,
       };
     }
-    recipients.value = recipientsRes.data.payload || [];
     dispatchMode.value =
       campaign.value.dispatch_mode ||
       campaign.value.metadata?.dispatch_mode ||
       'meta_direct';
+    await loadRecipients();
   } catch (error) {
     useAlert(t('DISPARADOR.CAMPAIGNS.LOAD_ERROR'));
   } finally {
     isLoading.value = false;
     isRefreshing.value = false;
   }
+};
+
+const onStatCardClick = card => {
+  if (activeFilterKey.value === card.key) {
+    activeFilterKey.value = 'total';
+  } else {
+    activeFilterKey.value = card.key;
+  }
+  recipientsPage.value = 1;
+  loadRecipients({ page: 1 });
+};
+
+const goToRecipientsPage = page => {
+  const totalPages = Number(recipientsMeta.value.total_pages) || 0;
+  if (page < 1 || (totalPages > 0 && page > totalPages)) return;
+  loadRecipients({ page });
+};
+
+const fetchRecipientsForExport = async () => {
+  const all = [];
+
+  const loadPage = async page => {
+    const { data } = await DisparadorAPI.getRecipients(
+      campaignId.value,
+      recipientsQueryParams({ page, perPage: 200 })
+    );
+    all.push(...(data.payload || []));
+    const totalPages = Number(data.meta?.total_pages) || 1;
+    if (page < totalPages && page < 50) {
+      await loadPage(page + 1);
+    }
+  };
+
+  await loadPage(1);
+  return all;
 };
 
 const goBack = () => {
@@ -392,38 +495,45 @@ const downloadBlob = (blob, filename) => {
   window.URL.revokeObjectURL(url);
 };
 
-const exportExcel = () => {
-  const header = ['Nome', 'Telefone', 'Status', 'Erro'];
-  const rows = recipients.value.map(r =>
-    [
-      r.name || '',
-      r.phone || '',
-      recipientStatusLabel(r.status),
-      (r.error_message || '').replace(/"/g, '""'),
-    ]
-      .map(cell => `"${cell}"`)
-      .join(',')
-  );
-  const csv = `\uFEFF${[header.join(','), ...rows].join('\n')}`;
-  downloadBlob(
-    new Blob([csv], { type: 'text/csv;charset=utf-8' }),
-    `campanha_${campaignId.value}_destinatarios.csv`
-  );
+const exportExcel = async () => {
+  try {
+    const rowsData = await fetchRecipientsForExport();
+    const header = ['Nome', 'Telefone', 'Status', 'Erro'];
+    const rows = rowsData.map(r =>
+      [
+        r.name || '',
+        r.phone || '',
+        recipientStatusLabel(r.status),
+        (r.error_message || '').replace(/"/g, '""'),
+      ]
+        .map(cell => `"${cell}"`)
+        .join(',')
+    );
+    const csv = `\uFEFF${[header.join(','), ...rows].join('\n')}`;
+    downloadBlob(
+      new Blob([csv], { type: 'text/csv;charset=utf-8' }),
+      `campanha_${campaignId.value}_destinatarios.csv`
+    );
+  } catch (error) {
+    useAlert(t('DISPARADOR.CAMPAIGNS.LOAD_ERROR'));
+  }
 };
 
-const exportPdf = () => {
-  const rows = recipients.value
-    .map(
-      r =>
-        `<tr>
+const exportPdf = async () => {
+  try {
+    const rowsData = await fetchRecipientsForExport();
+    const rows = rowsData
+      .map(
+        r =>
+          `<tr>
           <td>${r.name || ''}</td>
           <td>${r.phone || ''}</td>
           <td>${recipientStatusLabel(r.status)}</td>
           <td>${r.error_message || ''}</td>
         </tr>`
-    )
-    .join('');
-  const html = `<!DOCTYPE html><html><head><title>${campaign.value?.name || ''}</title>
+      )
+      .join('');
+    const html = `<!DOCTYPE html><html><head><title>${campaign.value?.name || ''}</title>
     <style>
       body{font-family:Arial,sans-serif;padding:24px;color:#111}
       h1{font-size:18px;margin:0 0 8px}
@@ -444,12 +554,15 @@ const exportPdf = () => {
       <tbody>${rows || `<tr><td colspan="4">${t('DISPARADOR.DETAIL.NO_RECIPIENTS')}</td></tr>`}</tbody>
     </table>
     </body></html>`;
-  const win = window.open('', '_blank');
-  if (!win) return;
-  win.document.write(html);
-  win.document.close();
-  win.focus();
-  win.print();
+    const win = window.open('', '_blank');
+    if (!win) return;
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    win.print();
+  } catch (error) {
+    useAlert(t('DISPARADOR.CAMPAIGNS.LOAD_ERROR'));
+  }
 };
 
 const progressPercent = computed(() => {
@@ -608,15 +721,23 @@ onUnmounted(stopPolling);
         <div
           class="grid w-full grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7"
         >
-          <div
+          <button
             v-for="card in detailCards"
             :key="card.key"
-            class="flex flex-col gap-2 rounded-xl border p-4"
-            :class="
+            type="button"
+            class="flex flex-col gap-2 rounded-xl border p-4 text-left transition-shadow"
+            :class="[
               card.accent
                 ? 'border-n-brand bg-n-brand text-white'
-                : 'border-n-weak bg-n-solid-1'
-            "
+                : 'border-n-weak bg-n-solid-1',
+              activeFilterKey === card.key
+                ? 'ring-2 ring-n-brand ring-offset-2 ring-offset-n-background'
+                : 'hover:shadow-sm',
+              card.accent && activeFilterKey === card.key
+                ? 'ring-offset-n-background'
+                : '',
+            ]"
+            @click="onStatCardClick(card)"
           >
             <div class="flex items-start justify-between gap-2">
               <p
@@ -661,8 +782,11 @@ onUnmounted(stopPolling);
                 <span :class="card.icon" class="size-4" />
               </span>
             </div>
-          </div>
+          </button>
         </div>
+        <p class="text-xs text-n-slate-11">
+          {{ t('DISPARADOR.DETAIL.FILTER_HINT') }}
+        </p>
 
         <div class="flex flex-wrap items-center gap-2">
           <Button
@@ -763,10 +887,52 @@ onUnmounted(stopPolling);
         <div
           class="overflow-hidden rounded-xl border border-n-weak bg-n-solid-1"
         >
-          <div class="border-b border-n-weak px-4 py-3 text-sm font-medium">
-            {{ t('DISPARADOR.DETAIL.RECIPIENTS') }}
+          <div
+            class="flex flex-wrap items-center justify-between gap-2 border-b border-n-weak px-4 py-3"
+          >
+            <div class="text-sm font-medium">
+              {{
+                t('DISPARADOR.DETAIL.RECIPIENTS_FILTERED', {
+                  filter: recipientsFilterLabel,
+                  n: recipientsMeta.total_count || 0,
+                })
+              }}
+            </div>
+            <div
+              v-if="(recipientsMeta.total_pages || 0) > 1"
+              class="flex items-center gap-2"
+            >
+              <Button
+                :label="t('DISPARADOR.DETAIL.PREV_PAGE')"
+                variant="outline"
+                size="sm"
+                :disabled="!canGoPrevPage || isLoadingRecipients"
+                @click="goToRecipientsPage(recipientsPage - 1)"
+              />
+              <span class="text-xs tabular-nums text-n-slate-11">
+                {{
+                  t('DISPARADOR.DETAIL.PAGE_OF', {
+                    page: recipientsMeta.page || recipientsPage,
+                    pages: recipientsMeta.total_pages || 1,
+                  })
+                }}
+              </span>
+              <Button
+                :label="t('DISPARADOR.DETAIL.NEXT_PAGE')"
+                variant="outline"
+                size="sm"
+                :disabled="!canGoNextPage || isLoadingRecipients"
+                @click="goToRecipientsPage(recipientsPage + 1)"
+              />
+            </div>
           </div>
-          <div class="overflow-x-auto">
+          <div class="relative overflow-x-auto">
+            <div
+              v-if="isLoadingRecipients"
+              class="absolute inset-0 z-10 flex items-center justify-center bg-n-solid-1/60"
+            >
+              <Spinner />
+            </div>
             <table class="w-full min-w-[640px] text-left text-sm">
               <thead class="border-b border-n-weak text-n-slate-11">
                 <tr>
@@ -808,13 +974,40 @@ onUnmounted(stopPolling);
                     {{ row.error_message || '' }}
                   </td>
                 </tr>
-                <tr v-if="!recipients.length">
+                <tr v-if="!recipients.length && !isLoadingRecipients">
                   <td colspan="4" class="px-4 py-8 text-center text-n-slate-11">
                     {{ t('DISPARADOR.DETAIL.NO_RECIPIENTS') }}
                   </td>
                 </tr>
               </tbody>
             </table>
+          </div>
+          <div
+            v-if="(recipientsMeta.total_pages || 0) > 1"
+            class="flex items-center justify-end gap-2 border-t border-n-weak px-4 py-3"
+          >
+            <Button
+              :label="t('DISPARADOR.DETAIL.PREV_PAGE')"
+              variant="outline"
+              size="sm"
+              :disabled="!canGoPrevPage || isLoadingRecipients"
+              @click="goToRecipientsPage(recipientsPage - 1)"
+            />
+            <span class="text-xs tabular-nums text-n-slate-11">
+              {{
+                t('DISPARADOR.DETAIL.PAGE_OF', {
+                  page: recipientsMeta.page || recipientsPage,
+                  pages: recipientsMeta.total_pages || 1,
+                })
+              }}
+            </span>
+            <Button
+              :label="t('DISPARADOR.DETAIL.NEXT_PAGE')"
+              variant="outline"
+              size="sm"
+              :disabled="!canGoNextPage || isLoadingRecipients"
+              @click="goToRecipientsPage(recipientsPage + 1)"
+            />
           </div>
         </div>
       </div>
