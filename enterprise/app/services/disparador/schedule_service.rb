@@ -28,10 +28,16 @@ class Disparador::ScheduleService
   end
 
   def create!(params)
-    conversation_id = params[:conversation_id].presence
+    conversation_ref = params[:conversation_id].presence
     inbox_id = params[:inbox_id].presence
     phone = params[:phone].to_s.strip
-    raise Error.new('conversation_id, inbox_id e phone são obrigatórios', status: 400) if conversation_id.blank? || inbox_id.blank? || phone.blank?
+    raise Error.new('conversation_id, inbox_id e phone são obrigatórios', status: 400) if conversation_ref.blank? || inbox_id.blank? || phone.blank?
+
+    conversation = find_conversation(conversation_ref)
+    raise Error.new('Conversa não encontrada', status: 404) if conversation.blank?
+
+    # UI sends Chatwoot display_id; keep that value so schedules list/links stay consistent.
+    conversation_id = conversation.display_id
 
     scheduled_at = parse_scheduled_at(params[:scheduled_at])
     raise Error.new('scheduled_at é obrigatório', status: 400) if scheduled_at.blank?
@@ -58,7 +64,7 @@ class Disparador::ScheduleService
     campaign_metadata = {
       'source' => SOURCE,
       'agent_name' => agent_name,
-      'conversation_id' => conversation_id.to_i,
+      'conversation_id' => conversation_id,
       'inbox_name' => params[:inbox_name].presence || inbox.name,
       'dispatch_mode' => is_evolution ? 'evolution' : 'conversation'
     }
@@ -115,7 +121,7 @@ class Disparador::ScheduleService
         metadata: recipient_meta
       )
 
-      link_schedule_conversation!(conversation_id, campaign, recipient)
+      link_schedule_conversation!(conversation, campaign, recipient)
     end
 
     if scheduled_at <= Time.current
@@ -256,8 +262,14 @@ class Disparador::ScheduleService
     phone.to_s.gsub(/\D/, '')
   end
 
-  def link_schedule_conversation!(conversation_id, campaign, recipient)
-    conversation = account.conversations.find_by(id: conversation_id)
+  def find_conversation(ref)
+    return if ref.blank?
+
+    id = ref.to_i
+    account.conversations.find_by(display_id: id) || account.conversations.find_by(id: id)
+  end
+
+  def link_schedule_conversation!(conversation, campaign, recipient)
     return if conversation.blank?
 
     attrs = (conversation.additional_attributes || {}).stringify_keys

@@ -69,18 +69,7 @@ class Disparador::DispatchRecipientService
       }
     ).perform
 
-    conversation = campaign.account.conversations.find_by(id: recipient.conversation_id) if recipient.conversation_id.present?
-    conversation ||= Conversation.create!(
-      account_id: campaign.account_id,
-      inbox_id: inbox.id,
-      contact_id: contact_inbox.contact_id,
-      contact_inbox_id: contact_inbox.id,
-      additional_attributes: {
-        'disparador_campaign_id' => campaign.id,
-        'disparador_recipient_id' => recipient.id,
-        'evolution_instance' => campaign.metadata&.dig('inbox_name') || campaign.metadata&.dig('evolution_instance')
-      }
-    )
+    conversation = find_or_create_conversation!(campaign, inbox, contact_inbox)
     link_conversation_to_recipient!(conversation, campaign)
 
     message_params = {
@@ -97,7 +86,7 @@ class Disparador::DispatchRecipientService
 
     {
       status: 'sent',
-      conversation_id: conversation.id,
+      conversation_id: conversation.display_id,
       contact_id: contact_inbox.contact_id,
       metadata: {
         'dispatch_mode' => 'evolution',
@@ -271,17 +260,7 @@ class Disparador::DispatchRecipientService
       }
     ).perform
 
-    conversation = campaign.account.conversations.find_by(id: recipient.conversation_id) if recipient.conversation_id.present?
-    conversation ||= Conversation.create!(
-      account_id: campaign.account_id,
-      inbox_id: inbox.id,
-      contact_id: contact_inbox.contact_id,
-      contact_inbox_id: contact_inbox.id,
-      additional_attributes: {
-        'disparador_campaign_id' => campaign.id,
-        'disparador_recipient_id' => recipient.id
-      }
-    )
+    conversation = find_or_create_conversation!(campaign, inbox, contact_inbox)
     link_conversation_to_recipient!(conversation, campaign)
 
     template_params = template_params_for(campaign)
@@ -298,7 +277,7 @@ class Disparador::DispatchRecipientService
 
     {
       status: 'sent',
-      conversation_id: conversation.id,
+      conversation_id: conversation.display_id,
       contact_id: contact_inbox.contact_id,
       metadata: {
         'dispatch_mode' => 'conversation',
@@ -306,6 +285,31 @@ class Disparador::DispatchRecipientService
         'template_params' => template_params
       }
     }
+  end
+
+  # UI/schedule store Chatwoot display_id; also accept DB id for older rows.
+  def find_conversation(account, ref)
+    return if ref.blank?
+
+    id = ref.to_i
+    account.conversations.find_by(display_id: id) || account.conversations.find_by(id: id)
+  end
+
+  def find_or_create_conversation!(campaign, inbox, contact_inbox)
+    conversation = find_conversation(campaign.account, recipient.conversation_id)
+    return conversation if conversation.present?
+
+    Conversation.create!(
+      account_id: campaign.account_id,
+      inbox_id: inbox.id,
+      contact_id: contact_inbox.contact_id,
+      contact_inbox_id: contact_inbox.id,
+      additional_attributes: {
+        'disparador_campaign_id' => campaign.id,
+        'disparador_recipient_id' => recipient.id,
+        'evolution_instance' => campaign.metadata&.dig('inbox_name') || campaign.metadata&.dig('evolution_instance')
+      }.compact
+    )
   end
 
   def normalize_phone(phone)
