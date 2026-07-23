@@ -17,16 +17,25 @@ class Crm::FunnelStagesSyncService
   private
 
   def stage_attributes(stage_param, index)
+    team_ids = normalize_team_ids(stage_param)
+
     {
       label_id: stage_param[:label_id],
       position: stage_param[:position].presence || index,
-      responsible_team_id: stage_param[:responsible_team_id].presence,
+      responsible_team_ids: team_ids,
+      responsible_team_id: team_ids.first,
       can_resolve: ActiveModel::Type::Boolean.new.cast(stage_param.fetch(:can_resolve, false)),
       auto_resolve_on_enter: ActiveModel::Type::Boolean.new.cast(stage_param.fetch(:auto_resolve_on_enter, false)),
       clear_assignment_on_resolve: ActiveModel::Type::Boolean.new.cast(
         stage_param.fetch(:clear_assignment_on_resolve, true)
       )
     }
+  end
+
+  def normalize_team_ids(stage_param)
+    ids = Array(stage_param[:responsible_team_ids]).presence
+    ids ||= [stage_param[:responsible_team_id]].compact
+    ids.map(&:to_i).reject(&:zero?).uniq
   end
 
   def validate_stages!
@@ -36,7 +45,7 @@ class Crm::FunnelStagesSyncService
     account_label_ids = funnel.account.labels.where(id: label_ids).pluck(:id)
     raise ValidationError, 'Invalid label for this account' if (label_ids - account_label_ids).any?
 
-    team_ids = stages_params.filter_map { |stage| stage[:responsible_team_id].presence&.to_i }
+    team_ids = stages_params.flat_map { |stage| normalize_team_ids(stage) }.uniq
     return if team_ids.blank?
 
     account_team_ids = funnel.account.teams.where(id: team_ids).pluck(:id)

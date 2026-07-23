@@ -6,9 +6,7 @@ class Crm::ConversationAccess
   end
 
   def team_member?
-    return false if conversation.team_id.blank?
-
-    user.teams.where(account_id: account.id).exists?(id: conversation.team_id)
+    assigned_team_member? || stage_responsible_team_member?
   end
 
   def team_only?
@@ -27,10 +25,25 @@ class Crm::ConversationAccess
     return true if administrator? || inbox_member?
     return false unless team_member?
 
-    resolvable_stage_for_user.present?
+    resolvable_stage_for_user?
   end
 
   private
+
+  def assigned_team_member?
+    return false if conversation.team_id.blank?
+
+    user.teams.where(account_id: account.id).exists?(id: conversation.team_id)
+  end
+
+  def stage_responsible_team_member?
+    return false if user_team_ids.blank?
+
+    titles = conversation.cached_label_list_array
+    return false if titles.blank?
+
+    matching_stages.any? { |stage| stage.responsible_team_ids_include_any?(user_team_ids) }
+  end
 
   def administrator?
     account_user&.administrator?
@@ -40,15 +53,20 @@ class Crm::ConversationAccess
     @account_user ||= AccountUser.find_by(account_id: account.id, user_id: user.id)
   end
 
-  def resolvable_stage_for_user
-    titles = conversation.cached_label_list_array
-    return if titles.blank? || user_team_ids.blank?
+  def resolvable_stage_for_user?
+    matching_stages.any? do |stage|
+      stage.can_resolve? && stage.responsible_team_ids_include_any?(user_team_ids)
+    end
+  end
 
-    CrmFunnelStage.joins(:crm_funnel, :label)
-                  .where(crm_funnels: { account_id: account.id })
-                  .where(can_resolve: true, responsible_team_id: user_team_ids)
-                  .where(labels: { title: titles })
-                  .exists?
+  def matching_stages
+    titles = conversation.cached_label_list_array
+    return CrmFunnelStage.none if titles.blank?
+
+    @matching_stages ||= CrmFunnelStage.joins(:crm_funnel, :label)
+                                       .where(crm_funnels: { account_id: account.id })
+                                       .where(labels: { title: titles })
+                                       .to_a
   end
 
   def user_team_ids

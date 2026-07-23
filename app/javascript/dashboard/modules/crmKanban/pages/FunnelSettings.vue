@@ -92,15 +92,24 @@ const openEditDialog = funnel => {
     name: funnel.name,
     inbox_id: funnel.inbox_id || '',
     active: funnel.active,
-    stages: funnel.stages.map(stage => ({
-      label_id: stage.label.id,
-      position: stage.position,
-      label: stage.label,
-      responsible_team_id: stage.responsible_team_id || '',
-      can_resolve: Boolean(stage.can_resolve),
-      auto_resolve_on_enter: Boolean(stage.auto_resolve_on_enter),
-      clear_assignment_on_resolve: Boolean(stage.clear_assignment_on_resolve),
-    })),
+    stages: funnel.stages.map(stage => {
+      let responsibleTeamIds = [];
+      if (stage.responsible_team_ids?.length) {
+        responsibleTeamIds = stage.responsible_team_ids;
+      } else if (stage.responsible_team_id) {
+        responsibleTeamIds = [stage.responsible_team_id];
+      }
+
+      return {
+        label_id: stage.label.id,
+        position: stage.position,
+        label: stage.label,
+        responsible_team_ids: responsibleTeamIds,
+        can_resolve: Boolean(stage.can_resolve),
+        auto_resolve_on_enter: Boolean(stage.auto_resolve_on_enter),
+        clear_assignment_on_resolve: Boolean(stage.clear_assignment_on_resolve),
+      };
+    }),
   };
   formDialogRef.value?.open();
 };
@@ -118,7 +127,7 @@ const buildPayload = (overrides = {}) => ({
     stages: form.value.stages.map((stage, index) => ({
       label_id: stage.label_id,
       position: index,
-      responsible_team_id: stage.responsible_team_id || null,
+      responsible_team_ids: (stage.responsible_team_ids || []).map(Number),
       can_resolve: Boolean(stage.can_resolve),
       auto_resolve_on_enter: Boolean(stage.auto_resolve_on_enter),
       clear_assignment_on_resolve: Boolean(stage.clear_assignment_on_resolve),
@@ -341,7 +350,7 @@ onActivated(fetchFunnels);
     <Dialog
       ref="formDialogRef"
       type="edit"
-      width="2xl"
+      width="3xl"
       overflow-y-auto
       :title="
         isEditing
@@ -353,7 +362,7 @@ onActivated(fetchFunnels);
       @close="resetForm"
     >
       <div
-        class="flex flex-col gap-3 max-h-[min(62vh,520px)] overflow-y-auto pr-1"
+        class="flex flex-col gap-3 max-h-[min(80vh,720px)] overflow-y-auto pr-1"
       >
         <div>
           <label class="block mb-1 text-sm text-n-slate-11">

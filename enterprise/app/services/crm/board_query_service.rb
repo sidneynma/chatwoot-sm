@@ -40,13 +40,19 @@ class Crm::BoardQueryService
   end
 
   def stages_payload
+    team_map = responsible_teams_by_id
+
     funnel.stages.includes(:label, :responsible_team).map do |stage|
       conversations, total_count = stage_conversations(stage, page: 1)
+      team_ids = stage.responsible_team_ids_list
       {
         id: stage.id,
         position: stage.position,
         label: label_payload(stage.label),
-        responsible_team: team_payload(stage.responsible_team),
+        responsible_team_id: stage.primary_responsible_team_id,
+        responsible_team_ids: team_ids,
+        responsible_team: team_payload(team_map[stage.primary_responsible_team_id]),
+        responsible_teams: team_ids.filter_map { |id| team_payload(team_map[id]) },
         can_resolve: stage.can_resolve,
         auto_resolve_on_enter: stage.auto_resolve_on_enter,
         clear_assignment_on_resolve: stage.clear_assignment_on_resolve,
@@ -80,6 +86,7 @@ class Crm::BoardQueryService
 
   def apply_visibility(scope)
     return apply_admin_filter(scope) if administrator?
+    return apply_custom_role_filter(scope) if custom_role_agent?
 
     apply_agent_filter(scope)
   end
@@ -91,23 +98,44 @@ class Crm::BoardQueryService
     when 'my_team'
       return scope.none if user_team_ids.blank?
 
-      scope.where(team_id: user_team_ids)
+      team_or_stage_handoff_scope(scope)
     else
       scope
+    end
+  end
+
+  # Custom roles reuse inbox PermissionFilterService, then keep CRM team handoff (OR).
+  # Only conversation_manage may use assignee_type=all; others fall back to me + team.
+  def apply_custom_role_filter(scope)
+    filtered = Conversations::PermissionFilterService.new(scope, user, account).perform
+    combined = union_with_team_handoff(scope, filtered)
+
+    case assignee_type
+    when 'my_team'
+      return scope.none if user_team_ids.blank?
+
+      team_or_stage_handoff_scope(combined)
+    when 'all'
+      return combined if conversation_manage?
+
+      me_or_team_scope(combined)
+    else
+      me_or_team_scope(combined)
     end
   end
 
   def apply_agent_filter(scope)
     inbox_ids = user.inboxes.where(account_id: account.id).pluck(:id)
 
-    # Inbox membership OR CRM handoff team — without requiring inbox for back-office teams.
+    # Inbox membership OR CRM handoff (assigned team_id OR stage multi-team labels).
     scope = if inbox_ids.present? && user_team_ids.present?
-              scope.where('inbox_id IN (:inbox_ids) OR team_id IN (:team_ids)',
-                          inbox_ids: inbox_ids, team_ids: user_team_ids)
+              inbox_scope = scope.where(inbox_id: inbox_ids)
+              handoff_scope = team_or_stage_handoff_scope(scope)
+              union_scopes(scope, inbox_scope, handoff_scope)
             elsif inbox_ids.present?
               scope.where(inbox_id: inbox_ids)
             elsif user_team_ids.present?
-              scope.where(team_id: user_team_ids)
+              team_or_stage_handoff_scope(scope)
             else
               scope.none
             end
@@ -116,22 +144,59 @@ class Crm::BoardQueryService
     when 'my_team'
       return scope.none if user_team_ids.blank?
 
-      scope.where(team_id: user_team_ids)
+      team_or_stage_handoff_scope(scope)
     when 'all'
       # Agents must not use "all". Fall back to own + team queue.
-      if user_team_ids.present?
-        scope.where('assignee_id = :uid OR team_id IN (:team_ids)', uid: user.id, team_ids: user_team_ids)
-      else
-        scope.assigned_to(user)
-      end
+      me_or_team_scope(scope)
     else
       # Default "me": assigned to me OR currently handed to one of my teams.
-      if user_team_ids.present?
-        scope.where('assignee_id = :uid OR team_id IN (:team_ids)', uid: user.id, team_ids: user_team_ids)
-      else
-        scope.assigned_to(user)
-      end
+      me_or_team_scope(scope)
     end
+  end
+
+  def union_with_team_handoff(original_scope, filtered)
+    return filtered if user_team_ids.blank?
+
+    union_scopes(original_scope, filtered, team_or_stage_handoff_scope(original_scope))
+  end
+
+  def me_or_team_scope(scope)
+    if user_team_ids.present?
+      union_scopes(scope, scope.assigned_to(user), team_or_stage_handoff_scope(scope))
+    else
+      scope.assigned_to(user)
+    end
+  end
+
+  # Conversations with team_id in my teams OR tagged with a funnel stage where I am a responsible team.
+  def team_or_stage_handoff_scope(scope)
+    return scope.none if user_team_ids.blank?
+
+    by_team = scope.where(team_id: user_team_ids)
+    titles = stage_handoff_label_titles
+    return by_team if titles.blank?
+
+    union_scopes(scope, by_team, scope.tagged_with(titles, any: true))
+  end
+
+  def stage_handoff_label_titles
+    @stage_handoff_label_titles ||= funnel.stages
+                                         .select { |stage| stage.responsible_team_ids_include_any?(user_team_ids) }
+                                         .filter_map { |stage| stage.label&.title }
+  end
+
+  def union_scopes(base_scope, *scopes)
+    id_union = scopes.map { |relation| "(#{relation.reselect('conversations.id').to_sql})" }.join(' UNION ')
+    base_scope.where(
+      "conversations.id IN (SELECT id FROM (#{id_union}) AS crm_union_ids)"
+    )
+  end
+
+  def responsible_teams_by_id
+    ids = funnel.stages.flat_map(&:responsible_team_ids_list).uniq
+    return {} if ids.blank?
+
+    account.teams.where(id: ids).index_by(&:id)
   end
 
   def serialize_conversations(conversations)
@@ -216,6 +281,14 @@ class Crm::BoardQueryService
 
   def administrator?
     account_user&.administrator?
+  end
+
+  def custom_role_agent?
+    account_user&.agent? && account_user.custom_role_id.present?
+  end
+
+  def conversation_manage?
+    account_user&.permissions&.include?('conversation_manage')
   end
 
   def account_user

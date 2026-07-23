@@ -9,7 +9,7 @@ class Crm::HandoffService
       return
     end
 
-    if target_stage.responsible_team_id.present?
+    if target_stage.has_responsible_teams?
       enter_team_stage!(case_state)
     else
       leave_team_stage!(case_state)
@@ -35,7 +35,9 @@ class Crm::HandoffService
     end
     case_state.save!
 
-    conversation.update!(team_id: target_stage.responsible_team_id)
+    # Conversation.team_id is singular — use primary (first) team; other stage teams
+    # still see the card via stage label visibility in BoardQueryService.
+    conversation.update!(team_id: target_stage.primary_responsible_team_id)
   end
 
   def leave_team_stage!(case_state)

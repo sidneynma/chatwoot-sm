@@ -5,6 +5,8 @@ import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { useAccount } from 'dashboard/composables/useAccount';
 import { useAdmin } from 'dashboard/composables/useAdmin';
+import { usePolicy } from 'dashboard/composables/usePolicy';
+import { MANAGE_ALL_CONVERSATION_PERMISSIONS } from 'dashboard/constants/permissions';
 import CrmKanbanAPI from '../api';
 import KanbanColumn from '../components/KanbanColumn.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
@@ -16,6 +18,7 @@ const router = useRouter();
 const { t } = useI18n();
 const { accountScopedRoute } = useAccount();
 const { isAdmin } = useAdmin();
+const { checkPermissions } = usePolicy();
 
 const funnelId = computed(() => Number(route.params.funnelId));
 const assigneeType = ref('me');
@@ -29,14 +32,18 @@ const stages = ref([]);
 const stagePages = ref({});
 const stageLoadingMore = ref({});
 
+// Admin or custom role with conversation_manage (gestor). Plain agents stay on me/team.
+const canViewAll = computed(
+  () => isAdmin.value || checkPermissions([MANAGE_ALL_CONVERSATION_PERMISSIONS])
+);
+
 const assigneeOptions = computed(() => {
   const options = [
     { value: 'me', label: t('CRM_KANBAN.BOARD.FILTER.MINE') },
     { value: 'my_team', label: t('CRM_KANBAN.BOARD.FILTER.MY_TEAM') },
   ];
 
-  // Only admins can browse the full funnel board (same as before handoff).
-  if (isAdmin.value) {
+  if (canViewAll.value) {
     options.push({ value: 'all', label: t('CRM_KANBAN.BOARD.FILTER.ALL') });
   }
 
@@ -51,7 +58,7 @@ const statusOptions = computed(() => [
 
 const boardParams = () => {
   let type = assigneeType.value;
-  if (!isAdmin.value && type === 'all') type = 'me';
+  if (!canViewAll.value && type === 'all') type = 'me';
   return { assignee_type: type, status: status.value };
 };
 
@@ -175,7 +182,7 @@ onMounted(fetchBoard);
           </h1>
           <p class="text-sm text-n-slate-11">
             {{
-              isAdmin
+              canViewAll
                 ? $t('CRM_KANBAN.BOARD.DESCRIPTION')
                 : $t('CRM_KANBAN.BOARD.DESCRIPTION_AGENT')
             }}

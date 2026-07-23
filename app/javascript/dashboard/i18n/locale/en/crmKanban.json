@@ -58,8 +58,9 @@
         "ACTIVE": "Active pipeline"
       },
       "STAGE": {
-        "TEAM": "Responsible team (handoff)",
+        "TEAM": "Responsible teams (handoff)",
         "TEAM_PLACEHOLDER": "No team",
+        "TEAM_HINT": "Select one or more teams. All selected teams can see cards in this stage; the conversation is assigned to the first team.",
         "NO_TEAMS": "No teams found. Create a team in Settings → Teams first.",
         "CAN_RESOLVE": "Team may resolve the conversation",
         "AUTO_RESOLVE": "Auto-resolve when card enters this stage",

@@ -67,7 +67,8 @@ class Api::V1::Accounts::CrmFunnelsController < Api::V1::Accounts::EnterpriseAcc
     permitted_stages = stages_params.map do |stage|
       stage.permit(
         :label_id, :position, :responsible_team_id,
-        :can_resolve, :auto_resolve_on_enter, :clear_assignment_on_resolve
+        :can_resolve, :auto_resolve_on_enter, :clear_assignment_on_resolve,
+        responsible_team_ids: []
       ).to_h.symbolize_keys
     end
 

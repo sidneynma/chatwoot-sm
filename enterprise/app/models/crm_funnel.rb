@@ -19,7 +19,11 @@ class CrmFunnel < ApplicationRecord
 
     by_inbox = inbox_ids.present? ? where(inbox_id: inbox_ids) : none
     by_team = if team_ids.present?
-                where(id: CrmFunnelStage.where(responsible_team_id: team_ids).select(:crm_funnel_id))
+                where(
+                  id: CrmFunnelStage.unscoped
+                                    .where('responsible_team_ids && ARRAY[?]::bigint[]', team_ids)
+                                    .select(:crm_funnel_id)
+                )
               else
                 none
               end

@@ -45,8 +45,19 @@ class Crm::MoveConversationService
     return if account_user&.administrator?
     return if conversation.assignee_id == user.id
     return if conversation_access.team_member?
+    return if can_move_via_custom_role?
 
     raise ValidationError, 'You can only move conversations assigned to you or your team'
+  end
+
+  def can_move_via_custom_role?
+    return false unless account_user&.agent? && account_user.custom_role_id.present?
+
+    permissions = account_user.permissions
+    return true if permissions.include?('conversation_manage')
+    return false unless permissions.include?('conversation_unassigned_manage')
+
+    conversation.assignee_id.nil? || conversation.assignee_id == user.id
   end
 
   def conversation_access

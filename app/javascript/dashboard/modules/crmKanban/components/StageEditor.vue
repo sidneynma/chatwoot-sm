@@ -38,11 +38,24 @@ const teamOptions = computed(() =>
   }))
 );
 
+const normalizeTeamIds = stage => {
+  if (
+    Array.isArray(stage.responsible_team_ids) &&
+    stage.responsible_team_ids.length
+  ) {
+    return stage.responsible_team_ids.map(Number);
+  }
+  if (stage.responsible_team_id) {
+    return [Number(stage.responsible_team_id)];
+  }
+  return [];
+};
+
 const syncFromProps = () => {
   localStages.value = props.modelValue.map(stage => ({
     label_id: stage.label_id,
     label: stage.label,
-    responsible_team_id: stage.responsible_team_id || '',
+    responsible_team_ids: normalizeTeamIds(stage),
     can_resolve: Boolean(stage.can_resolve),
     auto_resolve_on_enter: Boolean(stage.auto_resolve_on_enter),
     clear_assignment_on_resolve: Boolean(stage.clear_assignment_on_resolve),
@@ -56,14 +69,26 @@ const emitUpdate = () => {
       label_id: stage.label_id,
       position: index,
       label: stage.label,
-      responsible_team_id: stage.responsible_team_id
-        ? Number(stage.responsible_team_id)
-        : null,
+      responsible_team_ids: (stage.responsible_team_ids || []).map(Number),
       can_resolve: Boolean(stage.can_resolve),
       auto_resolve_on_enter: Boolean(stage.auto_resolve_on_enter),
       clear_assignment_on_resolve: Boolean(stage.clear_assignment_on_resolve),
     }))
   );
+};
+
+const isTeamSelected = (stage, teamId) =>
+  (stage.responsible_team_ids || []).includes(teamId);
+
+const toggleTeam = (stage, teamId) => {
+  const current = new Set(stage.responsible_team_ids || []);
+  if (current.has(teamId)) {
+    current.delete(teamId);
+  } else {
+    current.add(teamId);
+  }
+  stage.responsible_team_ids = Array.from(current);
+  emitUpdate();
 };
 
 const addStage = () => {
@@ -79,7 +104,7 @@ const addStage = () => {
       title: label.title,
       color: label.color,
     },
-    responsible_team_id: '',
+    responsible_team_ids: [],
     can_resolve: false,
     auto_resolve_on_enter: false,
     clear_assignment_on_resolve: false,
@@ -124,7 +149,7 @@ watch(() => props.modelValue, syncFromProps, { immediate: true, deep: true });
     </div>
 
     <div
-      class="flex flex-col gap-1.5 min-h-0 max-h-56 overflow-y-auto rounded-lg border border-n-weak bg-n-alpha-2 p-1.5"
+      class="flex flex-col gap-1.5 min-h-0 max-h-80 overflow-y-auto rounded-lg border border-n-weak bg-n-alpha-2 p-1.5"
     >
       <div
         v-if="localStages.length === 0"
@@ -170,28 +195,29 @@ watch(() => props.modelValue, syncFromProps, { immediate: true, deep: true });
                 <label class="block mb-0.5 text-xs text-n-slate-11">
                   {{ $t('CRM_KANBAN.SETTINGS.STAGE.TEAM') }}
                 </label>
-                <!-- Native select: avoids ComboBox being clipped by overflow-y-auto -->
-                <select
-                  v-model="element.responsible_team_id"
-                  class="w-full appearance-none rounded-lg border-0 outline-1 outline -outline-offset-1 outline-n-weak hover:outline-n-slate-6 focus:outline-n-blue-9 bg-n-surface-1 py-1.5 px-2.5 text-sm text-n-slate-12 capitalize"
-                  @change="emitUpdate"
+                <div
+                  v-if="teamOptions.length"
+                  class="flex flex-col gap-1 max-h-28 overflow-y-auto rounded-lg border border-n-weak bg-n-surface-1 p-2"
                 >
-                  <option value="">
-                    {{ $t('CRM_KANBAN.SETTINGS.STAGE.TEAM_PLACEHOLDER') }}
-                  </option>
-                  <option
+                  <label
                     v-for="team in teamOptions"
                     :key="team.value"
-                    :value="team.value"
+                    class="flex items-center gap-2 cursor-pointer"
                   >
-                    {{ team.label }}
-                  </option>
-                </select>
-                <p
-                  v-if="teamOptions.length === 0"
-                  class="mt-0.5 text-xs text-n-slate-11"
-                >
+                    <Checkbox
+                      :model-value="isTeamSelected(element, team.value)"
+                      @update:model-value="toggleTeam(element, team.value)"
+                    />
+                    <span class="text-sm text-n-slate-12 capitalize">
+                      {{ team.label }}
+                    </span>
+                  </label>
+                </div>
+                <p v-else class="mt-0.5 text-xs text-n-slate-11">
                   {{ $t('CRM_KANBAN.SETTINGS.STAGE.NO_TEAMS') }}
+                </p>
+                <p class="mt-0.5 text-xs text-n-slate-11">
+                  {{ $t('CRM_KANBAN.SETTINGS.STAGE.TEAM_HINT') }}
                 </p>
               </div>
 
