@@ -3,6 +3,7 @@ import conversationRedistribution from './conversationRedistribution';
 import crmKanban from './crmKanban';
 import internalChat from './internalChat';
 import disparador from './disparador';
+import awaitingReply from './awaitingReply';
 
 const customModules = [
   whatsappTemplates,
@@ -10,6 +11,7 @@ const customModules = [
   crmKanban,
   internalChat,
   disparador,
+  awaitingReply,
 ];
 
 export const customModuleRoutes = customModules.flatMap(
