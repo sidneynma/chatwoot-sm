@@ -46,7 +46,6 @@ import crmKanban from './crmKanban.json';
 import inboxScopedResources from './inboxScopedResources.json';
 import internalChat from './internalChat.json';
 import disparador from './disparador.json';
-import awaitingReply from './awaitingReply.json';
 import yearInReview from './yearInReview.json';
 
 export default {
@@ -98,6 +97,5 @@ export default {
   ...inboxScopedResources,
   ...internalChat,
   ...disparador,
-  ...awaitingReply,
   ...yearInReview,
 };

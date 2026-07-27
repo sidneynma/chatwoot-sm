@@ -42,7 +42,6 @@ import crmKanban from './crmKanban.json';
 import inboxScopedResources from './inboxScopedResources.json';
 import internalChat from './internalChat.json';
 import disparador from './disparador.json';
-import awaitingReply from './awaitingReply.json';
 import contentTemplates from './contentTemplates.json';
 import mfa from './mfa.json';
 import onboarding from './onboarding.json';
@@ -94,7 +93,6 @@ export default {
   ...inboxScopedResources,
   ...internalChat,
   ...disparador,
-  ...awaitingReply,
   ...contentTemplates,
   ...mfa,
   ...onboarding,
