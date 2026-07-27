@@ -1,0 +1,33 @@
+{
+  "AWAITING_REPLY": {
+    "SIDEBAR": "Awaiting reply",
+    "TITLE": "Awaiting reply",
+    "DESCRIPTION": "Conversations waiting for an agent reply. Filter by inbox and waiting time.",
+    "EMPTY": "No conversations match the filters.",
+    "REFRESH": "Refresh",
+    "LOAD_MORE": "Load more",
+    "FILTER_INBOX": "Inbox",
+    "FILTER_INBOX_ALL": "All inboxes",
+    "FILTER_WAIT": "Waiting time",
+    "FILTER_WAIT_ALL": "Any",
+    "FILTER_WAIT_5M": "Over 5 min",
+    "FILTER_WAIT_15M": "Over 15 min",
+    "FILTER_WAIT_30M": "Over 30 min",
+    "FILTER_WAIT_1H": "Over 1 hour",
+    "FILTER_WAIT_2H": "Over 2 hours",
+    "FILTER_ASSIGNEE": "Assignee",
+    "FILTER_ASSIGNEE_MINE": "Mine",
+    "FILTER_ASSIGNEE_ALL": "All visible",
+    "COLUMNS": {
+      "WAITING": "Waiting",
+      "SINCE": "Since",
+      "CONTACT": "Contact",
+      "INBOX": "Inbox",
+      "ASSIGNEE": "Assignee",
+      "STATUS": "Status"
+    },
+    "ERRORS": {
+      "FETCH": "Could not load conversations."
+    }
+  }
+}

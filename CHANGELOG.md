@@ -10,7 +10,32 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.j`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.k`
+
+---
+
+## [v4.15.1.k] — 2026-07-27
+
+**Base upstream:** Chatwoot `4.15.1`
+
+### Melhorado
+
+- **Aguardando resposta** (retentativa segura) — lista só com consulta à API existente; rota **lazy**; ícone do menu igual ao de “Não atendidas”; filtros por **caixa**, **tempo de espera** e responsável. Sem Vuex/WebSocket.
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.15.1.k
+```
+
+### Release
+
+```bash
+./scripts/release.sh v4.15.1.k --push
+```
+
+**Como validar:** inbox deve continuar recebendo mensagens **sem F5**; só então usar a nova página.
 
 ---
 

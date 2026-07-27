@@ -1,0 +1,33 @@
+{
+  "AWAITING_REPLY": {
+    "SIDEBAR": "Aguardando resposta",
+    "TITLE": "Aguardando resposta",
+    "DESCRIPTION": "Conversas esperando resposta do agente. Filtre por caixa e tempo de espera.",
+    "EMPTY": "Nenhuma conversa corresponde aos filtros.",
+    "REFRESH": "Atualizar",
+    "LOAD_MORE": "Carregar mais",
+    "FILTER_INBOX": "Caixa",
+    "FILTER_INBOX_ALL": "Todas as caixas",
+    "FILTER_WAIT": "Tempo de espera",
+    "FILTER_WAIT_ALL": "Qualquer",
+    "FILTER_WAIT_5M": "Mais de 5 min",
+    "FILTER_WAIT_15M": "Mais de 15 min",
+    "FILTER_WAIT_30M": "Mais de 30 min",
+    "FILTER_WAIT_1H": "Mais de 1 hora",
+    "FILTER_WAIT_2H": "Mais de 2 horas",
+    "FILTER_ASSIGNEE": "Responsável",
+    "FILTER_ASSIGNEE_MINE": "Minhas",
+    "FILTER_ASSIGNEE_ALL": "Todas visíveis",
+    "COLUMNS": {
+      "WAITING": "Espera",
+      "SINCE": "Desde",
+      "CONTACT": "Contato",
+      "INBOX": "Caixa",
+      "ASSIGNEE": "Responsável",
+      "STATUS": "Status"
+    },
+    "ERRORS": {
+      "FETCH": "Não foi possível carregar as conversas."
+    }
+  }
+}
