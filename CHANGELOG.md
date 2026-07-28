@@ -10,7 +10,30 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.k`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.l`
+
+---
+
+## [v4.15.1.l] — 2026-07-27
+
+**Base upstream:** Chatwoot `4.15.1`
+
+### Melhorado
+
+- **Aguardando resposta** — filtro de status (aberta / pendente / adiada / resolvida / todas), só na página (API existente)
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.15.1.l
+```
+
+### Release
+
+```bash
+./scripts/release.sh v4.15.1.l --push
+```
 
 ---
 
