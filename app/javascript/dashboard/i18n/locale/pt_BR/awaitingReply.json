@@ -18,6 +18,12 @@
     "FILTER_ASSIGNEE": "Responsável",
     "FILTER_ASSIGNEE_MINE": "Minhas",
     "FILTER_ASSIGNEE_ALL": "Todas visíveis",
+    "FILTER_STATUS": "Status",
+    "STATUS_OPEN": "Aberta",
+    "STATUS_PENDING": "Pendente",
+    "STATUS_SNOOZED": "Adiada",
+    "STATUS_RESOLVED": "Resolvida",
+    "STATUS_ALL": "Todas",
     "COLUMNS": {
       "WAITING": "Espera",
       "SINCE": "Desde",

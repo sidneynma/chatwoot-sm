@@ -28,6 +28,7 @@ const isLoadingMore = ref(false);
 const inboxId = ref('');
 const waitMinSeconds = ref(0);
 const assigneeType = ref('me');
+const status = ref('open');
 
 const userPermissions = computed(() =>
   getUserPermissions(currentUser.value, accountId.value)
@@ -57,6 +58,14 @@ const waitOptions = computed(() => [
   { value: 2 * 60 * 60, label: t('AWAITING_REPLY.FILTER_WAIT_2H') },
 ]);
 
+const statusOptions = computed(() => [
+  { value: 'open', label: t('AWAITING_REPLY.STATUS_OPEN') },
+  { value: 'pending', label: t('AWAITING_REPLY.STATUS_PENDING') },
+  { value: 'snoozed', label: t('AWAITING_REPLY.STATUS_SNOOZED') },
+  { value: 'resolved', label: t('AWAITING_REPLY.STATUS_RESOLVED') },
+  { value: 'all', label: t('AWAITING_REPLY.STATUS_ALL') },
+]);
+
 const assigneeOptions = computed(() => {
   const options = [
     { value: 'me', label: t('AWAITING_REPLY.FILTER_ASSIGNEE_MINE') },
@@ -72,6 +81,16 @@ const assigneeOptions = computed(() => {
 
 const inboxName = id =>
   inboxes.value.find(inbox => inbox.id === id)?.name || '—';
+
+const statusLabel = value => {
+  const map = {
+    open: t('AWAITING_REPLY.STATUS_OPEN'),
+    pending: t('AWAITING_REPLY.STATUS_PENDING'),
+    snoozed: t('AWAITING_REPLY.STATUS_SNOOZED'),
+    resolved: t('AWAITING_REPLY.STATUS_RESOLVED'),
+  };
+  return map[value] || value || '—';
+};
 
 const formatDateTime = value => {
   if (!value) return '—';
@@ -118,7 +137,7 @@ const buildParams = pageNumber => {
 
   return {
     conversationType: 'unattended',
-    status: 'open',
+    status: status.value,
     assigneeType: type,
     sortBy: 'waiting_since_asc',
     page: pageNumber,
@@ -162,7 +181,7 @@ const openConversation = conversation => {
   );
 };
 
-watch([inboxId, assigneeType], () => fetchPage());
+watch([inboxId, assigneeType, status], () => fetchPage());
 
 onMounted(() => {
   if (canViewAll.value) assigneeType.value = 'all';
@@ -210,6 +229,21 @@ onMounted(() => {
             <option
               v-for="option in waitOptions"
               :key="`wait-${option.value}`"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+        <label class="flex flex-col gap-0.5 text-xs text-n-slate-11">
+          {{ $t('AWAITING_REPLY.FILTER_STATUS') }}
+          <select
+            v-model="status"
+            class="h-9 min-w-[8rem] rounded-lg border-0 bg-n-solid-2 px-2 text-sm text-n-slate-12 outline-1 -outline-offset-1 outline-n-weak"
+          >
+            <option
+              v-for="option in statusOptions"
+              :key="`status-${option.value}`"
               :value="option.value"
             >
               {{ option.label }}
@@ -309,8 +343,8 @@ onMounted(() => {
             <td class="px-4 py-3 text-n-slate-11">
               {{ conversation.meta?.assignee?.name || '—' }}
             </td>
-            <td class="px-4 py-3 text-n-slate-11 capitalize">
-              {{ conversation.status }}
+            <td class="px-4 py-3 text-n-slate-11">
+              {{ statusLabel(conversation.status) }}
             </td>
           </tr>
         </tbody>

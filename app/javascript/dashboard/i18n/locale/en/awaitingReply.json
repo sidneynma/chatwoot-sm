@@ -18,6 +18,12 @@
     "FILTER_ASSIGNEE": "Assignee",
     "FILTER_ASSIGNEE_MINE": "Mine",
     "FILTER_ASSIGNEE_ALL": "All visible",
+    "FILTER_STATUS": "Status",
+    "STATUS_OPEN": "Open",
+    "STATUS_PENDING": "Pending",
+    "STATUS_SNOOZED": "Snoozed",
+    "STATUS_RESOLVED": "Resolved",
+    "STATUS_ALL": "All",
     "COLUMNS": {
       "WAITING": "Waiting",
       "SINCE": "Since",
