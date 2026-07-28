@@ -10,7 +10,33 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.15.1.l`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.16.2.a`
+
+---
+
+## [v4.16.2.a] — 2026-07-27
+
+**Base upstream:** Chatwoot `4.16.2` (merge de `4.16.0` + `4.16.1` + `4.16.2`)
+
+### Merge
+
+- Atualização upstream Chatwoot **4.16.0 → 4.16.1 → 4.16.2**
+- Conflitos merge-safe resolvidos mantendo fork + upstream:
+  - `enterprise/app/models/enterprise/account.rb` — `chatolhe_module_enabled?` (Chatolhe) + billing/API webhook (4.16.2)
+  - `config/features.yml` — docs `feature_flags_ext_1` (4.16.2) + nota dos módulos em `chatolhe_modules.yml`
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.16.2.a
+```
+
+### Release
+
+```bash
+./scripts/release.sh v4.16.2.a --push
+```
 
 ---
 
