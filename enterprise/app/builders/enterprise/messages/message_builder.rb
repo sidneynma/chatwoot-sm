@@ -1,10 +1,19 @@
 module Enterprise::Messages::MessageBuilder
   def perform
     ensure_crm_reply_allowed!
+    prepend_whatsapp_agent_name!
     super
   end
 
   private
+
+  def prepend_whatsapp_agent_name!
+    Whatsapp::AgentNamePrefixService.new(
+      user: @user,
+      conversation: @conversation,
+      params: @params
+    ).perform
+  end
 
   def ensure_crm_reply_allowed!
     return unless @user.is_a?(User)

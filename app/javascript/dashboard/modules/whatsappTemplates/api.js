@@ -30,6 +30,19 @@ class WhatsappTemplatesAPI extends ApiClient {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   }
+
+  uploadHeaderMedia(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return axios.post(
+      `${this.baseUrl()}/whatsapp/template_header_media`,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    );
+  }
 }
 
 export default new WhatsappTemplatesAPI();

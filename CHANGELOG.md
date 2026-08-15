@@ -10,7 +10,35 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.16.2.a`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.16.2.b`
+
+---
+
+## [v4.16.2.b] — 2026-08-15
+
+**Base upstream:** Chatwoot `4.16.2`
+
+### WhatsApp
+
+- Adicionado upload de imagem, vídeo e PDF ao envio de templates oficiais da Meta pela conversa.
+- Reutilizado o armazenamento público de mídia do Disparador sem alterar o pipeline de envio de mensagens do Chatwoot.
+- A mídia do cabeçalho do template também é exibida como anexo na conversa, reutilizando a mesma URL pública sem baixar o arquivo novamente.
+- Adicionada opção por caixa oficial do WhatsApp para identificar mensagens de sessão com o nome do agente em negrito no início.
+- Corrigido o preenchimento automático da variável `{{agent}}` nos templates da conversa.
+- Registradas as traduções da opção de nome do agente no i18n.
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.16.2.b
+```
+
+### Release
+
+```bash
+./scripts/release.sh v4.16.2.b --push
+```
 
 ---
 

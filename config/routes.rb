@@ -364,6 +364,8 @@ Rails.application.routes.draw do
 
           namespace :whatsapp do
             resource :authorization, only: [:create]
+            resource :agent_name_setting, only: [:update] if ChatwootApp.enterprise?
+            resource :template_header_media, only: [:create] if ChatwootApp.enterprise?
             resources :templates, only: [:index, :create, :destroy] do
               collection do
                 post :upload_media if ChatwootApp.enterprise?

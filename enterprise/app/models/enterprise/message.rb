@@ -15,6 +15,11 @@ module Enterprise::Message
 
   private
 
+  def execute_after_create_commit_callbacks
+    Whatsapp::TemplateHeaderAttachmentService.new(message: self).perform
+    super
+  end
+
   def mark_pending_conversation_as_open_for_human_response
     return unless captain_pending_conversation?
     return unless human_response?

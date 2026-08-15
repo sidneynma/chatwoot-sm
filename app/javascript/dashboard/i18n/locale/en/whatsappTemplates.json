@@ -40,6 +40,11 @@
       "BUTTON_LABEL": "Button {index}",
       "COUPON_CODE": "Enter coupon code (max 15 chars)",
       "MEDIA_URL_LABEL": "Enter {type} URL",
+      "MEDIA_UPLOAD_LABEL": "Upload file",
+      "MEDIA_UPLOADING": "Uploading media…",
+      "MEDIA_UPLOAD_SUCCESS": "{fileName} uploaded successfully",
+      "MEDIA_UPLOAD_ERROR": "Could not upload media. Please try again.",
+      "MEDIA_UPLOAD_HINT": "JPEG, PNG, WebP, MP4, 3GP or PDF, up to 5 MB.",
       "DOCUMENT_NAME_PLACEHOLDER": "Enter document filename (e.g., Invoice_2025.pdf)",
       "BUTTON_PARAMETER": "Enter button parameter"
     },

@@ -1,0 +1,8 @@
+{
+  "WHATSAPP_AGENT_NAME": {
+    "TITLE": "Exibir nome do agente nas mensagens",
+    "DESCRIPTION": "Adiciona o nome do agente em negrito no início das mensagens enviadas por esta caixa do WhatsApp.",
+    "SUCCESS": "Configuração do nome do agente atualizada.",
+    "ERROR": "Não foi possível atualizar a configuração do nome do agente."
+  }
+}

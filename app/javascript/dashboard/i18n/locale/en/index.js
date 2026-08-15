@@ -38,6 +38,7 @@ import sla from './sla.json';
 import snooze from './snooze.json';
 import teamsSettings from './teamsSettings.json';
 import whatsappTemplates from './whatsappTemplates.json';
+import whatsappAgentName from './whatsappAgentName.json';
 import conversationRedistribution from './conversationRedistribution.json';
 import crmKanban from './crmKanban.json';
 import inboxScopedResources from './inboxScopedResources.json';
@@ -91,6 +92,7 @@ export default {
   ...snooze,
   ...teamsSettings,
   ...whatsappTemplates,
+  ...whatsappAgentName,
   ...conversationRedistribution,
   ...crmKanban,
   ...inboxScopedResources,

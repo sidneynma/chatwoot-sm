@@ -15,6 +15,7 @@ import { required } from '@vuelidate/validators';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import TextArea from 'next/textarea/TextArea.vue';
 import { sanitizeAllowedDomains } from 'dashboard/helper/URLHelper';
+import WhatsAppAgentNameSetting from 'dashboard/modules/whatsappAgentName/components/WhatsAppAgentNameSetting.vue';
 
 export default {
   components: {
@@ -25,6 +26,7 @@ export default {
     SmtpSettings,
     NextButton,
     TextArea,
+    WhatsAppAgentNameSetting,
   },
   mixins: [inboxMixin],
   props: {
@@ -469,6 +471,7 @@ export default {
           </div>
         </SettingsFieldSection>
       </template>
+      <WhatsAppAgentNameSetting :inbox="inbox" />
       <SettingsFieldSection
         :label="$t('INBOX_MGMT.SETTINGS_POPUP.WHATSAPP_TEMPLATES_SYNC_TITLE')"
         :help-text="

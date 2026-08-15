@@ -42,6 +42,7 @@ import snooze from './snooze.json';
 import teamsSettings from './teamsSettings.json';
 import webhooks from './webhooks.json';
 import whatsappTemplates from './whatsappTemplates.json';
+import whatsappAgentName from './whatsappAgentName.json';
 import conversationRedistribution from './conversationRedistribution.json';
 import crmKanban from './crmKanban.json';
 import inboxScopedResources from './inboxScopedResources.json';
@@ -95,6 +96,7 @@ export default {
   ...teamsSettings,
   ...webhooks,
   ...whatsappTemplates,
+  ...whatsappAgentName,
   ...conversationRedistribution,
   ...crmKanban,
   ...inboxScopedResources,

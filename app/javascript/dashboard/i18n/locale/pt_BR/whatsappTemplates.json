@@ -40,6 +40,11 @@
       "BUTTON_LABEL": "Botão {index}",
       "COUPON_CODE": "Digite o código do cupom (máx. 15 caracteres)",
       "MEDIA_URL_LABEL": "Digite a URL {type}",
+      "MEDIA_UPLOAD_LABEL": "Enviar arquivo",
+      "MEDIA_UPLOADING": "Enviando mídia…",
+      "MEDIA_UPLOAD_SUCCESS": "{fileName} enviado com sucesso",
+      "MEDIA_UPLOAD_ERROR": "Não foi possível enviar a mídia. Tente novamente.",
+      "MEDIA_UPLOAD_HINT": "JPEG, PNG, WebP, MP4, 3GP ou PDF, com até 5 MB.",
       "DOCUMENT_NAME_PLACEHOLDER": "Informe o nome do arquivo do documento (ex.: Comprovante_2025.pdf)",
       "BUTTON_PARAMETER": "Insira o parâmetro do botão"
     },

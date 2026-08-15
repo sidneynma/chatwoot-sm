@@ -40,6 +40,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  agentName: {
+    type: String,
+    default: '',
+  },
 });
 
 const emit = defineEmits(['sendMessage', 'resetTemplate', 'back']);
@@ -111,18 +115,21 @@ const initializeTemplateParameters = () => {
   );
   // Preenche automaticamente a primeira variável do corpo
   if (processedParams.value?.body) {
-  Object.keys(processedParams.value.body).forEach(key => {
-    switch (key.toLowerCase()) {
-      case 'nome':
-        processedParams.value.body[key] = props.contactName || '';
-        break;
+    Object.keys(processedParams.value.body).forEach(key => {
+      switch (key.toLowerCase()) {
+        case 'nome':
+          processedParams.value.body[key] = props.contactName || '';
+          break;
 
-      case 'agent':
-        processedParams.value.body[key] = props.agentName || '';
-        break;
-    }
-  });
-}
+        case 'agent':
+          processedParams.value.body[key] = props.agentName || '';
+          break;
+
+        default:
+          break;
+      }
+    });
+  }
 };
 const updateMediaUrl = value => {
   processedParams.value.header ??= {};

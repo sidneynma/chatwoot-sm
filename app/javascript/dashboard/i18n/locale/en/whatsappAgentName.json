@@ -1,0 +1,8 @@
+{
+  "WHATSAPP_AGENT_NAME": {
+    "TITLE": "Show agent name in messages",
+    "DESCRIPTION": "Adds the agent name in bold at the beginning of messages sent from this WhatsApp inbox.",
+    "SUCCESS": "Agent name setting updated.",
+    "ERROR": "Could not update the agent name setting."
+  }
+}
