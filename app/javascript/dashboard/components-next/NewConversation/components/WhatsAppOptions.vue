@@ -13,6 +13,14 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  contactName: {
+    type: String,
+    default: '',
+  },
+  agentName: {
+    type: String,
+    default: '',
+  },
 });
 
 const emit = defineEmits(['sendMessage']);
@@ -120,6 +128,8 @@ const handleSendMessage = (template, hide) => {
       <WhatsappTemplate
         v-else
         :template="selectedTemplate"
+        :contact-name="contactName"
+        :agent-name="agentName"
         @send-message="payload => handleSendMessage(payload, hide)"
         @back="handleBack"
       />

@@ -26,6 +26,7 @@ Imagem Docker: `sidneynma/chatwoot-sm:v4.16.2.b`
 - Adicionada opção por caixa oficial do WhatsApp para identificar mensagens de sessão com o nome do agente em negrito no início.
 - Corrigido o preenchimento automático da variável `{{agent}}` nos templates da conversa.
 - Registradas as traduções da opção de nome do agente no i18n.
+- Reutilizados o upload de mídia e o preenchimento automático de `{{nome}}`/`{{agent}}` ao iniciar uma nova conversa pela página do contato.
 
 ### Deploy
 

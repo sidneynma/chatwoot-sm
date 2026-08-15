@@ -452,6 +452,8 @@ useKeyboardEvents({
       :has-no-inbox="showNoInboxAlert"
       :is-dropdown-active="isAnyDropdownActive"
       :message-signature="messageSignature"
+      :contact-name="selectedContact?.name || ''"
+      :agent-name="currentUser?.name || ''"
       @insert-emoji="onClickInsertEmoji"
       @add-signature="handleAddSignature"
       @remove-signature="handleRemoveSignature"
