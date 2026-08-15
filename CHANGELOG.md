@@ -10,7 +10,30 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.16.2.b`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.16.2.c`
+
+---
+
+## [v4.16.2.c] — 2026-08-15
+
+**Base upstream:** Chatwoot `4.16.2`
+
+### WhatsApp
+
+- Reutilizados o upload de mídia e o preenchimento automático de `{{nome}}`/`{{agent}}` ao iniciar uma nova conversa pela página do contato.
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.16.2.c
+```
+
+### Release
+
+```bash
+./scripts/release.sh v4.16.2.c --push
+```
 
 ---
 
@@ -26,7 +49,6 @@ Imagem Docker: `sidneynma/chatwoot-sm:v4.16.2.b`
 - Adicionada opção por caixa oficial do WhatsApp para identificar mensagens de sessão com o nome do agente em negrito no início.
 - Corrigido o preenchimento automático da variável `{{agent}}` nos templates da conversa.
 - Registradas as traduções da opção de nome do agente no i18n.
-- Reutilizados o upload de mídia e o preenchimento automático de `{{nome}}`/`{{agent}}` ao iniciar uma nova conversa pela página do contato.
 
 ### Deploy
 
