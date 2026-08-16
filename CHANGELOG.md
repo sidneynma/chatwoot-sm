@@ -10,7 +10,45 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.16.2.c`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.16.2.d`
+
+### Como publicar um release
+
+1. Atualizar esta seção do changelog para a nova versão e fazer commit.
+2. `./scripts/release_git.sh vX.Y.Z.s` — cria tag anotada, dá push da branch atual e da tag.
+3. O workflow `release_chatwoot_sm` no GitHub Actions builda/publica a imagem e cria o GitHub Release (título = versão).
+4. Merge da branch após aprovação, quando fizer sentido.
+5. Depois de validar em produção: `./scripts/release.sh vX.Y.Z.s --promote-latest --push`
+
+---
+
+## [v4.16.2.d] — 2026-08-16
+
+**Base upstream:** Chatwoot `4.16.2`
+
+### Disparador
+
+- Agendamentos feitos pela conversa passam a criar a campanha wrapper como `scheduled` (com `scheduled_at`), em vez de `running`. Em Campanhas o status correto é **Agendada** até o horário do disparo.
+- O scheduler promove para `running` só na hora do envio; campanhas `conversation_schedule` não entram no `StartDispatch` em massa.
+- `StartDispatch` ignora recipients com `scheduled_at` futuro.
+
+### Release
+
+- Novo workflow GitHub Actions `release_chatwoot_sm` para build/push da imagem `sidneynma/chatwoot-sm` e criação do GitHub Release.
+- Novo script `./scripts/release_git.sh` (tag anotada + push da branch + push da tag). O build Docker local deixa de ser o caminho preferido.
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.16.2.d
+```
+
+### Release command
+
+```bash
+./scripts/release_git.sh v4.16.2.d
+```
 
 ---
 

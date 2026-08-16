@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 #
-# Release script for chatwoot-sm (fork).
+# Legacy / helper release script for chatwoot-sm (fork).
 #
-# Builds the Enterprise Docker image, tags it, and creates a matching git tag.
+# Preferred flow (Docker build on GitHub Actions):
+#   1. Update CHANGELOG.md and commit
+#   2. ./scripts/release_git.sh v4.16.2.d
+#   3. Wait for .github/workflows/release_chatwoot_sm.yml
+#   4. After prod validation:
+#      ./scripts/release.sh v4.16.2.d --promote-latest --push
 #
-# Usage:
-#   ./scripts/release.sh v4.14.2.a
-#   ./scripts/release.sh v4.14.2.a --push
-#   ./scripts/release.sh v4.14.2.a --promote-latest --push   # após testes em produção
-#   ./scripts/release.sh v4.14.2.a --skip-docker
-#   ./scripts/release.sh v4.14.2.a --skip-tag
+# This script can still build the image locally if needed:
+#   ./scripts/release.sh v4.16.2.d --push
+#   ./scripts/release.sh v4.16.2.d --skip-docker   # tag only (prefer release_git.sh)
+#   ./scripts/release.sh v4.16.2.d --promote-latest --push
 #
 # Environment overrides:
 #   DOCKER_IMAGE=sidneynma/chatwoot-sm
@@ -32,16 +35,16 @@ ALLOW_DIRTY=false
 TAG_MESSAGE=""
 
 usage() {
-  sed -n '3,14p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '3,20p' "$0" | sed 's/^# \{0,1\}//'
   echo
   echo "Options:"
   echo "  --push            Push Docker image and git tag to remote"
   echo "  --promote-latest  Tag :latest from an existing version image (after prod tests)"
-  echo "  --skip-docker     Only create the git tag"
-  echo "  --skip-tag     Only build/push the Docker image"
-  echo "  --allow-dirty  Allow uncommitted changes"
-  echo "  -m, --message  Annotated tag message (default: release \$VERSION)"
-  echo "  -h, --help     Show this help"
+  echo "  --skip-docker     Only create the git tag (prefer ./scripts/release_git.sh)"
+  echo "  --skip-tag        Only build/push the Docker image"
+  echo "  --allow-dirty     Allow uncommitted changes"
+  echo "  -m, --message     Annotated tag message (default: release \$VERSION)"
+  echo "  -h, --help        Show this help"
 }
 
 log() {
@@ -140,6 +143,7 @@ build_docker_image() {
   local image_tag="${DOCKER_IMAGE}:${VERSION}"
 
   log "Building Docker image ${image_tag} (${DOCKER_PLATFORM}, edition=${RELEASE_EDITION})"
+  log "Tip: prefer ./scripts/release_git.sh so GitHub Actions builds the image"
   docker build \
     --platform "$DOCKER_PLATFORM" \
     -f "$dockerfile" \
@@ -187,12 +191,12 @@ Docker image:
 Git tag:
   ${VERSION}
 
-Next steps:
-  1. Update CHANGELOG.md if not done yet
-  2. Re-run with --push to publish image/tag when ready
-  3. Deploy using:
-     image: ${DOCKER_IMAGE}:${VERSION}
-  4. After production validation, promote :latest:
+Preferred release flow:
+  1. Update CHANGELOG.md and commit
+  2. ./scripts/release_git.sh ${VERSION}
+  3. Wait for GitHub Actions (image + GitHub Release)
+  4. Deploy: image: ${DOCKER_IMAGE}:${VERSION}
+  5. After production validation, promote :latest:
      ./scripts/release.sh ${VERSION} --promote-latest --push
 
 EOF

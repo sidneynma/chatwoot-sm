@@ -96,7 +96,8 @@ class Disparador::ScheduleService
         inbox_id: inbox.id,
         name: campaign_name,
         channel: channel,
-        status: 'running',
+        status: 'scheduled',
+        scheduled_at: scheduled_at,
         message_template: message_template,
         created_by_id: user.id,
         created_by_email: user.email,
@@ -126,6 +127,7 @@ class Disparador::ScheduleService
 
     if scheduled_at <= Time.current
       mode = channel == 'evolution' ? 'evolution' : 'conversation'
+      campaign.update!(status: 'running', started_at: Time.current)
       recipient.update!(status: 'queued', last_event_at: Time.current)
       Disparador::SendRecipientJob.perform_later(recipient.id, mode)
     end
@@ -154,6 +156,7 @@ class Disparador::ScheduleService
     raise Error.new('Nenhum campo para atualizar', status: 400) if updates.empty?
 
     recipient.update!(updates)
+    sync_campaign_schedule!(recipient) if updates.key?(:scheduled_at)
     serialize(recipient.reload)
   end
 
@@ -279,6 +282,17 @@ class Disparador::ScheduleService
         'disparador_recipient_id' => recipient.id
       )
     )
+  end
+
+  # Keep wrapper campaign aligned with the recipient schedule (also heals older rows
+  # that were incorrectly created as running).
+  def sync_campaign_schedule!(recipient)
+    campaign = recipient.disparador_campaign
+    return unless campaign.metadata&.dig('source') == SOURCE
+    return unless %w[pending queued].include?(recipient.status)
+    return unless %w[scheduled running].include?(campaign.status)
+
+    campaign.update!(status: 'scheduled', scheduled_at: recipient.scheduled_at, started_at: nil)
   end
 
   def build_template_params_body(values)

@@ -77,7 +77,12 @@ class Disparador::StartDispatchService
   def claim_recipient_ids(limit)
     ids = []
     DisparadorRecipient.transaction do
-      scope = campaign.disparador_recipients.where(status: 'pending').order(:id).limit(limit).lock('FOR UPDATE SKIP LOCKED')
+      scope = campaign.disparador_recipients
+                     .where(status: 'pending')
+                     .where('scheduled_at IS NULL OR scheduled_at <= ?', Time.current)
+                     .order(:id)
+                     .limit(limit)
+                     .lock('FOR UPDATE SKIP LOCKED')
       scope.each do |recipient|
         recipient.update!(status: 'queued', last_event_at: Time.current)
         ids << recipient.id

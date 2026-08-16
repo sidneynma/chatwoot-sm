@@ -12,9 +12,13 @@ class Disparador::SchedulerJob < ApplicationJob
 
   def dispatch_due_campaigns!
     limit = Chatolhe::DisparadorConfig.scheduler_batch_campaigns
+    # Conversation schedules are dispatched via recipient.scheduled_at
+    # (dispatch_due_recipients!), not StartDispatch — StartDispatch would ignore
+    # per-recipient schedule times.
     DisparadorCampaign.active
                      .where(status: 'scheduled')
                      .where('scheduled_at <= ?', Time.current)
+                     .where("COALESCE(metadata->>'source', '') != ?", Disparador::ScheduleService::SOURCE)
                      .order(:scheduled_at)
                      .limit(limit)
                      .find_each do |campaign|
@@ -40,6 +44,9 @@ class Disparador::SchedulerJob < ApplicationJob
              else
                campaign.metadata&.dig('dispatch_mode').presence || 'conversation'
              end
+      if campaign.status == 'scheduled'
+        campaign.update!(status: 'running', started_at: campaign.started_at || Time.current)
+      end
       recipient.update!(status: 'queued', last_event_at: Time.current)
       Disparador::SendRecipientJob.perform_later(recipient.id, mode)
     end
