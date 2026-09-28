@@ -10,6 +10,8 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 | Sufixo fork | `.a` | Release customizada do fork |
 | Tag completa | `v4.14.2.a` | Usada no Git e na imagem Docker |
 
+Tags **upstream** (`v4.16.2`) servem para merge; o workflow de release só dispara em tags do **fork** (`v4.16.2.d`).
+
 Imagem Docker: `sidneynma/chatwoot-sm:v4.16.2.d`
 
 ### Como publicar um release

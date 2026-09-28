@@ -88,8 +88,9 @@ ensure_repo_root() {
 }
 
 validate_version() {
-  [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]] \
-    || die "invalid version format: $VERSION (expected example: v4.16.2.d)"
+  # Require fork suffix so upstream tags (v4.16.2) are never used as releases.
+  [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9A-Za-z][0-9A-Za-z.-]*$ ]] \
+    || die "invalid fork version: $VERSION (expected e.g. v4.16.2.d — not bare upstream v4.16.2)"
 }
 
 ensure_clean_tree() {

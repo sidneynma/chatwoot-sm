@@ -1,18 +1,20 @@
 # Build and publish the chatwoot-sm (fork) Docker image, then create a GitHub Release.
 # Does not replace upstream publish_*_docker workflows — those remain untouched.
 #
-# Triggered by annotated tags created via ./scripts/release_git.sh
+# Triggered by fork tags (v4.16.2.d), not bare upstream tags (v4.16.2),
+# so merging upstream release tags does not publish sidneynma/chatwoot-sm.
 
 name: Release chatwoot-sm
 
 on:
   push:
     tags:
-      - 'v*'
+      # Require fork suffix: v4.16.2.d matches; upstream v4.16.2 does not.
+      - 'v*.*.*.*'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Existing git tag to build/publish (e.g. v4.16.2.d)'
+        description: 'Existing fork tag to build/publish (e.g. v4.16.2.d)'
         required: true
         type: string
 
@@ -35,13 +37,11 @@ jobs:
           else
             VERSION="${{ github.ref_name }}"
           fi
-          case "$VERSION" in
-            v[0-9]*.[0-9]*.[0-9]*) ;;
-            *)
-              echo "Invalid version: $VERSION (expected e.g. v4.16.2.d)"
-              exit 1
-              ;;
-          esac
+          # Fork releases only: v4.16.2.d — reject bare upstream tags like v4.16.2
+          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9A-Za-z][0-9A-Za-z.-]*$ ]]; then
+            echo "Invalid fork version: $VERSION (expected e.g. v4.16.2.d, not v4.16.2)"
+            exit 1
+          fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "image=${{ env.DOCKER_REPO }}:$VERSION" >> "$GITHUB_OUTPUT"
 
