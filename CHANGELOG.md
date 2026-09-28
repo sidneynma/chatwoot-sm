@@ -12,7 +12,7 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 
 Tags **upstream** (`v4.16.2`) servem para merge; o workflow de release só dispara em tags do **fork** (`v4.16.2.d`).
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.17.1.a`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.17.1.b`
 
 ### Como publicar um release
 
@@ -21,6 +21,36 @@ Imagem Docker: `sidneynma/chatwoot-sm:v4.17.1.a`
 3. O workflow `release_chatwoot_sm` no GitHub Actions builda/publica a imagem e cria o GitHub Release (título = versão).
 4. Merge da branch após aprovação, quando fizer sentido.
 5. Depois de validar em produção: `./scripts/release.sh vX.Y.Z.s --promote-latest --push`
+
+---
+
+## [v4.17.1.b] — 2026-09-28
+
+**Base upstream:** Chatwoot `4.17.1`
+
+### Funções personalizadas
+
+- Nova permissão **Adicionar e remover agentes da caixa** (`inbox_member_manage`).
+- Quem tem essa permissão acessa `/app/accounts/:id/settings/inbox-members` para incluir ou tirar agentes de uma caixa.
+- Criar e excluir caixas continua só com o administrador.
+
+### Release
+
+- `./scripts/release_git.sh` envia a branch e a tag para o remote `chatolhe`.
+- O script recusa rodar com a branch atual `develop` ou `master`, porque o hook de push bloqueia essas branches.
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.17.1.b
+```
+
+### Release command
+
+```bash
+./scripts/release_git.sh v4.17.1.b
+```
 
 ---
 

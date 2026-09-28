@@ -391,6 +391,7 @@ Rails.application.routes.draw do
           end
 
           if ChatwootApp.enterprise?
+            resources :inbox_member_access, only: [:index, :update]
             resources :crm_funnels, only: [:index, :create, :show, :update, :destroy] do
               member do
                 get :board

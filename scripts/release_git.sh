@@ -3,8 +3,8 @@
 # Prepare a chatwoot-sm git release (no local Docker build).
 #
 # Creates an annotated tag, pushes the current branch, then pushes the tag.
-# GitHub Actions (.github/workflows/release_chatwoot_sm.yml) builds/pushes the
-# Docker image and creates the GitHub Release when the tag arrives.
+# GitHub Actions (.github/workflows/release_chatwoot_sm.yml) on chatolhe
+# builds/pushes the Docker image and creates the GitHub Release when the tag arrives.
 #
 # Usage:
 #   ./scripts/release_git.sh v4.16.2.d
@@ -125,7 +125,18 @@ current_branch() {
   local branch
   branch="$(git rev-parse --abbrev-ref HEAD)"
   [[ "$branch" != "HEAD" ]] || die "detached HEAD — checkout a branch before releasing"
+  # bin/validate_push rejects any push made while develop or master is checked out.
+  [[ "$branch" != "develop" && "$branch" != "master" ]] \
+    || die "checkout the feature branch before releasing. The push hook blocks develop and master."
   printf '%s\n' "$branch"
+}
+
+release_remote() {
+  if git remote get-url chatolhe >/dev/null 2>&1; then
+    printf '%s\n' chatolhe
+    return
+  fi
+  printf '%s\n' origin
 }
 
 run() {
@@ -144,26 +155,29 @@ main() {
   ensure_changelog
   ensure_tag_absent
 
-  local branch message
+  local branch message remote
   branch="$(current_branch)"
+  remote="$(release_remote)"
   message="${TAG_MESSAGE:-release $VERSION}"
 
   log "Branch: $branch"
+  log "Remote: $remote"
   log "Version: $VERSION"
 
   log "Creating annotated git tag $VERSION"
   run git tag -a "$VERSION" -m "$message"
 
   log "Pushing branch $branch"
-  run git push -u origin "$branch"
+  run git push -u "$remote" "$branch"
 
   log "Pushing tag $VERSION"
-  run git push origin "$VERSION"
+  run git push "$remote" "$VERSION"
 
   cat <<EOF
 
 Git release prepared for ${VERSION}
 
+Remote:        ${remote}
 Branch pushed: ${branch}
 Tag pushed:    ${VERSION}
 
@@ -171,7 +185,7 @@ GitHub Actions will:
   1. Build/push Docker image sidneynma/chatwoot-sm:${VERSION}
   2. Create GitHub Release titled ${VERSION}
 
-Watch: https://github.com/sidneynma/chatwoot-sm/actions
+Watch: https://github.com/sidneynma/chatolhe/actions
 
 After production validation, promote :latest:
   ./scripts/release.sh ${VERSION} --promote-latest --push

@@ -39,7 +39,8 @@
       "CONTACT_MANAGE": "Gerenciar contatos",
       "CONTACT_ASSIGNED_ONLY": "Ver apenas contatos atribuídos",
       "REPORT_MANAGE": "Gerenciar relatórios",
-      "KNOWLEDGE_BASE_MANAGE": "Gerenciar base de conhecimento"
+      "KNOWLEDGE_BASE_MANAGE": "Gerenciar base de conhecimento",
+      "INBOX_MEMBER_MANAGE": "Adicionar e remover agentes da caixa"
     },
     "FORM": {
       "NAME": {

@@ -1,0 +1,18 @@
+{
+  "INBOX_MEMBER_ACCESS": {
+    "SIDEBAR": "Agentes da caixa",
+    "TITLE": "Agentes da caixa",
+    "DESCRIPTION": "Adicione ou remova agentes de uma caixa. Criar e excluir caixas continua com os administradores.",
+    "INBOX": "Caixa de entrada",
+    "SELECT_INBOX": "Selecione uma caixa",
+    "AGENTS": "Agentes",
+    "ADD_AGENT": "Adicionar agente",
+    "SAVE": "Salvar",
+    "SAVED": "Agentes da caixa atualizados",
+    "SAVE_ERROR": "Não foi possível atualizar os agentes da caixa",
+    "LOAD_ERROR": "Não foi possível carregar as caixas",
+    "EMPTY_INBOXES": "Nenhuma caixa nesta conta",
+    "EMPTY_AGENTS": "Não há outros agentes para adicionar",
+    "NO_MEMBERS": "Esta caixa ainda não tem agentes"
+  }
+}

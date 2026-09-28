@@ -1,0 +1,18 @@
+{
+  "INBOX_MEMBER_ACCESS": {
+    "SIDEBAR": "Inbox agents",
+    "TITLE": "Inbox agents",
+    "DESCRIPTION": "Add or remove agents from an inbox. Creating and deleting inboxes stays with administrators.",
+    "INBOX": "Inbox",
+    "SELECT_INBOX": "Select an inbox",
+    "AGENTS": "Agents",
+    "ADD_AGENT": "Add agent",
+    "SAVE": "Save",
+    "SAVED": "Inbox agents updated",
+    "SAVE_ERROR": "Could not update inbox agents",
+    "LOAD_ERROR": "Could not load inboxes",
+    "EMPTY_INBOXES": "No inboxes in this account",
+    "EMPTY_AGENTS": "No other agents to add",
+    "NO_MEMBERS": "This inbox has no agents yet"
+  }
+}

@@ -6,6 +6,7 @@ export const AVAILABLE_CUSTOM_ROLE_PERMISSIONS = [
   'contact_assigned_only',
   'report_manage',
   'knowledge_base_manage',
+  'inbox_member_manage',
 ];
 
 export const ROLES = ['agent', 'administrator'];

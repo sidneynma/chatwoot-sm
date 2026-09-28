@@ -23,6 +23,7 @@
 # - 'contact_manage': Can manage contacts.
 # - 'report_manage': Can manage reports.
 # - 'knowledge_base_manage': Can manage knowledge base portals.
+# - 'inbox_member_manage': Can add and remove agents on inboxes. Cannot create or delete inboxes.
 
 class CustomRole < ApplicationRecord
   belongs_to :account
@@ -40,6 +41,7 @@ class CustomRole < ApplicationRecord
     contact_assigned_only
     report_manage
     knowledge_base_manage
+    inbox_member_manage
   ].freeze
 
   validates :name, presence: true
