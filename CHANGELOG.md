@@ -12,7 +12,7 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 
 Tags **upstream** (`v4.16.2`) servem para merge; o workflow de release só dispara em tags do **fork** (`v4.16.2.d`).
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.16.2.d`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.17.1.a`
 
 ### Como publicar um release
 
@@ -21,6 +21,32 @@ Imagem Docker: `sidneynma/chatwoot-sm:v4.16.2.d`
 3. O workflow `release_chatwoot_sm` no GitHub Actions builda/publica a imagem e cria o GitHub Release (título = versão).
 4. Merge da branch após aprovação, quando fizer sentido.
 5. Depois de validar em produção: `./scripts/release.sh vX.Y.Z.s --promote-latest --push`
+
+---
+
+## [v4.17.1.a] — 2026-09-27
+
+**Base upstream:** Chatwoot `4.17.1` (merge de `4.17.0` + `4.17.1`)
+
+### Merge
+
+- Atualização upstream Chatwoot **4.17.0 → 4.17.1** a partir da `custon-cw`.
+- Personalização do fork mantida junto com o código novo: Disparador, CRM, chat interno, nome do agente na caixa WhatsApp, respostas prontas por caixa e variáveis dos templates.
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.17.1.a
+```
+
+### Release
+
+```bash
+git tag -a v4.17.1.a -m "release v4.17.1.a"
+git push chatolhe develop
+git push chatolhe v4.17.1.a
+```
 
 ---
 
