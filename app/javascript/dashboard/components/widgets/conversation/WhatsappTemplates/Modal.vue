@@ -6,24 +6,28 @@ export default {
     TemplatesPicker,
     WhatsAppTemplateReply,
   },
- props: {
-  show: {
-    type: Boolean,
-    default: false,
+  props: {
+    show: {
+      type: Boolean,
+      default: false,
+    },
+    inboxId: {
+      type: Number,
+      default: undefined,
+    },
+    sendRenderedContent: {
+      type: Boolean,
+      default: false,
+    },
+    contactName: {
+      type: String,
+      default: '',
+    },
+    agentName: {
+      type: String,
+      default: '',
+    },
   },
-  inboxId: {
-    type: Number,
-    default: undefined,
-  },
-  contactName: {
-    type: String,
-    default: '',    
-  },
-  agentName: {
-    type: String,
-    default: '',
-  },
-},
   emits: ['onSend', 'cancel', 'update:show'],
   data() {
     return {
@@ -81,6 +85,7 @@ export default {
         :template="selectedWaTemplate"
         :contact-name="contactName"
         :agent-name="agentName"
+        :send-rendered-content="sendRenderedContent"
         @reset-template="onResetTemplate"
         @send-message="onSendMessage"
       />

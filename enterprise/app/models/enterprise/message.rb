@@ -4,6 +4,14 @@ module Enterprise::Message
       has_one :call, class_name: 'Call', foreign_key: :message_id, dependent: :nullify, inverse_of: :message
 
       scope :with_call, -> { includes(call: [:contact, { inbox: :channel }]) }
+      # Scheduling and freshness checks must share this scope so an email auto reply cannot cancel a pending response.
+      scope :captain_response_triggering, lambda {
+        incoming.joins(:inbox).where(
+          "((messages.content_attributes #>> '{}')::jsonb -> 'email' ->> 'auto_reply') IS DISTINCT FROM 'true' OR " \
+          "(messages.content_type != :incoming_email AND inboxes.channel_type != 'Channel::Email')",
+          incoming_email: content_types[:incoming_email]
+        )
+      }
     end
   end
 
@@ -13,10 +21,25 @@ module Enterprise::Message
     data
   end
 
+  def captain_response_triggering?
+    return incoming? && !auto_reply_email? unless persisted?
+
+    self.class.captain_response_triggering.exists?(id: id)
+  end
+
   private
 
   def execute_after_create_commit_callbacks
     Whatsapp::TemplateHeaderAttachmentService.new(message: self).perform
+    super
+  end
+
+  def reopen_resolved_conversation
+    assistant = conversation.inbox.captain_assistant
+
+    return super if assistant.blank? || conversation.inbox.external_bot_active?
+    return conversation.open! unless assistant.engages?(conversation.contact, conversation)
+
     super
   end
 

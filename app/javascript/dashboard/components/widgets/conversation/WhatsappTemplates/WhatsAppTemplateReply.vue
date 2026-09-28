@@ -17,6 +17,10 @@ defineProps({
     type: String,
     default: '',
   },
+  sendRenderedContent: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['sendMessage', 'resetTemplate']);
@@ -49,6 +53,7 @@ const handleMediaUploaded = media => {
       :template="template"
       :contact-name="contactName"
       :agent-name="agentName"
+      :send-rendered-content="sendRenderedContent"
       @send-message="handleSendMessage"
       @reset-template="handleResetTemplate"
     >

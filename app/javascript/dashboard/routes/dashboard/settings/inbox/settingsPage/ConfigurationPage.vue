@@ -16,6 +16,7 @@ import NextButton from 'dashboard/components-next/button/Button.vue';
 import TextArea from 'next/textarea/TextArea.vue';
 import { sanitizeAllowedDomains } from 'dashboard/helper/URLHelper';
 import WhatsAppAgentNameSetting from 'dashboard/modules/whatsappAgentName/components/WhatsAppAgentNameSetting.vue';
+import WhatsappBusinessManagementToken from './WhatsappBusinessManagementToken.vue';
 
 export default {
   components: {
@@ -27,6 +28,7 @@ export default {
     NextButton,
     TextArea,
     WhatsAppAgentNameSetting,
+    WhatsappBusinessManagementToken,
   },
   mixins: [inboxMixin],
   props: {
@@ -472,6 +474,14 @@ export default {
         </SettingsFieldSection>
       </template>
       <WhatsAppAgentNameSetting :inbox="inbox" />
+      <WhatsappBusinessManagementToken
+        v-if="
+          isOnChatwootCloud &&
+          inbox.provider === 'whatsapp_cloud' &&
+          isEmbeddedSignupWhatsApp
+        "
+        :inbox="inbox"
+      />
       <SettingsFieldSection
         :label="$t('INBOX_MGMT.SETTINGS_POPUP.WHATSAPP_TEMPLATES_SYNC_TITLE')"
         :help-text="

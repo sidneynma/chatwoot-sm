@@ -45,6 +45,7 @@ import inboxScopedResources from './inboxScopedResources.json';
 import internalChat from './internalChat.json';
 import disparador from './disparador.json';
 import awaitingReply from './awaitingReply.json';
+import whatsappTemplateMgmt from './whatsappTemplateMgmt.json';
 import contentTemplates from './contentTemplates.json';
 import mfa from './mfa.json';
 import onboarding from './onboarding.json';
@@ -99,6 +100,7 @@ export default {
   ...internalChat,
   ...disparador,
   ...awaitingReply,
+  ...whatsappTemplateMgmt,
   ...contentTemplates,
   ...mfa,
   ...onboarding,
