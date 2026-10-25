@@ -27,6 +27,10 @@ export default {
       type: String,
       default: '',
     },
+    requestContactInfoOnly: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ['onSend', 'cancel', 'update:show'],
   data() {
@@ -49,6 +53,14 @@ export default {
             templateName: this.selectedWaTemplate.name,
           })
         : this.$t('WHATSAPP_TEMPLATES.MODAL.SUBTITLE');
+    },
+  },
+  watch: {
+    show(value) {
+      if (!value) this.selectedWaTemplate = null;
+    },
+    requestContactInfoOnly() {
+      this.selectedWaTemplate = null;
     },
   },
   methods: {
@@ -78,6 +90,7 @@ export default {
       <TemplatesPicker
         v-if="!selectedWaTemplate"
         :inbox-id="inboxId"
+        :request-contact-info-only="requestContactInfoOnly"
         @on-select="pickTemplate"
       />
       <WhatsAppTemplateReply
