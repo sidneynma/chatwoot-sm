@@ -7,4 +7,12 @@ module Enterprise::AccountUser
     InternalChat::HandleAgentRemovedService.new(account: account, user: user).perform
     super
   end
+
+  # Missed calls are pushed by default, alongside the core defaults
+  def create_notification_setting
+    super
+    setting = user.notification_settings.find_by(account_id: account_id)
+    setting.push_voice_call_missed = true
+    setting.save!
+  end
 end

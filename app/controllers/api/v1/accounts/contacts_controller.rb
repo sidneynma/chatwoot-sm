@@ -91,7 +91,7 @@ end
 
   def create
     ActiveRecord::Base.transaction do
-      @contact = Current.account.contacts.new(permitted_params.except(:avatar_url))
+      @contact = Current.account.contacts.new(permitted_params.except(:avatar_url).merge(contact_type: :lead))
       @contact.save!
       @contact_inbox = build_contact_inbox
       process_avatar_from_url
@@ -99,8 +99,11 @@ end
   end
 
   def update
-    @contact.assign_attributes(contact_update_params)
-    @contact.save!
+    ActiveRecord::Base.transaction do
+      @contact.assign_attributes(contact_update_params)
+      Contacts::CompanyAssociationService.new.associate_company_from_name(@contact) if params[:resolve_legacy_company].to_s == 'true'
+      @contact.save!
+    end
     process_avatar_from_url
   end
 
@@ -206,7 +209,12 @@ end
   end
 
   def permitted_params
-    params.permit(:name, :identifier, :email, :phone_number, :avatar, :blocked, :avatar_url, additional_attributes: {}, custom_attributes: {})
+    permitted_params = params.permit(:name, :identifier, :email, :phone_number, :avatar, :avatar_url, :blocked,
+                                     additional_attributes: {}, custom_attributes: {})
+    return permitted_params unless Current.account.feature_enabled?('companies') && params.key?(:company_id)
+
+    company_id = params[:company_id]
+    permitted_params.merge(company_id: company_id.present? ? Current.account.companies.find(company_id).id : nil)
   end
 
   def contact_custom_attributes
