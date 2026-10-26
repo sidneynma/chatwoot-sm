@@ -12,7 +12,7 @@ Histórico de releases do fork **chatwoot-sm** (`sidneynma/chatwoot-sm`).
 
 Tags **upstream** (`v4.16.2`) servem para merge; o workflow de release só dispara em tags do **fork** (`v4.16.2.d`).
 
-Imagem Docker: `sidneynma/chatwoot-sm:v4.18.0.a`
+Imagem Docker: `sidneynma/chatwoot-sm:v4.19.0.a`
 
 ### Como publicar um release
 
@@ -21,6 +21,36 @@ Imagem Docker: `sidneynma/chatwoot-sm:v4.18.0.a`
 3. O workflow `release_chatwoot_sm` no GitHub Actions builda/publica a imagem e cria o GitHub Release (título = versão).
 4. Merge da branch após aprovação, quando fizer sentido.
 5. Depois de validar em produção: `./scripts/release.sh vX.Y.Z.s --promote-latest --push`
+
+---
+
+## [v4.19.0.a] — 2026-10-25
+
+**Base upstream:** Chatwoot `4.19.0`
+
+### Merge
+
+- Atualização upstream Chatwoot **4.18.0 → 4.19.0** a partir da `develop` (já com `v4.18.0.a`).
+- Personalização do fork mantida junto com o código novo: Disparador, CRM, chat interno, templates WhatsApp, permissão de agentes na caixa, `chatolhe_modules` e demais rotas enterprise.
+
+### Funções personalizadas
+
+- Nova permissão **Ver todas as conversas e mensagens** (`conversation_view_all`).
+- Quem tem essa permissão enxerga conversas e mensagens de todas as caixas da conta, sem precisar ser membro da caixa (somente leitura; sem poderes de administrador).
+- Contagens de não lidas, busca, ActionCable e filtros de conversa respeitam a permissão.
+
+### Deploy
+
+```yaml
+# docker-compose.production.yaml
+image: sidneynma/chatwoot-sm:v4.19.0.a
+```
+
+### Release command
+
+```bash
+./scripts/release_git.sh v4.19.0.a
+```
 
 ---
 

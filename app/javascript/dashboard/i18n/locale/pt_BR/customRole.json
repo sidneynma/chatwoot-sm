@@ -36,6 +36,7 @@
       "CONVERSATION_MANAGE": "Gerenciar todas conversas",
       "CONVERSATION_UNASSIGNED_MANAGE": "Gerenciar conversas não atribuídas e aquelas atribuídas a elas",
       "CONVERSATION_PARTICIPATING_MANAGE": "Gerenciar conversas que participa e aquelas atribuídas a elas",
+      "CONVERSATION_VIEW_ALL": "Ver todas as conversas e mensagens (todas as caixas, somente leitura)",
       "CONTACT_MANAGE": "Gerenciar contatos",
       "CONTACT_ASSIGNED_ONLY": "Ver apenas contatos atribuídos",
       "REPORT_MANAGE": "Gerenciar relatórios",

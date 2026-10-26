@@ -9,6 +9,7 @@ const CONVERSATION_PERMISSIONS = [
   'conversation_manage',
   'conversation_unassigned_manage',
   'conversation_participating_manage',
+  'conversation_view_all',
 ];
 
 const isFolderAvailable = async folderId => {

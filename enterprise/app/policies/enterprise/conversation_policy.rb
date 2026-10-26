@@ -1,5 +1,8 @@
 module Enterprise::ConversationPolicy
   def show?
+    # Cross-inbox read: do not require OSS inbox/team membership (super).
+    return true if conversation_view_all?
+
     return false unless super
     return true unless custom_role_permissions?
 
@@ -11,6 +14,10 @@ module Enterprise::ConversationPolicy
   end
 
   private
+
+  def conversation_view_all?
+    custom_role_permissions.include?('conversation_view_all')
+  end
 
   def manage_all_conversations?(permissions)
     permissions.include?('conversation_manage')

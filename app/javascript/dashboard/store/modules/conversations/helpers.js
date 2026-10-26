@@ -120,6 +120,11 @@ export const applyRoleFilter = (
     return true;
   }
 
+  // Cross-inbox read (custom role): keep whatever the API already returned
+  if (permissions.includes('conversation_view_all')) {
+    return true;
+  }
+
   const conversationAssignee = conversation.meta.assignee;
   const isUnassigned = !conversationAssignee;
   const isAssignedToUser = conversationAssignee?.id === currentUserId;

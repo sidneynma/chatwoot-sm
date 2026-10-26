@@ -2,6 +2,7 @@ export const AVAILABLE_CUSTOM_ROLE_PERMISSIONS = [
   'conversation_manage',
   'conversation_unassigned_manage',
   'conversation_participating_manage',
+  'conversation_view_all',
   'contact_manage',
   'contact_assigned_only',
   'report_manage',
@@ -15,9 +16,12 @@ export const CONVERSATION_PERMISSIONS = [
   'conversation_manage',
   'conversation_unassigned_manage',
   'conversation_participating_manage',
+  'conversation_view_all',
 ];
 
 export const MANAGE_ALL_CONVERSATION_PERMISSIONS = 'conversation_manage';
+
+export const CONVERSATION_VIEW_ALL_PERMISSIONS = 'conversation_view_all';
 
 export const CONVERSATION_UNASSIGNED_PERMISSIONS =
   'conversation_unassigned_manage';
@@ -50,6 +54,7 @@ export const ASSIGNEE_TYPE_TAB_PERMISSIONS = {
       ...ROLES,
       MANAGE_ALL_CONVERSATION_PERMISSIONS,
       CONVERSATION_PARTICIPATING_PERMISSIONS,
+      CONVERSATION_VIEW_ALL_PERMISSIONS,
     ],
   },
 };

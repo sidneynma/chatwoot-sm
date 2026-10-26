@@ -29,6 +29,7 @@ module Captain::Copilot::ConversationAccess
 
   def filter_by_custom_role(conversations, account, user, account_user)
     permissions = account_user.custom_role&.permissions || []
+    return conversations if permissions.include?('conversation_view_all')
     return conversations if permissions.include?('conversation_manage')
 
     permission_scopes = custom_role_permission_scopes(conversations, account, user, permissions)

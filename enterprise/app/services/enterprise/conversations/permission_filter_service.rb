@@ -16,6 +16,9 @@ module Enterprise::Conversations::PermissionFilterService
   end
 
   def filter_by_permissions(permissions)
+    # conversation_view_all: account-wide read (any inbox), without admin powers
+    return conversations if permissions.include?('conversation_view_all')
+
     # Permission-based filtering with hierarchy
     # conversation_manage > conversation_unassigned_manage > conversation_participating_manage
     if permissions.include?('conversation_manage')

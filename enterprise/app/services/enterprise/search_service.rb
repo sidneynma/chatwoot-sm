@@ -17,6 +17,16 @@ module Enterprise::SearchService
 
   private
 
+  def accessable_inbox_ids
+    return current_account.inboxes.pluck(:id) if conversation_view_all?
+
+    super
+  end
+
+  def conversation_view_all?
+    account_user&.custom_role&.permissions&.include?('conversation_view_all')
+  end
+
   def build_where_conditions
     conditions = { account_id: current_account.id }
     conditions[:inbox_id] = accessable_inbox_ids unless should_skip_inbox_filtering?

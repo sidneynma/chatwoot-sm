@@ -24,6 +24,7 @@
 # - 'report_manage': Can manage reports.
 # - 'knowledge_base_manage': Can manage knowledge base portals.
 # - 'inbox_member_manage': Can add and remove agents on inboxes. Cannot create or delete inboxes.
+# - 'conversation_view_all': Can view all conversations/messages across inboxes without inbox membership (read-only).
 
 class CustomRole < ApplicationRecord
   belongs_to :account
@@ -37,6 +38,7 @@ class CustomRole < ApplicationRecord
     conversation_manage
     conversation_unassigned_manage
     conversation_participating_manage
+    conversation_view_all
     contact_manage
     contact_assigned_only
     report_manage
